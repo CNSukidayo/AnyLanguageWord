@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fitsSystemWindows="true"
+    android:theme="@style/Theme.TraditionalEnglish.Adapter"
+    tools:context=".activity.fragment.MainFragmentAdapter">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/fragment_main_adapter_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_home_navigation_view"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/fragment_home_navigation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gray"
+        android:theme="@style/Theme.TraditionalEnglish"
+        app:itemTextAppearanceActive="@style/fragment_home_bottom_navigation_button_select"
+        app:itemTextAppearanceInactive="@style/fragment_home_bottom_navigation_button_unselect"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/fragment_main_bottom" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

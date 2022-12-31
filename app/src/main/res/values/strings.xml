@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">TraditionalEnglish</string>
+    <string name="accept">同意并进入</string>
+    <string name="disagree">不同意</string>
+    <string name="fragment_welcome_welcome">欢迎使用</string>
+    <string name="fragment_welcome_enterMessage1">欧陆软件重视你的个人信息安全和隐私保护.我</string>
+    <string name="fragment_welcome_enterMessage2">们在</string>
+    <string name="fragment_welcome_enterMessage3">和</string>
+    <string name="fragment_welcome_enterMessage5">中详细披露了软件对个人数据的处理和使用方式,请您仔细阅读并理解.若选择不同意,将无法使用我们的产品和服务.</string>
+    <string name="fragment_welcome_enterMessage6">软件运行中涉及的权限:</string>
+    <string name="fragment_welcome_enterMessage7">存储权限</string>
+    <string name="fragment_welcome_enterMessage8">用于存放离线缓存的声音视频数据文档数据等</string>
+    <string name="fragment_welcome_userAgreement">《用户协议》</string>
+    <string name="fragment_welcome_userPolicy">《用户隐私保护政策》</string>
+    <string name="user_name">userName</string>
+    <string name="level_1">LV1</string>
+    <string name="level_2">LV2</string>
+    <string name="level_3">LV3</string>
+    <string name="level_4">LV4</string>
+    <string name="level_5">LV6</string>
+    <string name="level_6">LV6</string>
+    <string name="vip_level_1">暂未开通会员</string>
+    <string name="vip_level_2">至尊会员</string>
+    <string name="score">积分余额:</string>
+    <string name="settings">设置</string>
+    <string name="theme">主题</string>
+    <string name="i_start">我的收藏</string>
+    <string name="main">首页</string>
+    <string name="recite">背诵</string>
+    <string name="analysis">分析</string>
+    <string name="hearing">听力</string>
+    <string name="add_to_plan">添加背词计划</string>
+    <string name="divide">划分</string>
+    <string name="start_lean">开始学习</string>
+</resources>

@@ -1,12 +1,2 @@
 <resources>
-
-    <style name="fragment_home_bottom_navigation_button_unselect">
-        <item name="android:textColor">@android:color/darker_gray</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-    <style name="fragment_home_bottom_navigation_button_select">
-        <item name="android:textColor">@color/theme_color</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
 </resources>

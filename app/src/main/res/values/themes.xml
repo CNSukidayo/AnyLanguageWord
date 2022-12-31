@@ -14,14 +14,4 @@
         <item name="android:statusBarColor">@android:color/white</item>
     </style>
 
-
-    <style name="Theme.TraditionalEnglish.NoActionBar">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-
 </resources>

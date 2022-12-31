@@ -1,23 +1,16 @@
 package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.activity.MainActivity;
@@ -73,10 +66,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
             case R.id.fragment_welcome_accept:
                 UserUtils.getUserSettings().setAcceptUserAgreement(true);
                 UserUtils.upDateUserSettings();
-                FragmentManager fragmentManager = mainActivity.getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.mainFrameLayout, new DetailFragment());
-                transaction.commit();
+                Navigation.findNavController(getView()).navigate(R.id.action_welcome_to_main);
                 break;
             // todo 跳转到显示用户协议页面这里最好做成跳转到activity
             case R.id.fragment_welcome_userAgreement:

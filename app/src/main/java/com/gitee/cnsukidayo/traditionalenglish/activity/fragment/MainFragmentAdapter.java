@@ -1,8 +1,5 @@
 package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
 
-import android.annotation.SuppressLint;
-import android.content.res.ColorStateList;
-import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,9 +14,6 @@ import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.BottomViewAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,13 +35,6 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
             rootView = inflater.inflate(R.layout.fragment_main_adapter, container, false);
         }
         this.viewPageChangeNavigationView = rootView.findViewById(R.id.fragment_home_navigation_view);
-        // 特别傻逼,bottomActionView只能通过这种方式来修改选中和不选中时按钮的颜色
-        @SuppressLint("ResourceType") XmlResourceParser xmlResourceParser = getResources().getXml(R.drawable.fragment_home_viewpage_change);
-        try {
-            viewPageChangeNavigationView.setItemIconTintList(ColorStateList.createFromXml(getResources(), xmlResourceParser, null));
-        } catch (IOException | XmlPullParserException e) {
-            e.printStackTrace();
-        }
         this.viewPager = rootView.findViewById(R.id.fragment_main_adapter_viewpager);
         initViewPage();
         return rootView;
@@ -76,6 +63,7 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
         BottomViewAdapter adapter = new BottomViewAdapter(this, list_fragment);
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
+        viewPager.setSaveEnabled(false);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {

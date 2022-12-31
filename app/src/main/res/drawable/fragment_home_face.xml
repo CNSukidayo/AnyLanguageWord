@@ -3,8 +3,6 @@
     <!-- 手指触摸时的 -->
     <item android:state_pressed="true" >
         <shape android:shape="oval" >
-            <!-- 填充的颜色 -->
-            <solid android:color="#22000000" />
             <padding
                 android:left="10dp"
                 android:top="10dp"

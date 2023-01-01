@@ -2,6 +2,8 @@ package com.gitee.cnsukidayo.traditionalenglish.activity.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.util.List;
@@ -10,8 +12,8 @@ public class BottomViewAdapter extends FragmentStateAdapter {
 
     private List<Fragment> mFragmentList;
 
-    public BottomViewAdapter(@NonNull Fragment fragment, List<Fragment> mFragmentList) {
-        super(fragment);
+    public BottomViewAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<Fragment> mFragmentList) {
+        super(fragmentManager, lifecycle);
         this.mFragmentList = mFragmentList;
     }
 

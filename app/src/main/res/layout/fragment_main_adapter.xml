@@ -24,8 +24,8 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/fragment_main_adapter_viewpager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintBottom_toTopOf="@+id/fragment_home_navigation_view"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toTopOf="@id/fragment_home_navigation_view"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.bottomnavigation.BottomNavigationView

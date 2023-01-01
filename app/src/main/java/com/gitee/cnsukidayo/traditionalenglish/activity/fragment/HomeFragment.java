@@ -24,15 +24,17 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
     private ImageButton popDrawerLayoutButton;
     private DrawerLayout drawerLayout;
     private NavigationView drawerNavigationView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        if (rootView != null) {
+            return rootView;
         }
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
         this.popDrawerLayoutButton = rootView.findViewById(R.id.fragment_home_user_face);
         this.drawerLayout = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_main_drawer_layout);
         this.drawerNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_main_navigation_view_drawer);

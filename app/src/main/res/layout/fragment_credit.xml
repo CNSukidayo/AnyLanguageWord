@@ -4,13 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
     android:background="@color/white"
     tools:context=".activity.fragment.CreditFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+        android:id="@+id/fragment_credit_barlayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@android:color/white"
@@ -35,6 +33,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/fragment_credit_start_credit"
                 android:layout_marginEnd="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -42,7 +41,6 @@
                 android:textSize="18sp"
                 android:gravity="center"
                 android:textColor="@color/theme_color"
-                android:theme="@style/Theme.Material3.Dark"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -56,7 +54,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+        app:layout_constraintTop_toBottomOf="@+id/fragment_credit_barlayout">
 
     </androidx.recyclerview.widget.RecyclerView>
 

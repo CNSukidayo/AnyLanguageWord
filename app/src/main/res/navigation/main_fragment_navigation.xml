@@ -6,20 +6,23 @@
     app:startDestination="@id/main_navigation">
 
     <fragment
-        tools:layout="@layout/fragment_main_adapter"
         android:id="@+id/main_navigation"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.MainFragmentAdapter">
+        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.MainFragmentAdapter"
+        tools:layout="@layout/fragment_main_adapter">
         <action
             android:id="@+id/action_placeholder_to_placeholder2"
-            app:destination="@id/welcome_navigation" />
+            app:destination="@id/navigation_welcome" />
         <action
             android:id="@+id/action_main_navigation_to_navigation_i_start"
             app:destination="@id/navigation_i_start" />
+        <action
+            android:id="@+id/action_main_navigation_to_word_credit"
+            app:destination="@id/navigation_word_credit" />
     </fragment>
     <fragment
-        android:id="@+id/welcome_navigation"
-        tools:layout="@layout/fragment_welcome"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WelcomeFragment">
+        android:id="@+id/navigation_welcome"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WelcomeFragment"
+        tools:layout="@layout/fragment_welcome">
         <action
             android:id="@+id/action_placeholder2_to_placeholder3"
             app:destination="@id/placeholder3" />
@@ -36,4 +39,8 @@
         android:id="@+id/navigation_i_start"
         android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.IStartFragment"
         tools:layout="@layout/fragment_i_start" />
+    <fragment
+        android:id="@+id/navigation_word_credit"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WordCreditFragment"
+        tools:layout="@layout/fragment_word_credit" />
 </navigation>

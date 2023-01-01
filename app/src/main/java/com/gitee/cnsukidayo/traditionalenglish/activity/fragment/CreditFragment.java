@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,12 +19,13 @@ import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.CreditAddToPlane
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class CreditFragment extends Fragment {
+public class CreditFragment extends Fragment implements View.OnClickListener {
 
     private View rootView;
     private RecyclerView addToPlaneList;
     private BottomNavigationView viewPageChangeNavigationView;
     private int count;
+    private TextView startLearning;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,15 +33,18 @@ public class CreditFragment extends Fragment {
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_credit, container, false);
+        if (rootView != null) {
+            return rootView;
         }
+        rootView = inflater.inflate(R.layout.fragment_credit, container, false);
+        // 初始化View
         this.addToPlaneList = rootView.findViewById(R.id.fragment_credit_add_to_plane_view);
         this.viewPageChangeNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_home_navigation_view);
-        // todo 更改底部颜色
+        this.startLearning = rootView.findViewById(R.id.fragment_credit_start_credit);
         // 设置RecyclerView
         initRecyclerView();
-
+        // 设置各种监听事件
+        this.startLearning.setOnClickListener(this);
         return rootView;
     }
 
@@ -63,5 +70,15 @@ public class CreditFragment extends Fragment {
         });
         this.addToPlaneList.setAdapter(addToPlaneListAdapter);
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_credit_start_credit:
+                Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_word_credit, new Bundle(),
+                        new NavOptions.Builder().build());
+                break;
+        }
     }
 }

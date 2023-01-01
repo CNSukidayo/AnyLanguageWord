@@ -31,9 +31,10 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_main_adapter, container, false);
+        if (rootView != null) {
+            return rootView;
         }
+        rootView = inflater.inflate(R.layout.fragment_main_adapter, container, false);
         this.viewPageChangeNavigationView = rootView.findViewById(R.id.fragment_home_navigation_view);
         this.viewPager = rootView.findViewById(R.id.fragment_main_adapter_viewpager);
         initViewPage();
@@ -60,9 +61,9 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
         List<Fragment> list_fragment = new ArrayList<>();
         list_fragment.add(new HomeFragment());
         list_fragment.add(new CreditFragment());
-        BottomViewAdapter adapter = new BottomViewAdapter(this, list_fragment);
-        viewPager.setAdapter(adapter);
+        BottomViewAdapter adapter = new BottomViewAdapter(getChildFragmentManager(), getLifecycle(), list_fragment);
         viewPager.setOffscreenPageLimit(3);
+        viewPager.setAdapter(adapter);
         viewPager.setSaveEnabled(false);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -82,4 +83,5 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
         }
         this.viewPageChangeNavigationView.setOnNavigationItemSelectedListener(this);
     }
+
 }

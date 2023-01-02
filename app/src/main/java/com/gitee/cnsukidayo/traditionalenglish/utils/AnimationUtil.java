@@ -1,9 +1,9 @@
 package com.gitee.cnsukidayo.traditionalenglish.utils;
- 
+
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
- 
+
 /**
  * Synopsis     动画工具类
  * Author		Mosr
@@ -14,8 +14,8 @@ import android.view.animation.TranslateAnimation;
 public class AnimationUtil {
     private boolean ismHiddenActionStart = false;
     private static AnimationUtil mInstance;
- 
- 
+
+
     public static AnimationUtil with() {
         if (mInstance == null) {
             synchronized (AnimationUtil.class) {
@@ -26,18 +26,19 @@ public class AnimationUtil {
         }
         return mInstance;
     }
- 
+
     /**
      * 从控件所在位置移动到控件的底部
      *
      * @param v
      * @param Duration 动画时间
+     * @return 返回值为是否执行成功, true为执行成功, false为执行不成功
      */
-    public void moveToViewBottom(final View v, long Duration) {
+    public boolean moveToViewBottom(final View v, long Duration) {
         if (v.getVisibility() != View.VISIBLE)
-            return;
+            return false;
         if (ismHiddenActionStart)
-            return;
+            return false;
         TranslateAnimation mHiddenAction = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
                 0.0f, Animation.RELATIVE_TO_SELF, 1.0f);
@@ -49,29 +50,31 @@ public class AnimationUtil {
             public void onAnimationStart(Animation animation) {
                 ismHiddenActionStart = true;
             }
- 
+
             @Override
             public void onAnimationEnd(Animation animation) {
                 v.setVisibility(View.GONE);
                 ismHiddenActionStart = false;
             }
- 
+
             @Override
             public void onAnimationRepeat(Animation animation) {
- 
+
             }
         });
+        return true;
     }
- 
+
     /**
      * 从控件的底部移动到控件所在位置
      *
      * @param v
      * @param Duration 动画时间
+     * @return 返回值为是否执行成功, true为执行成功, false为执行不成功
      */
-    public void bottomMoveToViewLocation(View v, long Duration) {
+    public boolean bottomMoveToViewLocation(View v, long Duration) {
         if (v.getVisibility() == View.VISIBLE)
-            return;
+            return false;
         v.setVisibility(View.VISIBLE);
         TranslateAnimation mShowAction = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
@@ -79,8 +82,9 @@ public class AnimationUtil {
         mShowAction.setDuration(Duration);
         v.clearAnimation();
         v.setAnimation(mShowAction);
+        return true;
     }
- 
+
     /**
      * 从控件所在位置移动到控件的顶部
      *
@@ -103,20 +107,20 @@ public class AnimationUtil {
             public void onAnimationStart(Animation animation) {
                 ismHiddenActionStart = true;
             }
- 
+
             @Override
             public void onAnimationEnd(Animation animation) {
                 v.setVisibility(View.GONE);
                 ismHiddenActionStart = false;
             }
- 
+
             @Override
             public void onAnimationRepeat(Animation animation) {
- 
+
             }
         });
     }
- 
+
     /**
      * 从控件的顶部移动到控件所在位置
      *

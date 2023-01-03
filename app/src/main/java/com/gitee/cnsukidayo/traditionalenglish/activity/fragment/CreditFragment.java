@@ -76,7 +76,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_credit_start_credit:
-                Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_word_credit, new Bundle(),
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, new Bundle(),
                         new NavOptions.Builder().build());
                 break;
         }

@@ -17,4 +17,7 @@
     <color name="gray">#e4e4e4</color>
     <color name="dark_gray">#8a8a8a</color>
     <color name="gray_black">#5A5A5A</color>
+    <color name="holo_yellow_dark">#F0F000</color>
+    <color name="holo_cyan_dark">#00FFFF</color>
+    <color name="holo_pink_dark">#FFC0CB</color>
 </resources>

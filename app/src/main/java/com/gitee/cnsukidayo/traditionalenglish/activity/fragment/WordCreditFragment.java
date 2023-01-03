@@ -4,13 +4,18 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -36,7 +41,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private View rootView;
     private ImageButton popMoreFunction;
     private HorizontalScrollView moreFunctionHorizontalScrollView;
-    private boolean moreFunctionOpen = true;
+    private boolean moreFunctionOpen = true, openFlagChange;
     private Handler updateUIHandler;
     /*
     以下是所有功能按钮的变量声明
@@ -49,6 +54,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private TextView adjAnswer, advAnswer, vAnswer, viAnswer, vtAnswer, nAnswer, conjAnswer, pronAnswer, numAnswer, artAnswer, prepAnswer;
     private TextView intAnswer, auxAnswer, exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
     private AlertDialog loadingDialog = null;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag;
+    private ImageView clickFlagImageView;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,6 +123,49 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             case R.id.fragment_word_container_get_answer:
                 handleWordAnswer();
                 break;
+            case R.id.fragment_word_credit_jump_next:
+                final EditText inputEditText = new EditText(getContext());
+                inputEditText.setInputType(InputType.TYPE_CLASS_DATETIME);
+                new AlertDialog.Builder(getContext())
+                        .setTitle("跳转单词")
+                        .setMessage("输入要跳转到第几个单词,你应当输入1到" + allWordList.size() + "之间的值.")
+                        .setView(inputEditText)
+                        .setCancelable(false)
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            String value = inputEditText.getText().toString();
+                            int i;
+                            try {
+                                i = Integer.parseInt(value);
+                                if (i < 0 || i > allWordList.size()) {
+                                    throw new NumberFormatException();
+                                }
+                            } catch (NumberFormatException e) {
+                                e.printStackTrace();
+                                Toast toast = Toast.makeText(getContext(), "输入错误,请输入1~" + allWordList.size() + "之间的值", Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.CENTER, 0, 500);
+                                toast.show();
+                                return;
+                            }
+                            currentIndex = i - 1;
+                            creditWord(currentIndex);
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                        })
+                        .show();
+                break;
+            case R.id.fragment_word_credit_click_flag:
+                if (openFlagChange) {
+                    if (AnimationUtil.with().moveToViewEnd(flagChangeArea, 500)) {
+                        clickFlagImageView.getDrawable().setTint(getResources().getColor(R.color.dark_gray, null));
+                        openFlagChange = !openFlagChange;
+                    }
+                } else {
+                    if (AnimationUtil.with().endMoveToViewLocation(flagChangeArea, 500)) {
+                        clickFlagImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
+                        openFlagChange = !openFlagChange;
+                    }
+                }
+                break;
         }
     }
 
@@ -157,6 +208,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             updateUIHandler.post(() -> {
                 creditWord(0);
                 wordCount.setText(String.valueOf(allWordList.size()));
+                AnimationUtil.with().moveToViewEnd(flagChangeArea, 5);
                 loadingDialog.dismiss();
             });
         });
@@ -176,7 +228,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         for (int i = 0; i < linearLayout.getChildCount(); i++) {
             View child = linearLayout.getChildAt(i);
             if (child instanceof TextView) {
-                child.setVisibility(View.GONE);
+//                child.setVisibility(View.GONE);
             } else if (child instanceof LinearLayout) {
                 hideLinearLayoutTree((LinearLayout) child);
             }
@@ -289,6 +341,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.getAnswer = rootView.findViewById(R.id.fragment_word_container_get_answer);
         this.currentIndexTextView = rootView.findViewById(R.id.fragment_word_credit_current_index);
         this.wordCount = rootView.findViewById(R.id.fragment_word_credit_word_count);
+        this.jumpNextWord = rootView.findViewById(R.id.fragment_word_credit_jump_next);
+        this.flagChangeArea = rootView.findViewById(R.id.fragment_word_credit_change_flag_area);
+        this.clickFlag = rootView.findViewById(R.id.fragment_word_credit_click_flag);
+        this.clickFlagImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_click_flag);
 
         this.adjHint = rootView.findViewById(R.id.fragment_word_credit_adjective_hint);
         this.advHint = rootView.findViewById(R.id.fragment_word_credit_adverb_hint);
@@ -334,5 +390,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.nextWord.setOnClickListener(this);
         this.previousWord.setOnClickListener(this);
         this.getAnswer.setOnClickListener(this);
+        this.jumpNextWord.setOnClickListener(this);
+        this.clickFlag.setOnClickListener(this);
     }
 }

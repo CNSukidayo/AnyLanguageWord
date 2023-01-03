@@ -1,6 +1,7 @@
 package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,7 +67,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
             case R.id.fragment_welcome_accept:
                 UserUtils.getUserSettings().setAcceptUserAgreement(true);
                 UserUtils.upDateUserSettings();
-                Navigation.findNavController(getView()).navigate(R.id.action_welcome_to_main);
+                Navigation.findNavController(getView()).popBackStack();
                 break;
             // todo 跳转到显示用户协议页面这里最好做成跳转到activity
             case R.id.fragment_welcome_userAgreement:
@@ -76,4 +77,18 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
                 break;
         }
     }
+
+    /**
+     * 重写监听事件,如果在WelcomeFragment页面按下返回键则直接退出程序.
+     *
+     * @param keyCode 按键代码
+     * @param event   事件
+     */
+    public void onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
+    }
+
+
 }

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
@@ -24,6 +25,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
     private ImageButton popDrawerLayoutButton;
     private DrawerLayout drawerLayout;
     private NavigationView drawerNavigationView;
+    private NavController navController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         this.drawerNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_main_navigation_view_drawer);
         this.popDrawerLayoutButton.setOnClickListener(this);
         this.drawerNavigationView.setNavigationItemSelectedListener(this);
-
+        this.navController = Navigation.findNavController(drawerLayout);
         // 禁止左滑出现
         drawerLayout.addDrawerListener(this);
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -82,7 +84,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         // 通过这种方式切换fragment
         switch (item.getItemId()) {
             case R.id.fragment_main_drawer_i_start:
-                Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_navigation_i_start);
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_navigation_i_start);
                 break;
         }
         return false;

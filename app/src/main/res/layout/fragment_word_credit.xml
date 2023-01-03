@@ -30,7 +30,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/back_to_trace"
-                android:foreground="@drawable/item_gray_select"
+                android:foreground="@drawable/item_gray_select_radius_18dp"
                 android:gravity="center"
                 android:scaleType="fitCenter"
                 android:src="?attr/actionModeCloseDrawable" />
@@ -65,49 +65,434 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_view_source_word" />
 
-
-    <androidx.core.widget.NestedScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/fragment_word_credit_more_function_horizontal_scroll_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_view_source_word_phonetics">
 
-        <HorizontalScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:id="@+id/fragment_word_credit_answer_area"
-                android:layout_width="wrap_content"
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:minHeight="600dp"
-                android:orientation="vertical"
-                android:paddingStart="7dp"
-                android:paddingEnd="7dp">
+                android:layout_alignParentStart="true">
 
                 <LinearLayout
+                    android:id="@+id/fragment_word_credit_answer_area"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:minHeight="600dp"
+                    android:orientation="vertical"
+                    android:paddingStart="7dp"
+                    android:paddingEnd="7dp"
+                    android:paddingBottom="7dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_adjective_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/adjective"
+                            android:textColor="@color/black"
+                            android:textSize="20sp"
+                            app:layout_constraintEnd_toEndOf="@id/fragment_word_credit_phrase_hint"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_adjective_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_adverb_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/adverb"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_adverb_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_verb_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/verb"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_verb_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_intransitive_verb_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/intransitive_verb"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_intransitive_verb_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_transitive_verb_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/transitive_verb"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_transitive_verb_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_noun_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/noun"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_noun_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_conjunction_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/conjunction"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_conjunction_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_pronoun_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/pronoun"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_pronoun_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_number_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/number"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_number_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_article_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/article"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_article_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_preposition_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/preposition"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+
+                            android:id="@+id/fragment_word_credit_textview_preposition_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_int_word_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/int_word"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_int_word_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_auxiliary_hint"
+                            android:layout_width="@dimen/fragment_word_credit_hint_width"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="@string/auxiliary"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/fragment_word_credit_textview_auxiliary_answer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="7dp"
+                            android:background="@drawable/fragment_word_credit_radius_answer"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            android:text="test"
+                            android:textColor="@color/black"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/fragment_word_credit_adjective_hint"
+                        android:id="@+id/fragment_word_credit_example_sentence_hint"
                         android:layout_width="@dimen/fragment_word_credit_hint_width"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
                         android:gravity="center"
-                        android:text="@string/adjective"
+                        android:text="@string/example_sentence"
                         android:textColor="@color/black"
-                        android:textSize="20sp"
-                        app:layout_constraintEnd_toEndOf="@id/fragment_word_credit_phrase_hint"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:textSize="20sp" />
 
                     <TextView
-                        android:id="@+id/fragment_word_credit_textview_adjective_answer"
-                        android:layout_width="match_parent"
+                        android:id="@+id/fragment_word_credit_example_sentence_answer"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
+                        android:layout_marginTop="7dp"
                         android:background="@drawable/fragment_word_credit_radius_answer"
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"
@@ -115,28 +500,22 @@
                         android:textColor="@color/black"
                         android:textSize="20sp" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
                     <TextView
-                        android:id="@+id/fragment_word_credit_adverb_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
+                        android:id="@+id/fragment_word_credit_phrase_hint"
+                        android:layout_width="107dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
                         android:gravity="center"
-                        android:text="@string/adverb"
+                        android:minLines="2"
+                        android:singleLine="false"
+                        android:text="@string/phrase"
                         android:textColor="@color/black"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <TextView
-                        android:id="@+id/fragment_word_credit_textview_adverb_answer"
-                        android:layout_width="match_parent"
+                        android:id="@+id/fragment_word_credit_phrase_answer"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
                         android:layout_marginTop="7dp"
                         android:background="@drawable/fragment_word_credit_radius_answer"
                         android:paddingStart="5dp"
@@ -145,28 +524,20 @@
                         android:textColor="@color/black"
                         android:textSize="20sp" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
                     <TextView
-                        android:id="@+id/fragment_word_credit_verb_hint"
+                        android:id="@+id/fragment_word_credit_distinguish_hint"
                         android:layout_width="@dimen/fragment_word_credit_hint_width"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
                         android:gravity="center"
-                        android:text="@string/verb"
+                        android:text="@string/distinguish"
                         android:textColor="@color/black"
                         android:textSize="20sp" />
 
                     <TextView
-                        android:id="@+id/fragment_word_credit_textview_verb_answer"
-                        android:layout_width="match_parent"
+                        android:id="@+id/fragment_word_credit_distinguish_answer"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
                         android:layout_marginTop="7dp"
                         android:background="@drawable/fragment_word_credit_radius_answer"
                         android:paddingStart="5dp"
@@ -175,394 +546,129 @@
                         android:textColor="@color/black"
                         android:textSize="20sp" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
                     <TextView
-                        android:id="@+id/fragment_word_credit_intransitive_verb_hint"
+                        android:id="@+id/fragment_word_credit_categorize_origin_hint"
                         android:layout_width="@dimen/fragment_word_credit_hint_width"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
                         android:gravity="center"
-                        android:text="@string/intransitive_verb"
+                        android:text="@string/categorize_origin"
                         android:textColor="@color/black"
                         android:textSize="20sp" />
 
                     <TextView
-                        android:id="@+id/fragment_word_credit_textview_intransitive_verb_answer"
-                        android:layout_width="match_parent"
+                        android:id="@+id/fragment_word_credit_textview_categorize_origin_answer"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
                         android:text="test"
-                        android:textColor="@color/black"
+                        android:textColor="@color/light_blue_600"
                         android:textSize="20sp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+            </HorizontalScrollView>
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_transitive_verb_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/transitive_verb"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_transitive_verb_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-                </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/fragment_word_credit_change_flag_area"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_noun_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/noun"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@color/theme_color" />
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_noun_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-                </LinearLayout>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@android:color/holo_red_dark" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@android:color/holo_orange_dark" />
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_conjunction_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/conjunction"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@color/holo_yellow_dark" />
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_conjunction_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@android:color/holo_blue_dark" />
 
-                </LinearLayout>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@color/holo_cyan_dark" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@android:color/holo_purple" />
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_pronoun_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/pronoun"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/back_to_trace"
+                android:foreground="@drawable/item_gray_select"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag"
+                app:tint="@color/holo_pink_dark" />
 
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_pronoun_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
+        </LinearLayout>
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_number_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/number"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_number_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_article_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/article"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_article_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_preposition_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/preposition"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                    <TextView
-
-                        android:id="@+id/fragment_word_credit_textview_preposition_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_int_word_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/int_word"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_int_word_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_auxiliary_hint"
-                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:gravity="center"
-                        android:text="@string/auxiliary"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/fragment_word_credit_textview_auxiliary_answer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/fragment_word_credit_radius_answer"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="test"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_example_sentence_hint"
-                    android:layout_width="@dimen/fragment_word_credit_hint_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:gravity="center"
-                    android:text="@string/example_sentence"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_example_sentence_answer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:background="@drawable/fragment_word_credit_radius_answer"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    android:text="test"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_phrase_hint"
-                    android:layout_width="107dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:gravity="center"
-                    android:minLines="2"
-                    android:singleLine="false"
-                    android:text="@string/phrase"
-                    android:textColor="@color/black"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_phrase_answer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:background="@drawable/fragment_word_credit_radius_answer"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    android:text="test"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_distinguish_hint"
-                    android:layout_width="@dimen/fragment_word_credit_hint_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:gravity="center"
-                    android:text="@string/distinguish"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_distinguish_answer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:background="@drawable/fragment_word_credit_radius_answer"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    android:text="test"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_categorize_origin_hint"
-                    android:layout_width="@dimen/fragment_word_credit_hint_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:gravity="center"
-                    android:text="@string/categorize_origin"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/fragment_word_credit_textview_categorize_origin_answer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="test"
-                    android:textColor="@color/light_blue_600"
-                    android:textSize="20sp" />
-            </LinearLayout>
-
-        </HorizontalScrollView>
-
-    </androidx.core.widget.NestedScrollView>
-
+    </RelativeLayout>
 
     <HorizontalScrollView
         android:id="@+id/fragment_word_credit_more_function_horizontal_scroll_view"
@@ -570,6 +676,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@+id/fragment_word_credit_bottom_constraint_layout">
 
         <LinearLayout
@@ -615,16 +722,15 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
+                    android:id="@+id/fragment_word_credit_imageview_click_flag"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/flag"
-                    app:tint="@color/theme_color" />
+                    android:src="@drawable/flag" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -648,12 +754,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/chameleon" />
@@ -679,12 +784,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/jump_next" />
@@ -710,12 +814,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/start" />
@@ -741,12 +844,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/shuffle" />
@@ -772,12 +874,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/section" />
@@ -803,12 +904,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/save_progress" />
@@ -835,12 +935,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/change_mode" />
@@ -866,12 +965,11 @@
                 android:orientation="vertical">
 
 
-                <ImageButton
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/back_to_trace"
-                    android:clickable="false"
                     android:gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/analysis_word" />
@@ -954,8 +1052,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="-12dp"
-            android:text="0"
             android:background="@drawable/fragment_word_credit_badge"
+            android:text="0"
             android:textColor="@android:color/white"
             android:textSize="13sp"
             app:layout_constraintStart_toEndOf="@id/fragment_word_credit_play_word"

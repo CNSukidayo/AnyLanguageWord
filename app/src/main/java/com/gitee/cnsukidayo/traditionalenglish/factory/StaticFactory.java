@@ -10,21 +10,21 @@ public class StaticFactory {
     private StaticFactory() {
     }
 
-    private static Gson gson;
-    private static ExecutorService executorService;
+
+    private static final class GsonHolder {
+        static final Gson gson = new Gson();
+    }
+
+    private static final class ExecutorServiceHolder {
+        static final ExecutorService executorService = Executors.newCachedThreadPool();
+    }
 
     public static Gson getGson() {
-        if (gson == null) {
-            gson = new Gson();
-        }
-        return gson;
+        return GsonHolder.gson;
     }
 
     public static ExecutorService getExecutorService() {
-        if (executorService == null) {
-            executorService = Executors.newCachedThreadPool();
-        }
-        return executorService;
+        return ExecutorServiceHolder.executorService;
     }
 
 

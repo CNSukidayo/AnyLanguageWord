@@ -1,13 +1,16 @@
 package com.gitee.cnsukidayo.traditionalenglish.activity;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WelcomeFragment;
 import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishProperties;
 import com.gitee.cnsukidayo.traditionalenglish.context.UserSettings;
 import com.gitee.cnsukidayo.traditionalenglish.utils.UserUtils;
@@ -36,9 +39,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void createFragment() {
         if (!userSettings.isAcceptUserAgreement()) {
-            Navigation.findNavController(this.findViewById(R.id.fragment_main_adapter_viewpager)).navigate(R.id.action_placeholder_to_placeholder2);
+            Navigation.findNavController(this.findViewById(R.id.fragment_main_adapter_viewpager)).navigate(R.id.action_navigation_main_to_navigation_welcome);
         }
     }
 
-
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        Fragment fragment = getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment();
+        if (fragment instanceof WelcomeFragment) {
+            ((WelcomeFragment) fragment).onKeyUp(keyCode, event);
+        }
+        return super.onKeyUp(keyCode, event);
+    }
 }

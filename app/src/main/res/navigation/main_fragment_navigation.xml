@@ -10,13 +10,13 @@
         android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.MainFragmentAdapter"
         tools:layout="@layout/fragment_main_adapter">
         <action
-            android:id="@+id/action_placeholder_to_placeholder2"
+            android:id="@+id/action_navigation_main_to_navigation_welcome"
             app:destination="@id/navigation_welcome" />
         <action
-            android:id="@+id/action_main_navigation_to_navigation_i_start"
+            android:id="@+id/action_navigation_main_to_navigation_i_start"
             app:destination="@id/navigation_i_start" />
         <action
-            android:id="@+id/action_main_navigation_to_word_credit"
+            android:id="@+id/action_navigation_main_to_word_credit"
             app:destination="@id/navigation_word_credit" />
     </fragment>
     <fragment
@@ -29,9 +29,7 @@
         <action
             android:id="@+id/action_placeholder2_to_placeholder4"
             app:destination="@id/placeholder4" />
-        <action
-            android:id="@+id/action_welcome_to_main"
-            app:destination="@id/main_navigation" />
+
     </fragment>
     <fragment android:id="@+id/placeholder3" />
     <fragment android:id="@+id/placeholder4" />

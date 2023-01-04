@@ -1,6 +1,7 @@
 package com.gitee.cnsukidayo.traditionalenglish.handler;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
+import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 
 import java.util.Set;
@@ -70,9 +71,11 @@ public interface WordFunctionHandler {
      * 根据索引获得当前单词所标记的颜色,颜色标记功能是不具备序列化能力的,只有一种情况单词的标记会被序列化<br>
      * 就是保存现场功能.<br>
      * 返回的集合只能用于查阅操作,所以返回的集合是不可变集合.<br>
-     * 如果想要修改当前单词的标记,请使用:
+     * 如果想要修改当前单词的标记,请使用:addFlagToCurrentWord(FlagColor)方法和removeFlagToCurrentWord(FlagColor)方法
      *
      * @return 返回当前单词所有的标记颜色集合
+     * @see WordFunctionHandler#addFlagToCurrentWord(FlagColor)
+     * @see WordFunctionHandler#removeFlagToCurrentWord(FlagColor)
      */
     Set<FlagColor> getCurrentWordFlagColor();
 
@@ -108,5 +111,32 @@ public interface WordFunctionHandler {
      * @param chameleonColor FlagColor
      */
     void setChameleon(FlagColor chameleonColor);
+
+    /**
+     * 根据当前的chameleonColor进行打乱,也就是按颜色打乱.
+     * 当前在打乱的状态下是不能使用变色龙模式的,要想使用变色龙模式必须先退出打乱模式.
+     */
+    void shuffle();
+
+    /**
+     * 还原单词列表为初始列表,该方法可以还原由 {@link WordFunctionHandler#shuffle()}方法和<br>
+     * {@link WordFunctionHandler#shuffleRange(int, int)}方法改变的单词列表顺序.
+     */
+    void restoreWordList();
+
+    /**
+     * 得到当前单词功能的状态
+     *
+     * @return {@link CreditState}代表返回的状态
+     */
+    CreditState getCreditState();
+
+    /**
+     * 根据左右区间打乱列表,注意这里的左右区间是闭区间.
+     *
+     * @param start 左区间的值,下标从0开始
+     * @param end   右区间的值,该值不应该超过列表的{@link WordFunctionHandler#size()}-1
+     */
+    void shuffleRange(int start, int end);
 
 }

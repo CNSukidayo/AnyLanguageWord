@@ -1,6 +1,7 @@
 package com.gitee.cnsukidayo.traditionalenglish.handler;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
+import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 
@@ -16,11 +17,14 @@ import java.util.Set;
  * 变色龙的每一种状态都是可以进入的,不管当前单词列表中是否有该颜色对应的单词<br>
  */
 public class WordFunctionHandlerImpl implements WordFunctionHandler {
-    private final List<Word> allWordList;
+    private List<Word> allWordList;
     private final List<Set<FlagColor>> wordsFlagList;
     private int currentOrder = 0, currentIndex = 0;
     private FlagColor currentChameleon = FlagColor.GREEN;
     private int nowSelectChameleonSize = -0x3f3f3f;
+    private CreditState creditState = CreditState.NONE;
+    // 这是一个临时的集合,它指向allWordList,用于保存由按色打乱、区间重背功能被重置的allWordList引用
+    private List<Word> dummyWordList;
 
     public WordFunctionHandlerImpl(List<Word> initWordList) {
         this.allWordList = new ArrayList<>(initWordList.size());
@@ -137,6 +141,37 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
         this.currentChameleon = chameleonColor;
         this.currentOrder = 0;
         size();
+    }
+
+    @Override
+    public void shuffle() {
+        this.creditState = CreditState.SHUFFLE;
+        this.dummyWordList = new ArrayList<>(allWordList.size());
+        for (int i = 0; i < wordsFlagList.size(); i++) {
+            if (wordsFlagList.get(i).contains(currentChameleon)) {
+                dummyWordList.add(allWordList.get(i));
+            }
+        }
+        List<Word> temp = allWordList;
+        this.allWordList = this.dummyWordList;
+        this.dummyWordList = temp;
+        Collections.shuffle(allWordList);
+    }
+
+    @Override
+    public void restoreWordList() {
+        this.creditState = CreditState.NONE;
+        this.allWordList = this.dummyWordList;
+    }
+
+    @Override
+    public CreditState getCreditState() {
+        return this.creditState;
+    }
+
+    @Override
+    public void shuffleRange(int start, int end) {
+
     }
 
 }

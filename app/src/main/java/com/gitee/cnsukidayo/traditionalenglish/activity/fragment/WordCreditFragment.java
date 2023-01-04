@@ -19,10 +19,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishProperties;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
+import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandler;
@@ -50,14 +52,14 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     /*
     以下是所有功能按钮的变量声明
      */
-    private ImageButton nextWord, previousWord;
+    private ImageButton nextWord, previousWord, popBackStack;
     private TextView sourceWord, sourceWordPhonetics, getAnswer, adjHint, advHint, vHint, viHint, vtHint, nHint, conjHint, pronHint, numHint, artHint;
     private TextView prepHint, intHint, auxHint, exampleSentenceHint, phraseHint, distinguishHint, categorizeOriginHint;
     private TextView adjAnswer, advAnswer, vAnswer, viAnswer, vtAnswer, nAnswer, conjAnswer, pronAnswer, numAnswer, artAnswer, prepAnswer;
     private TextView intAnswer, auxAnswer, exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
     private AlertDialog loadingDialog = null;
-    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode;
-    private ImageView clickFlagImageView;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section;
+    private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,7 +87,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     }
 
 
-    @SuppressLint("NonConstantResourceId")
+    @SuppressLint({"NonConstantResourceId", "UseCompatLoadingForDrawables"})
     @Override
     public void onClick(View v) {
         Toast toast = Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
@@ -150,6 +152,13 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 }
                 break;
             case R.id.fragment_word_credit_click_chameleon_mode:
+                // 如果当前处于按色打乱模式则无法使用变色龙功能,使用区间重背功能可以使用变色龙功能
+                if (wordFunctionHandler.getCreditState() == CreditState.SHUFFLE) {
+                    toast = Toast.makeText(getContext(), wordFunctionHandler.getCreditState().getInfo(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 500);
+                    toast.show();
+                    break;
+                }
                 // 不要管太多,当点击变色龙模式的时候就展开旗帜区域就可以了
                 if (!openFlagChange) {
                     if (AnimationUtil.with().endMoveToViewLocation(flagChangeArea, 500)) {
@@ -162,6 +171,66 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 toast.setGravity(Gravity.CENTER, 0, 500);
                 toast.show();
                 changingChameleon = true;
+                break;
+            case R.id.fragment_word_credit_click_shuffle:
+                // 如果当前不是普通状态和按色打乱状态,代表当前在执行别的状态,需要先锁定按色打乱的功能
+                if (wordFunctionHandler.getCreditState() == CreditState.RANGE) {
+                    toast = Toast.makeText(getContext(), wordFunctionHandler.getCreditState().getInfo(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 500);
+                    toast.show();
+                    break;
+                }
+                if (wordFunctionHandler.getCreditState() == CreditState.NONE) {
+                    this.chameleonImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
+                    this.sectionImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
+                    this.shuffleImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
+                    wordFunctionHandler.shuffle();
+                    creditWord(wordFunctionHandler.jumpToWord(0));
+                } else {
+                    this.chameleonImageView.setForeground(null);
+                    this.sectionImageView.setForeground(null);
+                    this.shuffleImageView.getDrawable().setTintList(null);
+                    wordFunctionHandler.restoreWordList();
+                    creditWord(wordFunctionHandler.jumpToWord(0));
+                }
+                break;
+            case R.id.fragment_word_credit_click_section:
+                if (wordFunctionHandler.getCreditState() == CreditState.SHUFFLE) {
+                    toast = Toast.makeText(getContext(), wordFunctionHandler.getCreditState().getInfo(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 500);
+                    toast.show();
+                    break;
+                }
+                if (wordFunctionHandler.getCreditState() == CreditState.NONE) {
+                    this.shuffle.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
+                    this.sectionImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
+                    View rangeRandomWordInputView = getLayoutInflater().inflate(R.layout.fragment_word_credit_dialog_section, null);
+                    new AlertDialog.Builder(getContext()).setTitle("区间随机:")
+                            .setMessage("选择要单独随机的区间:[1," + wordFunctionHandler.size() + "].注意这里是闭区间")
+                            .setView(rangeRandomWordInputView)
+                            .setCancelable(false)
+                            .setPositiveButton("确定", (dialog, which) -> {
+                            })
+                            .setNegativeButton("取消", (dialog, which) -> {
+                            })
+                            .show();
+                } else {
+                    this.shuffle.setForeground(null);
+                    this.sectionImageView.getDrawable().setTintList(null);
+                    this.wordFunctionHandler.restoreWordList();
+                }
+                break;
+            case R.id.fragment_word_credit_back_to_trace:
+                new AlertDialog.Builder(getContext())
+                        .setMessage("确认返回主页")
+                        .setCancelable(false)
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            Navigation.findNavController(getView()).popBackStack();
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+
+                        })
+                        .show();
                 break;
             case R.id.fragment_word_credit_button_flag_green:
                 if (changingChameleon) {
@@ -550,6 +619,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.clickFlagImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_click_flag);
         this.viewFlagArea = rootView.findViewById(R.id.fragment_word_credit_view_flag_area);
         this.chameleonMode = rootView.findViewById(R.id.fragment_word_credit_click_chameleon_mode);
+        this.shuffle = rootView.findViewById(R.id.fragment_word_credit_click_shuffle);
+        this.chameleonImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_chameleon);
+        this.sectionImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_section);
+        this.shuffleImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_shuffle);
+        this.section = rootView.findViewById(R.id.fragment_word_credit_click_section);
+        this.popBackStack = rootView.findViewById(R.id.fragment_word_credit_back_to_trace);
 
         this.adjHint = rootView.findViewById(R.id.fragment_word_credit_adjective_hint);
         this.advHint = rootView.findViewById(R.id.fragment_word_credit_adverb_hint);
@@ -598,6 +673,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.jumpNextWord.setOnClickListener(this);
         this.clickFlag.setOnClickListener(this);
         this.chameleonMode.setOnClickListener(this);
+        this.shuffle.setOnClickListener(this);
+        this.section.setOnClickListener(this);
+        this.popBackStack.setOnClickListener(this);
+
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_green).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_red).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_orange).setOnClickListener(this);

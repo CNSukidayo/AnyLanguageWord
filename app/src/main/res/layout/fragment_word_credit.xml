@@ -908,6 +908,7 @@
 
 
                 <ImageView
+                    android:id="@+id/fragment_word_credit_imageview_chameleon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
@@ -998,6 +999,7 @@
 
 
                 <ImageView
+                    android:id="@+id/fragment_word_credit_imageview_shuffle"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
@@ -1028,6 +1030,7 @@
 
 
                 <ImageView
+                    android:id="@+id/fragment_word_credit_imageview_section"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"

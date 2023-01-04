@@ -1,5 +1,6 @@
 package com.gitee.cnsukidayo.traditionalenglish.factory;
 
+import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.google.gson.Gson;
 
 import java.util.concurrent.ExecutorService;
@@ -19,12 +20,20 @@ public class StaticFactory {
         static final ExecutorService executorService = Executors.newCachedThreadPool();
     }
 
+    private static final class EmptyWordHolder {
+        static final Word emptyWord = new Word();
+    }
+
     public static Gson getGson() {
         return GsonHolder.gson;
     }
 
     public static ExecutorService getExecutorService() {
         return ExecutorServiceHolder.executorService;
+    }
+
+    public static Word getEmptyWord() {
+        return EmptyWordHolder.emptyWord;
     }
 
 

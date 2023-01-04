@@ -64,4 +64,6 @@
     <string name="distinguish">辨析:</string>
     <string name="loading">正在加载</string>
     <string name="jump_next">跳转单词</string>
+    <string name="please_click_flag_change_chameleon">请点击右侧弹出的旗帜选择一个颜色作为单词跳转的筛选色!</string>
+    <string name="please_click_another_flag">选择失败,原因:当前单词列表中没有任何一个单词的旗帜颜色与您所选择的变色龙颜色一致.已退出颜色选择模式.</string>
 </resources>

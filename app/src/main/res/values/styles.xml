@@ -1,2 +1,7 @@
 <resources>
+
+    <style name="pop_window_anim_style">
+        <item name="android:windowEnterAnimation">@android:anim/linear_interpolator</item>
+        <item name="android:windowExitAnimation">@android:anim/linear_interpolator</item>
+    </style>
 </resources>

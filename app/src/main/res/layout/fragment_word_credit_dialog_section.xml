@@ -10,43 +10,41 @@
         android:orientation="horizontal">
 
         <EditText
-            android:digits="1234567890"
-            android:id="@+id/minRange"
-            android:paddingStart="15dp"
-            android:paddingEnd="5dp"
+            android:id="@+id/fragment_word_credit_dialog_section_min_value"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.45"
-            android:gravity="center"
             android:background="@drawable/fragment_word_credit_edit_text"
-            android:hint="最小值"
+            android:digits="1234567890"
+            android:gravity="center"
+            android:hint="@string/min_value"
+            android:paddingStart="15dp"
+            android:paddingEnd="5dp"
             android:singleLine="true"
-            android:textSize="20sp"
-            />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.1"
             android:gravity="center"
-            android:text="~"
+            android:text="@string/wave_sign"
             android:textColor="@color/black"
             android:textSize="25sp" />
 
         <EditText
-            android:digits="1234567890"
-            android:id="@+id/maxRange"
-            android:paddingEnd="15dp"
-            android:paddingStart="5dp"
+            android:id="@+id/fragment_word_credit_dialog_section_max_value"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.45"
             android:background="@drawable/fragment_word_credit_edit_text"
+            android:digits="1234567890"
             android:gravity="center"
-            android:hint="最大值"
+            android:hint="@string/max_value"
+            android:paddingStart="5dp"
+            android:paddingEnd="15dp"
             android:singleLine="true"
-            android:textSize="20sp"
-            />
+            android:textSize="20sp" />
 
     </LinearLayout>
 

@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.traditionalenglish.handler;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
+import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 
@@ -22,9 +23,14 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
     private int currentOrder = 0, currentIndex = 0;
     private FlagColor currentChameleon = FlagColor.GREEN;
     private int nowSelectChameleonSize = -0x3f3f3f;
-    private CreditState creditState = CreditState.NONE;
+    // 默认的单词功能为空
+    private WordFunctionState wordFunctionState = WordFunctionState.NONE;
+    // 当前的背诵模式
+    private CreditState creditState = CreditState.ENGLISHTRANSLATIONCHINESE;
     // 这是一个临时的集合,它指向allWordList,用于保存由按色打乱、区间重背功能被重置的allWordList引用
     private List<Word> dummyWordList;
+    // 现在正在背诵的区间
+    private int start = 0, end;
 
     public WordFunctionHandlerImpl(List<Word> initWordList) {
         this.allWordList = new ArrayList<>(initWordList.size());
@@ -33,6 +39,7 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
         for (int i = 0; i < allWordList.size(); i++) {
             wordsFlagList.add(new HashSet<>(List.of(FlagColor.GREEN, FlagColor.BROWN)));
         }
+        this.end = allWordList.size() - 1;
     }
 
 
@@ -94,8 +101,8 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
     public int size() {
         if (nowSelectChameleonSize == -0x3f3f3f) {
             nowSelectChameleonSize = 0;
-            for (Set<FlagColor> flagColors : wordsFlagList) {
-                if (flagColors.contains(currentChameleon)) {
+            for (int i = start; i <= end; i++) {
+                if (this.wordsFlagList.get(i).contains(currentChameleon)) {
                     nowSelectChameleonSize++;
                 }
             }
@@ -145,7 +152,7 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
 
     @Override
     public void shuffle() {
-        this.creditState = CreditState.SHUFFLE;
+        this.wordFunctionState = WordFunctionState.SHUFFLE;
         this.dummyWordList = new ArrayList<>(allWordList.size());
         for (int i = 0; i < wordsFlagList.size(); i++) {
             if (wordsFlagList.get(i).contains(currentChameleon)) {
@@ -160,18 +167,42 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
 
     @Override
     public void restoreWordList() {
-        this.creditState = CreditState.NONE;
+        this.wordFunctionState = WordFunctionState.NONE;
         this.allWordList = this.dummyWordList;
+        this.start = 0;
+        this.end = allWordList.size() - 1;
+        setChameleon(currentChameleon);
     }
 
     @Override
-    public CreditState getCreditState() {
-        return this.creditState;
+    public WordFunctionState getWordFunctionState() {
+        return this.wordFunctionState;
     }
 
     @Override
     public void shuffleRange(int start, int end) {
+        this.wordFunctionState = WordFunctionState.RANGE;
+        this.start = start;
+        this.end = end;
+        this.dummyWordList = new ArrayList<>(end - start + 1);
+        for (int i = start; i <= end; i++) {
+            dummyWordList.add(allWordList.get(i));
+        }
+        List<Word> temp = allWordList;
+        this.allWordList = this.dummyWordList;
+        this.dummyWordList = temp;
+        Collections.shuffle(allWordList);
+        setChameleon(currentChameleon);
+    }
 
+    @Override
+    public void setCurrentCreditState(CreditState creditState) {
+        this.creditState = creditState;
+    }
+
+    @Override
+    public CreditState getCurrentCreditState() {
+        return creditState;
     }
 
 }

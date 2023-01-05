@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_word_credit_pop_listening_write_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="@drawable/item_gray_select"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingTop="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingEnd="150dp"
+            android:paddingBottom="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:text="@string/listening_write_mode"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/fragment_word_credit_pop_english_translation_chinese"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="@drawable/item_gray_select"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:background="@drawable/fragment_word_credit_pop_window_change_mode"
+            android:paddingTop="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingEnd="150dp"
+            android:paddingBottom="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:text="@string/english_translation_chinese"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/fragment_word_credit_pop_chinese_translation_english"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="@drawable/item_gray_select"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingTop="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingEnd="150dp"
+            android:paddingBottom="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:text="@string/chinese_translation_english"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/fragment_word_credit_pop_only_credit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="@drawable/item_gray_select"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingTop="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:paddingEnd="150dp"
+            android:paddingBottom="@dimen/fragment_word_credit_pop_window_change_mode"
+            android:text="@string/only_credit"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

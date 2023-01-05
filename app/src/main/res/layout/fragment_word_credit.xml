@@ -80,8 +80,8 @@
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="none"
-                android:layout_alignParentStart="true">
+                android:layout_alignParentStart="true"
+                android:scrollbars="none">
 
                 <LinearLayout
                     android:id="@+id/fragment_word_credit_answer_area"
@@ -1208,9 +1208,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="-12dp"
-            android:background="@drawable/fragment_word_credit_badge"
             android:text=""
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/holo_red_dark"
             android:textSize="13sp"
             app:layout_constraintStart_toEndOf="@id/fragment_word_credit_play_word"
             app:layout_constraintTop_toTopOf="parent" />
@@ -1236,8 +1235,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="-12dp"
-            android:background="@drawable/fragment_word_credit_badge"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/holo_red_dark"
             android:textSize="13sp"
             app:layout_constraintStart_toEndOf="@id/fragment_word_credit_next_word"
             app:layout_constraintTop_toTopOf="parent" />

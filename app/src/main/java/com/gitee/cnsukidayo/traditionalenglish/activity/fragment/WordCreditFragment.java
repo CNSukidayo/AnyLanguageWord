@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishPropert
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
+import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandler;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandlerImpl;
@@ -42,24 +45,27 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener {
-
     private View rootView;
+
     private ImageButton popMoreFunction;
     private HorizontalScrollView moreFunctionHorizontalScrollView;
     private boolean moreFunctionOpen = true, openFlagChange, changingChameleon;
     private Handler updateUIHandler;
     private WordFunctionHandler wordFunctionHandler;
+    private MenuInflater menuInflater;
+    private CreditState creditState = CreditState.ENGLISHTRANSLATIONCHINESE;
     /*
     以下是所有功能按钮的变量声明
      */
-    private ImageButton nextWord, previousWord, popBackStack;
+    private ImageButton nextWord, previousWord, popBackStack, playWord;
     private TextView sourceWord, sourceWordPhonetics, getAnswer, adjHint, advHint, vHint, viHint, vtHint, nHint, conjHint, pronHint, numHint, artHint;
     private TextView prepHint, intHint, auxHint, exampleSentenceHint, phraseHint, distinguishHint, categorizeOriginHint;
     private TextView adjAnswer, advAnswer, vAnswer, viAnswer, vtAnswer, nAnswer, conjAnswer, pronAnswer, numAnswer, artAnswer, prepAnswer;
     private TextView intAnswer, auxAnswer, exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
     private AlertDialog loadingDialog = null;
-    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
+    private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +88,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
-
+        // 注册菜上下文菜单栏
+        this.menuInflater = new MenuInflater(getContext());
         return rootView;
     }
 
@@ -91,6 +98,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
         Toast toast = Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
+        PopupWindow changeModePopupWindow = null;
         switch (v.getId()) {
             case R.id.fragment_word_credit_pop_more_function:
                 if (moreFunctionOpen) {
@@ -114,7 +122,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 creditWord(wordFunctionHandler.jumpPreviousWord());
                 break;
             case R.id.fragment_word_container_get_answer:
-                handleWordAnswer();
+                visibleCurrentWordAllMessage();
+                break;
+            case R.id.fragment_word_credit_play_word:
+                creditWord(wordFunctionHandler.getCurrentWord());
                 break;
             case R.id.fragment_word_credit_jump_next:
                 final EditText inputEditText = new EditText(getContext());
@@ -153,8 +164,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.fragment_word_credit_click_chameleon_mode:
                 // 如果当前处于按色打乱模式则无法使用变色龙功能,使用区间重背功能可以使用变色龙功能
-                if (wordFunctionHandler.getCreditState() == CreditState.SHUFFLE) {
-                    toast = Toast.makeText(getContext(), wordFunctionHandler.getCreditState().getInfo(), Toast.LENGTH_LONG);
+                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.SHUFFLE) {
+                    toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, 0, 500);
                     toast.show();
                     break;
@@ -174,16 +185,16 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.fragment_word_credit_click_shuffle:
                 // 如果当前不是普通状态和按色打乱状态,代表当前在执行别的状态,需要先锁定按色打乱的功能
-                if (wordFunctionHandler.getCreditState() == CreditState.RANGE) {
-                    toast = Toast.makeText(getContext(), wordFunctionHandler.getCreditState().getInfo(), Toast.LENGTH_LONG);
+                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.RANGE) {
+                    toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, 0, 500);
                     toast.show();
                     break;
                 }
-                if (wordFunctionHandler.getCreditState() == CreditState.NONE) {
+                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
                     this.chameleonImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
                     this.sectionImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
-                    this.shuffleImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
+                    this.shuffleImageView.getDrawable().setTint(getResources().getColor(wordFunctionHandler.getChameleon().getMapColorID(), null));
                     wordFunctionHandler.shuffle();
                     creditWord(wordFunctionHandler.jumpToWord(0));
                 } else {
@@ -195,29 +206,48 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 }
                 break;
             case R.id.fragment_word_credit_click_section:
-                if (wordFunctionHandler.getCreditState() == CreditState.SHUFFLE) {
-                    toast = Toast.makeText(getContext(), wordFunctionHandler.getCreditState().getInfo(), Toast.LENGTH_LONG);
+                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.SHUFFLE) {
+                    toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, 0, 500);
                     toast.show();
                     break;
                 }
-                if (wordFunctionHandler.getCreditState() == CreditState.NONE) {
-                    this.shuffle.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
-                    this.sectionImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
+                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
                     View rangeRandomWordInputView = getLayoutInflater().inflate(R.layout.fragment_word_credit_dialog_section, null);
+                    EditText minValue = rangeRandomWordInputView.findViewById(R.id.fragment_word_credit_dialog_section_min_value);
+                    EditText maxValue = rangeRandomWordInputView.findViewById(R.id.fragment_word_credit_dialog_section_max_value);
                     new AlertDialog.Builder(getContext()).setTitle("区间随机:")
                             .setMessage("选择要单独随机的区间:[1," + wordFunctionHandler.size() + "].注意这里是闭区间")
                             .setView(rangeRandomWordInputView)
                             .setCancelable(false)
                             .setPositiveButton("确定", (dialog, which) -> {
+                                int minRange, maxRange;
+                                try {
+                                    minRange = Integer.parseInt(minValue.getText().toString()) - 1;
+                                    maxRange = Integer.parseInt(maxValue.getText().toString()) - 1;
+                                    if (minRange < 0 || maxRange > wordFunctionHandler.size() || minRange > maxRange) {
+                                        throw new IllegalArgumentException("输入参数不合法!");
+                                    }
+                                } catch (IllegalArgumentException e) {
+                                    Toast errorToast = Toast.makeText(getContext(), "输入错误,请输入1~" + wordFunctionHandler.size() + "之间的值", Toast.LENGTH_LONG);
+                                    errorToast.setGravity(Gravity.CENTER, 0, 500);
+                                    errorToast.show();
+                                    return;
+                                }
+                                // 确定执行区间随机时执行的内容
+                                wordFunctionHandler.shuffleRange(minRange, maxRange);
+                                creditWord(wordFunctionHandler.jumpToWord(0));
+                                this.shuffleImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
+                                this.sectionImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
                             })
                             .setNegativeButton("取消", (dialog, which) -> {
                             })
                             .show();
                 } else {
-                    this.shuffle.setForeground(null);
+                    this.shuffleImageView.setForeground(null);
                     this.sectionImageView.getDrawable().setTintList(null);
                     this.wordFunctionHandler.restoreWordList();
+                    creditWord(wordFunctionHandler.jumpToWord(0));
                 }
                 break;
             case R.id.fragment_word_credit_back_to_trace:
@@ -231,6 +261,42 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
 
                         })
                         .show();
+                break;
+            case R.id.fragment_word_credit_click_change_mode:
+                if (changeModePopupWindow == null) {
+                    changeModePopupWindow = new PopupWindow(popWindowChangeModeLayout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    changeModePopupWindow.setOutsideTouchable(true);
+                    changeModePopupWindow.setFocusable(true);
+                    changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
+                    changeModePopupWindow.setOnDismissListener(() -> ((ViewGroup) rootView.getParent()).removeView(popWindowChangeModeLayout));
+                }
+                // PopWindow展示在某个组件的上方,这里的changeMode代表要展示在那个组件上方,popWindowChangeModeLayout代表要展示哪个组件.
+                popWindowChangeModeLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                int[] location = new int[2];
+                changeMode.getLocationInSurface(location);
+                changeModePopupWindow.showAtLocation(changeMode, Gravity.NO_GRAVITY,
+                        (location[0] + changeMode.getWidth() / 2) - popWindowChangeModeLayout.getMeasuredWidth() / 2,
+                        location[1] - popWindowChangeModeLayout.getMeasuredHeight());
+                break;
+            case R.id.fragment_word_credit_pop_listening_write_mode:
+                wordFunctionHandler.setCurrentCreditState(CreditState.LISTENING);
+                clearChangeModePopWindowState();
+                this.listeningWriteMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                break;
+            case R.id.fragment_word_credit_pop_english_translation_chinese:
+                wordFunctionHandler.setCurrentCreditState(CreditState.ENGLISHTRANSLATIONCHINESE);
+                clearChangeModePopWindowState();
+                this.englishTranslationChineseMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                break;
+            case R.id.fragment_word_credit_pop_chinese_translation_english:
+                wordFunctionHandler.setCurrentCreditState(CreditState.CHINESETRANSLATIONENGLISH);
+                clearChangeModePopWindowState();
+                this.chineseTranslationEnglish.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                break;
+            case R.id.fragment_word_credit_pop_only_credit:
+                wordFunctionHandler.setCurrentCreditState(CreditState.CREDIT);
+                clearChangeModePopWindowState();
+                this.onlyCreditMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
                 break;
             case R.id.fragment_word_credit_button_flag_green:
                 if (changingChameleon) {
@@ -405,8 +471,30 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      */
     private void creditWord(Word toBeShowWord) {
         updateUIHandler.post(() -> {
-            sourceWord.setText(toBeShowWord.getWordOrigin());
-            sourceWordPhonetics.setText(toBeShowWord.getWordPhonetics());
+            switch (wordFunctionHandler.getCurrentCreditState()) {
+                case LISTENING:
+                    // 听写模式只播放音频,不执行多余的操作.
+                    break;
+                case ENGLISHTRANSLATIONCHINESE:
+                    // 先展示单词的所有信息,然后将单词的中文意思进行隐藏
+                    visibleCurrentWordAllMessage();
+                    hideChinese();
+                    break;
+                case CHINESETRANSLATIONENGLISH:
+                    // 先展示所有单词信息,然后将英文原文和音标进行隐藏
+                    visibleCurrentWordAllMessage();
+                    sourceWord.setText("");
+                    sourceWordPhonetics.setText("");
+                    break;
+                case CREDIT:
+                    // 不隐藏任何信息
+                    visibleCurrentWordAllMessage();
+                    break;
+            }
+            /*
+            不管是什么状态,如果当前旗帜是打开的,那么都需要刷新旗帜(颜色标记)的状态.
+            不管是什么状态,都需要显示当前背诵的位置和总的单词个数.
+             */
             currentIndexTextView.setText(String.valueOf(wordFunctionHandler.getCurrentOrder() + 1));
             wordCount.setText(String.valueOf(wordFunctionHandler.size()));
             if (openFlagChange) {
@@ -454,10 +542,16 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 隐藏所有暂时不必要出现的UI
      */
     private void hideAnswer() {
-        LinearLayout linearLayout = rootView.findViewById(R.id.fragment_word_credit_answer_area);
-        hideLinearLayoutTree(linearLayout);
+        hideChinese();
         sourceWord.setText("");
         sourceWordPhonetics.setText("");
+    }
+
+    /**
+     * 隐藏所有的中文
+     */
+    private void hideChinese() {
+        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area));
     }
 
     private void hideLinearLayoutTree(LinearLayout linearLayout) {
@@ -508,9 +602,19 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     }
 
     /**
-     * 处理单词结果显示逻辑
+     * 清除模式更改弹出窗口中所有按钮的状态
      */
-    private void handleWordAnswer() {
+    private void clearChangeModePopWindowState() {
+        this.listeningWriteMode.setBackground(null);
+        this.englishTranslationChineseMode.setBackground(null);
+        this.chineseTranslationEnglish.setBackground(null);
+        this.onlyCreditMode.setBackground(null);
+    }
+
+    /**
+     * 显示当前单词的所有信息,具体当前要根据状态隐藏哪些信息有调用者来处理.
+     */
+    private void visibleCurrentWordAllMessage() {
         Word word = wordFunctionHandler.getCurrentWord();
         if (Strings.notEmpty(word.getADJ())) {
             this.adjAnswer.setText(word.getADJ());
@@ -597,6 +701,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             this.categorizeOriginAnswer.setVisibility(View.VISIBLE);
             this.categorizeOriginHint.setVisibility(View.VISIBLE);
         }
+        this.sourceWord.setText(word.getWordOrigin());
+        this.sourceWordPhonetics.setText(word.getWordPhonetics());
     }
 
 
@@ -625,6 +731,13 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.shuffleImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_shuffle);
         this.section = rootView.findViewById(R.id.fragment_word_credit_click_section);
         this.popBackStack = rootView.findViewById(R.id.fragment_word_credit_back_to_trace);
+        this.changeMode = rootView.findViewById(R.id.fragment_word_credit_click_change_mode);
+        this.popWindowChangeModeLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.fragment_word_credit_popwindow_change_mode, null);
+        this.listeningWriteMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_listening_write_mode);
+        this.englishTranslationChineseMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_english_translation_chinese);
+        this.chineseTranslationEnglish = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_chinese_translation_english);
+        this.onlyCreditMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_only_credit);
+        this.playWord = rootView.findViewById(R.id.fragment_word_credit_play_word);
 
         this.adjHint = rootView.findViewById(R.id.fragment_word_credit_adjective_hint);
         this.advHint = rootView.findViewById(R.id.fragment_word_credit_adverb_hint);
@@ -676,6 +789,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.shuffle.setOnClickListener(this);
         this.section.setOnClickListener(this);
         this.popBackStack.setOnClickListener(this);
+        this.changeMode.setOnClickListener(this);
+        this.listeningWriteMode.setOnClickListener(this);
+        this.englishTranslationChineseMode.setOnClickListener(this);
+        this.chineseTranslationEnglish.setOnClickListener(this);
+        this.onlyCreditMode.setOnClickListener(this);
+        this.playWord.setOnClickListener(this);
 
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_green).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_red).setOnClickListener(this);

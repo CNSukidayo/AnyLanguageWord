@@ -1,18 +1,21 @@
 package com.gitee.cnsukidayo.traditionalenglish.enums;
 
+import com.gitee.cnsukidayo.traditionalenglish.R;
+
 /**
  * @author cnsukidayo
- * @date 2023/1/4 18:42
+ * @date 2023/1/5 15:40
  */
 public enum CreditState {
-    NONE(""), SHUFFLE("当前处于按色打乱模式,请先点击按色打乱按钮退出当前模式."), RANGE("当前处于区间重背模式,请先点击区间重背按钮退出当前模式.");
-    private final String information;
 
-    CreditState(String information) {
-        this.information = information;
-    }
+    LISTENING(R.string.listening_write_mode),
+    ENGLISHTRANSLATIONCHINESE(R.string.english_translation_chinese),
+    CHINESETRANSLATIONENGLISH(R.string.chinese_translation_english),
+    CREDIT(R.string.only_credit);
 
-    public String getInfo() {
-        return this.information;
+    private int modeID;
+
+    CreditState(int modeID) {
+        this.modeID = modeID;
     }
 }

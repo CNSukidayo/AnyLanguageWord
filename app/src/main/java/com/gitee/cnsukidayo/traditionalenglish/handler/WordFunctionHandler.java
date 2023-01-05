@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.traditionalenglish.handler;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
+import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 
 import java.util.Set;
@@ -127,16 +128,21 @@ public interface WordFunctionHandler {
     /**
      * 得到当前单词功能的状态
      *
-     * @return {@link CreditState}代表返回的状态
+     * @return {@link WordFunctionState}代表返回的状态
      */
-    CreditState getCreditState();
+    WordFunctionState getWordFunctionState();
 
     /**
-     * 根据左右区间打乱列表,注意这里的左右区间是闭区间.
+     * 根据左右区间打乱列表,注意这里的左右区间是闭区间.<br>
+     * 一旦打乱则当前单词功能的状态会切换为{@link WordFunctionState#RANGE}
      *
      * @param start 左区间的值,下标从0开始
      * @param end   右区间的值,该值不应该超过列表的{@link WordFunctionHandler#size()}-1
      */
     void shuffleRange(int start, int end);
+
+    void setCurrentCreditState(CreditState creditState);
+
+    CreditState getCurrentCreditState();
 
 }

@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -20,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -52,8 +53,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private boolean moreFunctionOpen = true, openFlagChange, changingChameleon;
     private Handler updateUIHandler;
     private WordFunctionHandler wordFunctionHandler;
-    private MenuInflater menuInflater;
-    private CreditState creditState = CreditState.ENGLISHTRANSLATIONCHINESE;
+    private DrawerLayout startDrawer;
     /*
     以下是所有功能按钮的变量声明
      */
@@ -62,8 +62,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private TextView prepHint, intHint, auxHint, exampleSentenceHint, phraseHint, distinguishHint, categorizeOriginHint;
     private TextView adjAnswer, advAnswer, vAnswer, viAnswer, vtAnswer, nAnswer, conjAnswer, pronAnswer, numAnswer, artAnswer, prepAnswer;
     private TextView intAnswer, auxAnswer, exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
+    private TextView sourceWordDrawer, sourceWordPhoneticsDrawer, adjHintDrawer, advHintDrawer, vHintDrawer, viHintDrawer, vtHintDrawer, nHintDrawer;
+    private TextView conjHintDrawer, pronHintDrawer, numHintDrawer, artHintDrawer, prepHintDrawer, intHintDrawer, auxHintDrawer, phraseHintDrawer;
+    private TextView adjAnswerDrawer, advAnswerDrawer, vAnswerDrawer, viAnswerDrawer, vtAnswerDrawer, nAnswerDrawer, conjAnswerDrawer, pronAnswerDrawer;
+    private TextView numAnswerDrawer, artAnswerDrawer, prepAnswerDrawer, intAnswerDrawer, auxAnswerDrawer, phraseAnswerDrawer;
     private AlertDialog loadingDialog = null;
-    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout, start;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
     private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
 
@@ -86,10 +90,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         hideAnswer();
         // 弹出Dialog不要阻塞UI线程,通过一个新的线程去请求所有单词信息.
         loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
+        // 锁定startDrawable的关闭
+        startDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
-        // 注册菜上下文菜单栏
-        this.menuInflater = new MenuInflater(getContext());
         return rootView;
     }
 
@@ -262,12 +266,16 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                         })
                         .show();
                 break;
+            case R.id.fragment_word_credit_click_start:
+                startDrawer.openDrawer(GravityCompat.END);
+                break;
             case R.id.fragment_word_credit_click_change_mode:
                 if (changeModePopupWindow == null) {
                     changeModePopupWindow = new PopupWindow(popWindowChangeModeLayout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     changeModePopupWindow.setOutsideTouchable(true);
                     changeModePopupWindow.setFocusable(true);
-                    changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
+                    // todo 这里设置动画有问题,正式机型上可以设置动画
+//                    changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
                     changeModePopupWindow.setOnDismissListener(() -> ((ViewGroup) rootView.getParent()).removeView(popWindowChangeModeLayout));
                 }
                 // PopWindow展示在某个组件的上方,这里的changeMode代表要展示在那个组件上方,popWindowChangeModeLayout代表要展示哪个组件.
@@ -464,7 +472,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     }
 
     /**
-     * 直接展示某个单词.
+     * 按模式展示某个单词.
      * 展示单词是一种状态,随着单词的变化,页面的UI也要跟随变化.
      *
      * @param toBeShowWord 待被展示的单词
@@ -494,7 +502,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             /*
             不管是什么状态,如果当前旗帜是打开的,那么都需要刷新旗帜(颜色标记)的状态.
             不管是什么状态,都需要显示当前背诵的位置和总的单词个数.
+            不管什么状态,都需要更新drawer里面单词的内容
              */
+            refreshDrawer(toBeShowWord);
             currentIndexTextView.setText(String.valueOf(wordFunctionHandler.getCurrentOrder() + 1));
             wordCount.setText(String.valueOf(wordFunctionHandler.size()));
             if (openFlagChange) {
@@ -522,6 +532,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     e.printStackTrace();
                 }
             }
+            // 初始化所有RecyclerView
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
@@ -609,6 +620,84 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.englishTranslationChineseMode.setBackground(null);
         this.chineseTranslationEnglish.setBackground(null);
         this.onlyCreditMode.setBackground(null);
+    }
+
+    private void refreshDrawer(Word word) {
+        // 先隐藏所有Drawer里面的answer
+        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_drawer_answer_area));
+        // 根据当前单词的意思更新Drawer
+        if (Strings.notEmpty(word.getADJ())) {
+            this.adjAnswerDrawer.setText(word.getADJ());
+            this.adjAnswerDrawer.setVisibility(View.VISIBLE);
+            this.adjHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getADV())) {
+            this.advAnswerDrawer.setText(word.getADV());
+            this.advAnswerDrawer.setVisibility(View.VISIBLE);
+            this.advHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getV())) {
+            this.vAnswerDrawer.setText(word.getV());
+            this.vAnswerDrawer.setVisibility(View.VISIBLE);
+            this.vHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getVI())) {
+            this.viAnswerDrawer.setText(word.getVI());
+            this.viAnswerDrawer.setVisibility(View.VISIBLE);
+            this.viHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getVT())) {
+            this.vtAnswerDrawer.setText(word.getVT());
+            this.vtAnswerDrawer.setVisibility(View.VISIBLE);
+            this.vtHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getN())) {
+            this.nAnswerDrawer.setText(word.getN());
+            this.nAnswerDrawer.setVisibility(View.VISIBLE);
+            this.nHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getCONJ())) {
+            this.conjAnswerDrawer.setText(word.getCONJ());
+            this.conjAnswerDrawer.setVisibility(View.VISIBLE);
+            this.conjHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getPRON())) {
+            this.pronAnswerDrawer.setText(word.getPRON());
+            this.pronAnswerDrawer.setVisibility(View.VISIBLE);
+            this.pronHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getNUM())) {
+            this.numAnswerDrawer.setText(word.getPRON());
+            this.numAnswerDrawer.setVisibility(View.VISIBLE);
+            this.numHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getART())) {
+            this.artAnswerDrawer.setText(word.getART());
+            this.artAnswerDrawer.setVisibility(View.VISIBLE);
+            this.artHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getPREP())) {
+            this.prepAnswerDrawer.setText(word.getPREP());
+            this.prepAnswerDrawer.setVisibility(View.VISIBLE);
+            this.prepHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getINT())) {
+            this.intAnswerDrawer.setText(word.getINT());
+            this.intAnswerDrawer.setVisibility(View.VISIBLE);
+            this.intHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getAUX())) {
+            this.auxAnswerDrawer.setText(word.getAUX());
+            this.auxAnswerDrawer.setVisibility(View.VISIBLE);
+            this.auxHintDrawer.setVisibility(View.VISIBLE);
+        }
+        if (Strings.notEmpty(word.getPhrase())) {
+            this.phraseAnswerDrawer.setText(word.getPhrase());
+            this.phraseAnswerDrawer.setVisibility(View.VISIBLE);
+            this.phraseHintDrawer.setVisibility(View.VISIBLE);
+        }
+        this.sourceWordDrawer.setText(word.getWordOrigin());
+        this.sourceWordPhoneticsDrawer.setText(word.getWordPhonetics());
     }
 
     /**
@@ -738,7 +827,11 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.chineseTranslationEnglish = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_chinese_translation_english);
         this.onlyCreditMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_only_credit);
         this.playWord = rootView.findViewById(R.id.fragment_word_credit_play_word);
+        this.startDrawer = rootView.findViewById(R.id.fragment_word_credit_start_drawer);
+        this.start = rootView.findViewById(R.id.fragment_word_credit_click_start);
 
+        this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);
+        this.sourceWordPhoneticsDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_phonetics);
         this.adjHint = rootView.findViewById(R.id.fragment_word_credit_adjective_hint);
         this.advHint = rootView.findViewById(R.id.fragment_word_credit_adverb_hint);
         this.vHint = rootView.findViewById(R.id.fragment_word_credit_verb_hint);
@@ -773,6 +866,34 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.phraseAnswer = rootView.findViewById(R.id.fragment_word_credit_phrase_answer);
         this.distinguishAnswer = rootView.findViewById(R.id.fragment_word_credit_distinguish_answer);
         this.categorizeOriginAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_categorize_origin_answer);
+        this.adjHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_adjective_hint);
+        this.advHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_adverb_hint);
+        this.vHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_verb_hint);
+        this.viHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_intransitive_verb_hint);
+        this.vtHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_transitive_verb_hint);
+        this.nHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_noun_hint);
+        this.conjHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_conjunction_hint);
+        this.pronHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_pronoun_hint);
+        this.numHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_number_hint);
+        this.artHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_article_hint);
+        this.prepHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_preposition_hint);
+        this.intHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_int_word_hint);
+        this.auxHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_auxiliary_hint);
+        this.phraseHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_phrase_hint);
+        this.adjAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_adjective_answer);
+        this.advAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_adverb_answer);
+        this.vAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_verb_answer);
+        this.viAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_intransitive_verb_answer);
+        this.vtAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_transitive_verb_answer);
+        this.nAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_noun_answer);
+        this.conjAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_conjunction_answer);
+        this.pronAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_pronoun_answer);
+        this.numAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_number_answer);
+        this.artAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_article_answer);
+        this.prepAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_preposition_answer);
+        this.intAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_int_word_answer);
+        this.auxAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_auxiliary_answer);
+        this.phraseAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_phrase_answer);
     }
 
     /**
@@ -795,6 +916,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.chineseTranslationEnglish.setOnClickListener(this);
         this.onlyCreditMode.setOnClickListener(this);
         this.playWord.setOnClickListener(this);
+        this.start.setOnClickListener(this);
 
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_green).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_red).setOnClickListener(this);

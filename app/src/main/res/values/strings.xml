@@ -73,4 +73,8 @@
     <string name="english_translation_chinese">英译中</string>
     <string name="chinese_translation_english">中译英</string>
     <string name="only_credit">纯背诵</string>
+    <string name="crediting_word">当前单词:</string>
+    <string name="show_word_origin">showWordOrigin</string>
+    <string name="create_new_category">+创建一个新的分类</string>
+    <string name="add_new_category">添加新的分类</string>
 </resources>

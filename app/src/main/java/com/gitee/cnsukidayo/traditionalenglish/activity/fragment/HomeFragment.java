@@ -39,7 +39,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         this.popDrawerLayoutButton = rootView.findViewById(R.id.fragment_home_user_face);
         this.drawerLayout = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_main_drawer_layout);
-        this.drawerNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_main_navigation_view_drawer);
+        this.drawerNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_word_credit_view_drawer);
         this.popDrawerLayoutButton.setOnClickListener(this);
         this.drawerNavigationView.setNavigationItemSelectedListener(this);
         this.navController = Navigation.findNavController(drawerLayout);

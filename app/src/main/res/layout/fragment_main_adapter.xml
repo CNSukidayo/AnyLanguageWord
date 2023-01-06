@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        tools:openDrawer="end">
+        tools:openDrawer="start">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -46,7 +46,7 @@
 
         <!--这个布局一开始是不显示的-->
         <com.google.android.material.navigation.NavigationView
-            android:id="@+id/fragment_main_navigation_view_drawer"
+            android:id="@+id/fragment_word_credit_view_drawer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"

@@ -939,59 +939,75 @@
                 app:layout_constraintBottom_toTopOf="@id/add_new"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <HorizontalScrollView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="7dp"
                     android:layout_marginEnd="7dp"
-                    android:scrollbars="none">
+                    android:minHeight="600dp"
+                    android:orientation="vertical">
 
-                    <LinearLayout
-                        android:minHeight="600dp"
+                    <HorizontalScrollView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <RelativeLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp">
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/fragment_word_credit_drawer_chinese_answer"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-                        </RelativeLayout>
+                        android:scrollbars="none">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/fragment_word_credit_drawer_phrase_hint"
+                            <RelativeLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/phrase"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
+                                android:layout_marginTop="3dp">
 
-                            <TextView
-                                android:id="@+id/fragment_word_credit_drawer_phrase_answer"
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/fragment_word_credit_drawer_chinese_answer"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                            </RelativeLayout>
+
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/fragment_word_credit_radius_answer"
-                                android:paddingStart="5dp"
-                                android:paddingEnd="5dp"
-                                android:text="test"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
+                                android:orientation="vertical">
 
+                                <TextView
+                                    android:id="@+id/fragment_word_credit_drawer_phrase_hint"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:text="@string/phrase"
+                                    android:textColor="@color/black"
+                                    android:textSize="20sp" />
+
+                                <TextView
+                                    android:id="@+id/fragment_word_credit_drawer_phrase_answer"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/fragment_word_credit_radius_answer"
+                                    android:paddingStart="5dp"
+                                    android:paddingEnd="5dp"
+                                    android:text="test"
+                                    android:textColor="@color/black"
+                                    android:textSize="20sp" />
+
+                            </LinearLayout>
                         </LinearLayout>
+                    </HorizontalScrollView>
 
-                    </LinearLayout>
-                </HorizontalScrollView>
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/fragment_word_credit_start_single_category"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </RelativeLayout>
+                </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
 

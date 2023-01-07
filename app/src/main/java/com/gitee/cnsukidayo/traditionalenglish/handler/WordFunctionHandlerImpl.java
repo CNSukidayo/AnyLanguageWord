@@ -62,6 +62,11 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
 
     @Override
     public Word getCurrentWord() {
+        if (nowSelectChameleonSize == 0) {
+            currentOrder = 0;
+            currentIndex = 0;
+            return StaticFactory.getEmptyWord();
+        }
         return allWordList.get(currentIndex);
     }
 

@@ -23,8 +23,11 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishProperties;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
@@ -54,6 +57,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private Handler updateUIHandler;
     private WordFunctionHandler wordFunctionHandler;
     private DrawerLayout startDrawer;
+    private RecyclerView chineseAnswer, chineseAnswerDrawer;
+    private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter, chineseAnswerAdapterDrawer;
     /*
     以下是所有功能按钮的变量声明
      */
@@ -82,16 +87,27 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             rootView = inflater.inflate(R.layout.fragment_word_credit, container, false);
         }
         this.updateUIHandler = new Handler();
+        /*
+        调用流程明细:
+        1.绑定相关组件
+        2.设置监听事件
+        3.一开始隐藏不必要的组件,注意隐藏答案区的时候是不需要手动将chineseAnswer的可见性设为Gone的,否则会出错.
+        不管一开始是什么状态,都需要隐藏 英文原文、英文音标、单词翻译答案区域、附加内容.
+        4.获取答案时就是展示所有的内容
+         */
         // 获取相关组件
         bindView();
         // 设置监听事件
         bindListener();
         // 隐藏不必要的UI
-        hideAnswer();
+        emptyUI();
         // 弹出Dialog不要阻塞UI线程,通过一个新的线程去请求所有单词信息.
         loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         // 锁定startDrawable的关闭
         startDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        // 必须在这里设置LayoutManager
+        this.chineseAnswer.setLayoutManager(new LinearLayoutManager(getContext()));
+        this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
         return rootView;
@@ -118,15 +134,15 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 }
                 break;
             case R.id.fragment_word_credit_next_word:
-                hideAnswer();
+                emptyUI();
                 creditWord(wordFunctionHandler.jumpNextWord());
                 break;
             case R.id.fragment_word_credit_previous_word:
-                hideAnswer();
+                emptyUI();
                 creditWord(wordFunctionHandler.jumpPreviousWord());
                 break;
             case R.id.fragment_word_container_get_answer:
-                visibleCurrentWordAllMessage();
+                visibleWordAllMessage(wordFunctionHandler.getCurrentWord());
                 break;
             case R.id.fragment_word_credit_play_word:
                 creditWord(wordFunctionHandler.getCurrentWord());
@@ -484,19 +500,20 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     // 听写模式只播放音频,不执行多余的操作.
                     break;
                 case ENGLISHTRANSLATIONCHINESE:
-                    // 先展示单词的所有信息,然后将单词的中文意思进行隐藏
-                    visibleCurrentWordAllMessage();
-                    hideChinese();
+                    // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏
+                    visibleWordAllMessage(toBeShowWord);
+                    this.chineseAnswer.setVisibility(View.GONE);
+                    hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
                     break;
                 case CHINESETRANSLATIONENGLISH:
                     // 先展示所有单词信息,然后将英文原文和音标进行隐藏
-                    visibleCurrentWordAllMessage();
+                    visibleWordAllMessage(toBeShowWord);
                     sourceWord.setText("");
                     sourceWordPhonetics.setText("");
                     break;
                 case CREDIT:
                     // 不隐藏任何信息
-                    visibleCurrentWordAllMessage();
+                    visibleWordAllMessage(toBeShowWord);
                     break;
             }
             /*
@@ -504,7 +521,17 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             不管是什么状态,都需要显示当前背诵的位置和总的单词个数.
             不管什么状态,都需要更新drawer里面单词的内容
              */
-            refreshDrawer(toBeShowWord);
+            chineseAnswerAdapterDrawer.showWordChineseMessage(toBeShowWord);
+            this.sourceWordDrawer.setText(toBeShowWord.getWordOrigin());
+            this.sourceWordPhoneticsDrawer.setText(toBeShowWord.getWordPhonetics());
+            if (Strings.notEmpty(toBeShowWord.getPhrase())) {
+                phraseAnswerDrawer.setText(toBeShowWord.getPhrase());
+                phraseHintDrawer.setVisibility(View.VISIBLE);
+                phraseAnswerDrawer.setVisibility(View.VISIBLE);
+            } else {
+                phraseHintDrawer.setVisibility(View.GONE);
+                phraseAnswerDrawer.setVisibility(View.GONE);
+            }
             currentIndexTextView.setText(String.valueOf(wordFunctionHandler.getCurrentOrder() + 1));
             wordCount.setText(String.valueOf(wordFunctionHandler.size()));
             if (openFlagChange) {
@@ -538,7 +565,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext());
+            this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext());
+            this.chineseAnswerAdapterDrawer.setRecyclerViewState(ChineseAnswerRecyclerViewAdapter.RecyclerViewState.DRAWER);
             updateUIHandler.post(() -> {
+                this.chineseAnswer.setAdapter(chineseAnswerAdapter);
+                this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
                 creditWord(wordFunctionHandler.getWordByOrder(0));
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
                 flagChangeArea.setVisibility(View.GONE);
@@ -552,26 +584,20 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     /**
      * 隐藏所有暂时不必要出现的UI
      */
-    private void hideAnswer() {
-        hideChinese();
+    private void emptyUI() {
+        // 隐藏单词的附加显示内容
+        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
         sourceWord.setText("");
         sourceWordPhonetics.setText("");
     }
 
-    /**
-     * 隐藏所有的中文
-     */
-    private void hideChinese() {
-        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area));
-    }
-
-    private void hideLinearLayoutTree(LinearLayout linearLayout) {
+    private void hideLinearLayoutTree(ViewGroup linearLayout) {
         for (int i = 0; i < linearLayout.getChildCount(); i++) {
             View child = linearLayout.getChildAt(i);
             if (child instanceof TextView) {
                 child.setVisibility(View.GONE);
-            } else if (child instanceof LinearLayout) {
-                hideLinearLayoutTree((LinearLayout) child);
+            } else if (child instanceof ViewGroup) {
+                hideLinearLayoutTree((ViewGroup) child);
             }
         }
     }
@@ -622,154 +648,15 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.onlyCreditMode.setBackground(null);
     }
 
-    private void refreshDrawer(Word word) {
-        // 先隐藏所有Drawer里面的answer
-        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_drawer_answer_area));
-        // 根据当前单词的意思更新Drawer
-        if (Strings.notEmpty(word.getADJ())) {
-            this.adjAnswerDrawer.setText(word.getADJ());
-            this.adjAnswerDrawer.setVisibility(View.VISIBLE);
-            this.adjHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getADV())) {
-            this.advAnswerDrawer.setText(word.getADV());
-            this.advAnswerDrawer.setVisibility(View.VISIBLE);
-            this.advHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getV())) {
-            this.vAnswerDrawer.setText(word.getV());
-            this.vAnswerDrawer.setVisibility(View.VISIBLE);
-            this.vHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getVI())) {
-            this.viAnswerDrawer.setText(word.getVI());
-            this.viAnswerDrawer.setVisibility(View.VISIBLE);
-            this.viHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getVT())) {
-            this.vtAnswerDrawer.setText(word.getVT());
-            this.vtAnswerDrawer.setVisibility(View.VISIBLE);
-            this.vtHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getN())) {
-            this.nAnswerDrawer.setText(word.getN());
-            this.nAnswerDrawer.setVisibility(View.VISIBLE);
-            this.nHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getCONJ())) {
-            this.conjAnswerDrawer.setText(word.getCONJ());
-            this.conjAnswerDrawer.setVisibility(View.VISIBLE);
-            this.conjHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getPRON())) {
-            this.pronAnswerDrawer.setText(word.getPRON());
-            this.pronAnswerDrawer.setVisibility(View.VISIBLE);
-            this.pronHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getNUM())) {
-            this.numAnswerDrawer.setText(word.getPRON());
-            this.numAnswerDrawer.setVisibility(View.VISIBLE);
-            this.numHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getART())) {
-            this.artAnswerDrawer.setText(word.getART());
-            this.artAnswerDrawer.setVisibility(View.VISIBLE);
-            this.artHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getPREP())) {
-            this.prepAnswerDrawer.setText(word.getPREP());
-            this.prepAnswerDrawer.setVisibility(View.VISIBLE);
-            this.prepHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getINT())) {
-            this.intAnswerDrawer.setText(word.getINT());
-            this.intAnswerDrawer.setVisibility(View.VISIBLE);
-            this.intHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getAUX())) {
-            this.auxAnswerDrawer.setText(word.getAUX());
-            this.auxAnswerDrawer.setVisibility(View.VISIBLE);
-            this.auxHintDrawer.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getPhrase())) {
-            this.phraseAnswerDrawer.setText(word.getPhrase());
-            this.phraseAnswerDrawer.setVisibility(View.VISIBLE);
-            this.phraseHintDrawer.setVisibility(View.VISIBLE);
-        }
-        this.sourceWordDrawer.setText(word.getWordOrigin());
-        this.sourceWordPhoneticsDrawer.setText(word.getWordPhonetics());
-    }
-
     /**
-     * 显示当前单词的所有信息,具体当前要根据状态隐藏哪些信息有调用者来处理.
+     * 显示当前单词的所有信息,<b>具体当前要根据状态隐藏哪些信息有调用者来处理.</b><br>
+     * 该方法展示的是最全面的信息,所有隐藏信息都会被显示,但是单词没有的性质(比如没有某个中文意思)那么没有的内容不会展示.
      */
-    private void visibleCurrentWordAllMessage() {
-        Word word = wordFunctionHandler.getCurrentWord();
-        if (Strings.notEmpty(word.getADJ())) {
-            this.adjAnswer.setText(word.getADJ());
-            this.adjAnswer.setVisibility(View.VISIBLE);
-            this.adjHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getADV())) {
-            this.advAnswer.setText(word.getADV());
-            this.advAnswer.setVisibility(View.VISIBLE);
-            this.advHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getV())) {
-            this.vAnswer.setText(word.getV());
-            this.vAnswer.setVisibility(View.VISIBLE);
-            this.vHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getVI())) {
-            this.viAnswer.setText(word.getVI());
-            this.viAnswer.setVisibility(View.VISIBLE);
-            this.viHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getVT())) {
-            this.vtAnswer.setText(word.getVT());
-            this.vtAnswer.setVisibility(View.VISIBLE);
-            this.vtHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getN())) {
-            this.nAnswer.setText(word.getN());
-            this.nAnswer.setVisibility(View.VISIBLE);
-            this.nHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getCONJ())) {
-            this.conjAnswer.setText(word.getCONJ());
-            this.conjAnswer.setVisibility(View.VISIBLE);
-            this.conjHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getPRON())) {
-            this.pronAnswer.setText(word.getPRON());
-            this.pronAnswer.setVisibility(View.VISIBLE);
-            this.pronHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getNUM())) {
-            this.numAnswer.setText(word.getPRON());
-            this.numAnswer.setVisibility(View.VISIBLE);
-            this.numHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getART())) {
-            this.artAnswer.setText(word.getART());
-            this.artAnswer.setVisibility(View.VISIBLE);
-            this.artHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getPREP())) {
-            this.prepAnswer.setText(word.getPREP());
-            this.prepAnswer.setVisibility(View.VISIBLE);
-            this.prepHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getINT())) {
-            this.intAnswer.setText(word.getINT());
-            this.intAnswer.setVisibility(View.VISIBLE);
-            this.intHint.setVisibility(View.VISIBLE);
-        }
-        if (Strings.notEmpty(word.getAUX())) {
-            this.auxAnswer.setText(word.getAUX());
-            this.auxAnswer.setVisibility(View.VISIBLE);
-            this.auxHint.setVisibility(View.VISIBLE);
-        }
+    private void visibleWordAllMessage(Word word) {
+        this.sourceWord.setText(word.getWordOrigin());
+        this.sourceWordPhonetics.setText(word.getWordPhonetics());
+        chineseAnswer.setVisibility(View.VISIBLE);
+        chineseAnswerAdapter.showWordChineseMessage(word);
         if (Strings.notEmpty(word.getExampleSentence())) {
             this.exampleSentenceAnswer.setText(word.getExampleSentence());
             this.exampleSentenceAnswer.setVisibility(View.VISIBLE);
@@ -790,8 +677,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             this.categorizeOriginAnswer.setVisibility(View.VISIBLE);
             this.categorizeOriginHint.setVisibility(View.VISIBLE);
         }
-        this.sourceWord.setText(word.getWordOrigin());
-        this.sourceWordPhonetics.setText(word.getWordPhonetics());
     }
 
 
@@ -832,67 +717,69 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
 
         this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);
         this.sourceWordPhoneticsDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_phonetics);
-        this.adjHint = rootView.findViewById(R.id.fragment_word_credit_adjective_hint);
-        this.advHint = rootView.findViewById(R.id.fragment_word_credit_adverb_hint);
-        this.vHint = rootView.findViewById(R.id.fragment_word_credit_verb_hint);
-        this.viHint = rootView.findViewById(R.id.fragment_word_credit_intransitive_verb_hint);
-        this.vtHint = rootView.findViewById(R.id.fragment_word_credit_transitive_verb_hint);
-        this.nHint = rootView.findViewById(R.id.fragment_word_credit_noun_hint);
-        this.conjHint = rootView.findViewById(R.id.fragment_word_credit_conjunction_hint);
-        this.pronHint = rootView.findViewById(R.id.fragment_word_credit_pronoun_hint);
-        this.numHint = rootView.findViewById(R.id.fragment_word_credit_number_hint);
-        this.artHint = rootView.findViewById(R.id.fragment_word_credit_article_hint);
-        this.prepHint = rootView.findViewById(R.id.fragment_word_credit_preposition_hint);
-        this.intHint = rootView.findViewById(R.id.fragment_word_credit_int_word_hint);
-        this.auxHint = rootView.findViewById(R.id.fragment_word_credit_auxiliary_hint);
         this.exampleSentenceHint = rootView.findViewById(R.id.fragment_word_credit_example_sentence_hint);
         this.phraseHint = rootView.findViewById(R.id.fragment_word_credit_phrase_hint);
         this.distinguishHint = rootView.findViewById(R.id.fragment_word_credit_distinguish_hint);
         this.categorizeOriginHint = rootView.findViewById(R.id.fragment_word_credit_categorize_origin_hint);
-        this.adjAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_adjective_answer);
-        this.advAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_adverb_answer);
-        this.vAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_verb_answer);
-        this.viAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_intransitive_verb_answer);
-        this.vtAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_transitive_verb_answer);
-        this.nAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_noun_answer);
-        this.conjAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_conjunction_answer);
-        this.pronAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_pronoun_answer);
-        this.numAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_number_answer);
-        this.artAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_article_answer);
-        this.prepAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_preposition_answer);
-        this.intAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_int_word_answer);
-        this.auxAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_auxiliary_answer);
+        this.chineseAnswer = rootView.findViewById(R.id.fragment_word_credit_chinese_answer);
+        this.chineseAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_chinese_answer);
+//        this.adjHint = rootView.findViewById(R.id.fragment_word_credit_adjective_hint);
+//        this.advHint = rootView.findViewById(R.id.fragment_word_credit_adverb_hint);
+//        this.vHint = rootView.findViewById(R.id.fragment_word_credit_verb_hint);
+//        this.viHint = rootView.findViewById(R.id.fragment_word_credit_intransitive_verb_hint);
+//        this.vtHint = rootView.findViewById(R.id.fragment_word_credit_transitive_verb_hint);
+//        this.nHint = rootView.findViewById(R.id.fragment_word_credit_noun_hint);
+//        this.conjHint = rootView.findViewById(R.id.fragment_word_credit_conjunction_hint);
+//        this.pronHint = rootView.findViewById(R.id.fragment_word_credit_pronoun_hint);
+//        this.numHint = rootView.findViewById(R.id.fragment_word_credit_number_hint);
+//        this.artHint = rootView.findViewById(R.id.fragment_word_credit_article_hint);
+//        this.prepHint = rootView.findViewById(R.id.fragment_word_credit_preposition_hint);
+//        this.intHint = rootView.findViewById(R.id.fragment_word_credit_int_word_hint);
+//        this.auxHint = rootView.findViewById(R.id.fragment_word_credit_auxiliary_hint);
+//        this.adjAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_adjective_answer);
+//        this.advAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_adverb_answer);
+//        this.vAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_verb_answer);
+//        this.viAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_intransitive_verb_answer);
+//        this.vtAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_transitive_verb_answer);
+//        this.nAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_noun_answer);
+//        this.conjAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_conjunction_answer);
+//        this.pronAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_pronoun_answer);
+//        this.numAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_number_answer);
+//        this.artAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_article_answer);
+//        this.prepAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_preposition_answer);
+//        this.intAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_int_word_answer);
+//        this.auxAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_auxiliary_answer);
         this.exampleSentenceAnswer = rootView.findViewById(R.id.fragment_word_credit_example_sentence_answer);
         this.phraseAnswer = rootView.findViewById(R.id.fragment_word_credit_phrase_answer);
         this.distinguishAnswer = rootView.findViewById(R.id.fragment_word_credit_distinguish_answer);
         this.categorizeOriginAnswer = rootView.findViewById(R.id.fragment_word_credit_textview_categorize_origin_answer);
-        this.adjHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_adjective_hint);
-        this.advHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_adverb_hint);
-        this.vHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_verb_hint);
-        this.viHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_intransitive_verb_hint);
-        this.vtHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_transitive_verb_hint);
-        this.nHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_noun_hint);
-        this.conjHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_conjunction_hint);
-        this.pronHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_pronoun_hint);
-        this.numHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_number_hint);
-        this.artHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_article_hint);
-        this.prepHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_preposition_hint);
-        this.intHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_int_word_hint);
-        this.auxHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_auxiliary_hint);
+//        this.adjHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_adjective_hint);
+//        this.advHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_adverb_hint);
+//        this.vHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_verb_hint);
+//        this.viHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_intransitive_verb_hint);
+//        this.vtHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_transitive_verb_hint);
+//        this.nHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_noun_hint);
+//        this.conjHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_conjunction_hint);
+//        this.pronHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_pronoun_hint);
+//        this.numHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_number_hint);
+//        this.artHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_article_hint);
+//        this.prepHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_preposition_hint);
+//        this.intHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_int_word_hint);
+//        this.auxHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_auxiliary_hint);
         this.phraseHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_phrase_hint);
-        this.adjAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_adjective_answer);
-        this.advAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_adverb_answer);
-        this.vAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_verb_answer);
-        this.viAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_intransitive_verb_answer);
-        this.vtAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_transitive_verb_answer);
-        this.nAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_noun_answer);
-        this.conjAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_conjunction_answer);
-        this.pronAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_pronoun_answer);
-        this.numAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_number_answer);
-        this.artAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_article_answer);
-        this.prepAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_preposition_answer);
-        this.intAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_int_word_answer);
-        this.auxAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_auxiliary_answer);
+//        this.adjAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_adjective_answer);
+//        this.advAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_adverb_answer);
+//        this.vAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_verb_answer);
+//        this.viAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_intransitive_verb_answer);
+//        this.vtAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_transitive_verb_answer);
+//        this.nAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_noun_answer);
+//        this.conjAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_conjunction_answer);
+//        this.pronAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_pronoun_answer);
+//        this.numAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_number_answer);
+//        this.artAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_article_answer);
+//        this.prepAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_preposition_answer);
+//        this.intAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_int_word_answer);
+//        this.auxAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_textview_auxiliary_answer);
         this.phraseAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_phrase_answer);
     }
 

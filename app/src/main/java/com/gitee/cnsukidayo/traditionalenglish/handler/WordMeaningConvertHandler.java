@@ -15,8 +15,8 @@ public interface WordMeaningConvertHandler {
      * {@link com.gitee.cnsukidayo.traditionalenglish.utils.Strings#notEmpty(String)}
      *
      * @param word 待转换单词的引用
-     * @return 返回一个列表, 该列表存储当前单词有哪些意思
+     * @return 返回一个Map, 该列表存储当前单词有哪些意思,返回的集合应该是不可变集合
      */
-    List<MeaningCategory> convertWordMeaning(Word word);
+    List<WordMeaningConvertHandlerImpl.KeyValueMap<MeaningCategory, String>> convertWordMeaning(Word word);
 
 }

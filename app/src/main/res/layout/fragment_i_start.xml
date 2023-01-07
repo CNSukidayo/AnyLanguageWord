@@ -45,11 +45,7 @@
             android:layout_margin="16dp"
             android:lineSpacingMultiplier="2"
             android:padding="16dp"
-            android:text="@string/longmesssage" />
-        <!-- android:lineSpacingExtra，设置行间距，取值范围：正数、负数和0，正数表示增加相应的大小，负数表示减少相应的大小，0表示无变化。-->
-        <!-- android:lineSpacingMultiplier，设置行间距的倍数，取值范围：浮点数，如果值大于1.0表示增加行间距，如果值小于1.0表示减少行间距，等于1.0时表示无变化。-->
-        <!-- android:layout_margin="16dp"，TextView距离上下左右边框的距离-->
-        <!-- android:padding="16dp"，TextView中的文本内容距离TextView上下左右边界的距离-->
+            />
     </androidx.core.widget.NestedScrollView>
 
 

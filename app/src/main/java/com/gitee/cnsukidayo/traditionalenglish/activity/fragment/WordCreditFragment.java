@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -33,6 +34,7 @@ import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.SimpleItemTouchH
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishProperties;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
+import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
 import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
@@ -69,7 +71,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private ImageButton nextWord, previousWord, popBackStack, playWord;
     private TextView sourceWord, sourceWordPhonetics, getAnswer, exampleSentenceHint, phraseHint, distinguishHint, categorizeOriginHint;
     private TextView exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
-    private TextView sourceWordDrawer, sourceWordPhoneticsDrawer, phraseHintDrawer, phraseAnswerDrawer;
+    private TextView sourceWordDrawer, sourceWordPhoneticsDrawer, phraseHintDrawer, phraseAnswerDrawer, addNewStartCategory;
     private AlertDialog loadingDialog = null;
     private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout, start;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
@@ -284,6 +286,24 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.fragment_word_credit_click_start:
                 startDrawer.openDrawer(GravityCompat.END);
+                break;
+            case R.id.fragment_word_credit_start_add:
+                View addNewCategory = getLayoutInflater().inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
+                EditText categoryTile = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title);
+                EditText categoryDescribe = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe);
+                CheckBox titleDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title_default);
+                CheckBox describeDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe_default);
+                new AlertDialog.Builder(getContext())
+                        .setView(addNewCategory)
+                        .setCancelable(true)
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            WordCategory wordCategory = new WordCategory(categoryTile.getText().toString(),
+                                    categoryDescribe.getText().toString(), titleDefault.isChecked(), describeDefault.isChecked());
+                            startSingleCategoryAdapter.addNewCategory(wordCategory);
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                        })
+                        .show();
                 break;
             case R.id.fragment_word_credit_click_change_mode:
                 if (changeModePopupWindow == null) {
@@ -569,15 +589,15 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext());
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             this.chineseAnswerAdapterDrawer.setRecyclerViewState(ChineseAnswerRecyclerViewAdapter.RecyclerViewState.DRAWER);
+            // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能
+            ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryAdapter));
+            startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
+            startSingleCategoryAdapter.setStartFunctionHandler(wordFunctionHandler);
             updateUIHandler.post(() -> {
                 this.chineseAnswer.setAdapter(chineseAnswerAdapter);
                 this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
                 this.startSingleCategory.setAdapter(startSingleCategoryAdapter);
-                // todo 测试功能
-                ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(startSingleCategoryAdapter);
-                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
                 touchHelper.attachToRecyclerView(startSingleCategory);
-                startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
                 creditWord(wordFunctionHandler.getWordByOrder(0));
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
                 flagChangeArea.setVisibility(View.GONE);
@@ -722,6 +742,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.startDrawer = rootView.findViewById(R.id.fragment_word_credit_start_drawer);
         this.start = rootView.findViewById(R.id.fragment_word_credit_click_start);
         this.startSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_single_category);
+        this.addNewStartCategory = rootView.findViewById(R.id.fragment_word_credit_start_add);
 
         this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);
         this.sourceWordPhoneticsDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_phonetics);
@@ -760,6 +781,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.onlyCreditMode.setOnClickListener(this);
         this.playWord.setOnClickListener(this);
         this.start.setOnClickListener(this);
+        this.addNewStartCategory.setOnClickListener(this);
 
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_green).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_red).setOnClickListener(this);

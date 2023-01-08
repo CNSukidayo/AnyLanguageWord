@@ -936,7 +936,7 @@
                 android:id="@+id/fragment_word_credit_nested_start"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_constraintBottom_toTopOf="@id/add_new"
+                app:layout_constraintBottom_toTopOf="@id/fragment_word_credit_start_add"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
@@ -1012,7 +1012,7 @@
 
 
             <TextView
-                android:id="@+id/add_new"
+                android:id="@+id/fragment_word_credit_start_add"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="7dp"

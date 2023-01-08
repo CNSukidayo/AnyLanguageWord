@@ -79,5 +79,10 @@
     <string name="add_new_category">添加新的分类</string>
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
+    <string name="categorize_title">分类标题:</string>
+    <string name="title">标题</string>
+    <string name="default_name_rule">采用默认命名规则</string>
+    <string name="describe">描述信息(简短地描述该分类)</string>
+    <string name="describe_message">描述信息</string>
 
 </resources>

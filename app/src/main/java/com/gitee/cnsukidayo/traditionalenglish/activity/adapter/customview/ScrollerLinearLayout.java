@@ -89,6 +89,28 @@ public class ScrollerLinearLayout extends LinearLayout {
 
 
     @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        boolean intercept = false;
+        final float x = event.getX();
+        final float y = event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                startX = x;
+                startY = y;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                final float moveX = Math.abs(x - startX);
+                if (moveX > 10f) {
+                    intercept = true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return intercept;
+    }
+
+    @Override
     public void computeScroll() {
         super.computeScroll();
         if (mScroller.computeScrollOffset()) {

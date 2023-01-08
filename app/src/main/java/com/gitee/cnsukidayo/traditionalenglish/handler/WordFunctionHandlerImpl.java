@@ -1,9 +1,10 @@
 package com.gitee.cnsukidayo.traditionalenglish.handler;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
+import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
 import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
-import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
+import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.Set;
  * 每个单词都是有棕色的,棕色是不可变的颜色,也就是说用户不可以取消单词的棕色标记.<br>
  * 变色龙的每一种状态都是可以进入的,不管当前单词列表中是否有该颜色对应的单词<br>
  */
-public class WordFunctionHandlerImpl implements WordFunctionHandler {
+public class WordFunctionHandlerImpl implements WordFunctionHandler, StartFunctionHandler {
     private List<Word> allWordList;
     private final List<Set<FlagColor>> wordsFlagList;
     private int currentOrder = 0, currentIndex = 0;
@@ -31,6 +32,8 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
     private List<Word> dummyWordList;
     // 现在正在背诵的区间
     private int start = 0, end;
+    // 用于存储单词分类的列表
+    private final List<WordCategory> wordCategoryList = new ArrayList<>();
 
     public WordFunctionHandlerImpl(List<Word> initWordList) {
         this.allWordList = new ArrayList<>(initWordList.size());
@@ -208,6 +211,27 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler {
     @Override
     public CreditState getCurrentCreditState() {
         return creditState;
+    }
+
+    @Override
+    public void addNewCategory(WordCategory wordCategory) {
+        wordCategoryList.add(wordCategory);
+        wordCategory.setOrder(wordCategoryList.size() - 1);
+    }
+
+    @Override
+    public void removeCategory(int position) {
+        wordCategoryList.remove(position);
+    }
+
+    @Override
+    public int categoryListSize() {
+        return wordCategoryList.size();
+    }
+
+    @Override
+    public WordCategory getWordCategoryByPosition(int position) {
+        return wordCategoryList.get(position);
     }
 
 }

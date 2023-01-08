@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.traditionalenglish.activity.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,9 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.MoveAndSwipedListener;
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateChangedListener;
+import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
+import com.gitee.cnsukidayo.traditionalenglish.handler.StartFunctionHandler;
+import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -33,6 +36,8 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     private List<StartSingleCategoryAdapter.RecyclerViewHolder> cacheElement = new ArrayList<>(15);
     // 用于回调startDrag方法的接口,该接口耦合了,定义方式不好.
     private Consumer<RecyclerView.ViewHolder> startDragListener;
+    // 用于处理单词收藏功能的Handler
+    private StartFunctionHandler startFunctionHandler;
 
     private boolean isFirst = true;
 
@@ -50,42 +55,62 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
 
     @Override
     public void onBindViewHolder(@NonNull StartSingleCategoryAdapter.RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (cacheElement.size() == getItemCount()) {
-            return;
+        // 重置改变，防止由于复用而导致的显示问题
+        holder.itemView.scrollTo(0,0);
+        WordCategory wordCategory = startFunctionHandler.getWordCategoryByPosition(position);
+        StringBuilder defaultNameRule = new StringBuilder();
+        for (int i = 0; i < 10 && i < wordCategory.getWords().size(); i++) {
+            defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin());
         }
-        cacheElement.add(holder);
-        holder.title.setText(String.valueOf(position));
-        if (position == getItemCount() - 1) {
-            isFirst = false;
+        if (wordCategory.isDefaultTitleRule() && !Strings.notEmpty(wordCategory.getTitle())) {
+            holder.title.setText(defaultNameRule.toString());
+        } else {
+            holder.title.setText(wordCategory.getTitle());
+        }
+        if (wordCategory.isDefaultDescribeRule() && !Strings.notEmpty(wordCategory.getDescribe())) {
+            holder.describe.setText(defaultNameRule.toString());
+        } else {
+            holder.describe.setText(wordCategory.getDescribe());
         }
     }
 
     @Override
     public int getItemCount() {
-        if (isFirst) {
-            return 15;
-        }
-        return cacheElement.size();
+        return startFunctionHandler.categoryListSize();
     }
 
     public void onItemMove(int fromPosition, int toPosition) {
-        Collections.swap(cacheElement, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
     }
 
     @Override
     public void onItemDismiss(int position) {
-        cacheElement.remove(position);
+        startFunctionHandler.removeCategory(position);
         notifyItemRemoved(position);
+    }
+
+    public void addNewCategory(WordCategory wordCategory) {
+        if (startFunctionHandler == null) {
+            Log.e("no Handler", "caller want to use StartFunction,but no settings startFunctionHandler");
+            return;
+        }
+        startFunctionHandler.addNewCategory(wordCategory);
+        notifyItemInserted(startFunctionHandler.categoryListSize() - 1);
+    }
+
+
+    public void setStartFunctionHandler(StartFunctionHandler startFunctionHandler) {
+        this.startFunctionHandler = startFunctionHandler;
     }
 
     public void setStartDragListener(Consumer<RecyclerView.ViewHolder> startDragListener) {
         this.startDragListener = startDragListener;
     }
 
+
     protected class RecyclerViewHolder extends RecyclerView.ViewHolder implements StateChangedListener, View.OnTouchListener, View.OnClickListener {
         public View itemView;
-        public TextView title, detail, edit, delete;
+        public TextView title, describe, edit, delete;
         public LinearLayout categoryLinearLayout;
         public ImageButton openList, move;
 
@@ -93,7 +118,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
             super(itemView);
             this.itemView = itemView;
             this.title = itemView.findViewById(R.id.fragment_word_credit_start_single_category_title);
-            this.detail = itemView.findViewById(R.id.fragment_word_credit_start_single_category_detail);
+            this.describe = itemView.findViewById(R.id.fragment_word_credit_start_single_category_detail);
             this.categoryLinearLayout = itemView.findViewById(R.id.fragment_word_credit_start_single_category_linear_layout);
             this.openList = itemView.findViewById(R.id.fragment_word_credit_start_open_list);
             this.edit = itemView.findViewById(R.id.fragment_word_credit_start_edit);
@@ -130,7 +155,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
             switch (v.getId()) {
                 case R.id.fragment_word_credit_start_delete:
                     // 删除当前Item
-                    cacheElement.remove(getAdapterPosition());
+                    startFunctionHandler.removeCategory(getAdapterPosition());
                     notifyItemRemoved(getAdapterPosition());
                     break;
                 case R.id.fragment_word_credit_start_edit:

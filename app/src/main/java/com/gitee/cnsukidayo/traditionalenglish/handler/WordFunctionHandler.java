@@ -7,7 +7,7 @@ import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 
 import java.util.Set;
 
-public interface WordFunctionHandler {
+public interface WordFunctionHandler extends StartFunctionHandler {
     /**
      * 根据单词在列表中的位序获取单词,该方法的返回值会受到Chameleon的改变而改变.
      *

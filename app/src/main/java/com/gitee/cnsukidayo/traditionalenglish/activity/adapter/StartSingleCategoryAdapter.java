@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,6 +20,7 @@ import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateCh
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author cnsukidayo
@@ -30,6 +31,10 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     private Context context;
     // 用于存储所有所有的element
     private List<StartSingleCategoryAdapter.RecyclerViewHolder> cacheElement = new ArrayList<>(15);
+    // 用于回调startDrag方法的接口,该接口耦合了,定义方式不好.
+    private Consumer<RecyclerView.ViewHolder> startDragListener;
+
+    private boolean isFirst = true;
 
     public StartSingleCategoryAdapter(Context context) {
         this.context = context;
@@ -50,16 +55,17 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         }
         cacheElement.add(holder);
         holder.title.setText(String.valueOf(position));
-    }
-
-    public int getSlideLimitation(RecyclerView.ViewHolder viewHolder) {
-        ViewGroup viewGroup = (ViewGroup) viewHolder.itemView;
-        return viewGroup.getChildAt(1).getLayoutParams().width;
+        if (position == getItemCount() - 1) {
+            isFirst = false;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 15;
+        if (isFirst) {
+            return 15;
+        }
+        return cacheElement.size();
     }
 
     public void onItemMove(int fromPosition, int toPosition) {
@@ -73,39 +79,28 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         notifyItemRemoved(position);
     }
 
+    public void setStartDragListener(Consumer<RecyclerView.ViewHolder> startDragListener) {
+        this.startDragListener = startDragListener;
+    }
 
-    public static class RecyclerViewHolder extends RecyclerView.ViewHolder implements StateChangedListener {
+    protected class RecyclerViewHolder extends RecyclerView.ViewHolder implements StateChangedListener, View.OnTouchListener, View.OnClickListener {
         public View itemView;
-        public TextView title, detail, tv;
+        public TextView title, detail, edit, delete;
         public LinearLayout categoryLinearLayout;
-        public ImageView iv;
-        float startX;
+        public ImageButton openList, move;
 
-        @SuppressLint("ClickableViewAccessibility")
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
-            this.title = itemView.findViewById(R.id.item);
-            this.tv = itemView.findViewById(R.id.tv_text);
-            this.iv = itemView.findViewById(R.id.iv_img);
-//            this.detail = itemView.findViewById(R.id.fragment_word_credit_start_single_category_detail);
+            this.title = itemView.findViewById(R.id.fragment_word_credit_start_single_category_title);
+            this.detail = itemView.findViewById(R.id.fragment_word_credit_start_single_category_detail);
             this.categoryLinearLayout = itemView.findViewById(R.id.fragment_word_credit_start_single_category_linear_layout);
-            categoryLinearLayout.setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
-                    float x = event.getX();
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            startX = x;
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            int offsetX = (int) (x - startX);
-                            itemView.scrollTo(-(int) offsetX, 0);
-                            break;
-                    }
-                    return true;
-                }
-
-            });
+            this.openList = itemView.findViewById(R.id.fragment_word_credit_start_open_list);
+            this.edit = itemView.findViewById(R.id.fragment_word_credit_start_edit);
+            this.delete = itemView.findViewById(R.id.fragment_word_credit_start_delete);
+            this.move = itemView.findViewById(R.id.fragment_word_credit_start_move);
+            this.move.setOnTouchListener(this);
+            this.delete.setOnClickListener(this);
         }
 
         @Override
@@ -116,6 +111,31 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         @Override
         public void onItemClear() {
             categoryLinearLayout.setAlpha(1.0f);
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (v.getId()) {
+                case R.id.fragment_word_credit_start_move:
+                    if (event.getAction() == MotionEvent.ACTION_DOWN && startDragListener != null) {
+                        startDragListener.accept(this);
+                    }
+                    break;
+            }
+            return false;
+        }
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.fragment_word_credit_start_delete:
+                    // 删除当前Item
+                    cacheElement.remove(getAdapterPosition());
+                    notifyItemRemoved(getAdapterPosition());
+                    break;
+                case R.id.fragment_word_credit_start_edit:
+                    break;
+            }
         }
     }
 

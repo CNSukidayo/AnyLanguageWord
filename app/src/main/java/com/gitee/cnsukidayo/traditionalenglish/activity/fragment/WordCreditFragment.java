@@ -577,6 +577,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(startSingleCategoryAdapter);
                 ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
                 touchHelper.attachToRecyclerView(startSingleCategory);
+                startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
                 creditWord(wordFunctionHandler.getWordByOrder(0));
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
                 flagChangeArea.setVisibility(View.GONE);

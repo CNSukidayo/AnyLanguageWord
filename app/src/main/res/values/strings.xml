@@ -77,4 +77,7 @@
     <string name="show_word_origin">showWordOrigin</string>
     <string name="create_new_category">+创建一个新的分类</string>
     <string name="add_new_category">添加新的分类</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+
 </resources>

@@ -6,6 +6,7 @@ import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
+import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -232,6 +233,37 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, StartFuncti
     @Override
     public WordCategory getWordCategoryByPosition(int position) {
         return wordCategoryList.get(position);
+    }
+
+    @Override
+    public String calculationTitle(int position) {
+        WordCategory wordCategory = getWordCategoryByPosition(position);
+        if (wordCategory.isDefaultTitleRule() && !Strings.notEmpty(wordCategory.getTitle())) {
+            StringBuilder defaultNameRule = new StringBuilder();
+            for (int i = 0; i < 10 && i < wordCategory.getWords().size(); i++) {
+                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin());
+            }
+            return defaultNameRule.toString();
+        }
+        return wordCategory.getTitle();
+    }
+
+    @Override
+    public String calculationDescribe(int position) {
+        WordCategory wordCategory = getWordCategoryByPosition(position);
+        if (wordCategory.isDefaultDescribeRule() && !Strings.notEmpty(wordCategory.getDescribe())) {
+            StringBuilder defaultNameRule = new StringBuilder();
+            for (int i = 0; i < 10 && i < wordCategory.getWords().size(); i++) {
+                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin());
+            }
+            return defaultNameRule.toString();
+        }
+        return wordCategory.getDescribe();
+    }
+
+    @Override
+    public void categoryRemove(int fromPosition, int toPosition) {
+        Collections.swap(wordCategoryList, fromPosition, toPosition);
     }
 
 }

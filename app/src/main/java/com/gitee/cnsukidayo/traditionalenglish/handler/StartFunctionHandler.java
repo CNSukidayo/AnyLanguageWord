@@ -36,5 +36,24 @@ public interface StartFunctionHandler {
      */
     WordCategory getWordCategoryByPosition(int position);
 
+    /**
+     * 根据规则计算出某个WordCategory的标题信息.<br>
+     * 该方法的返回值会随着对应的WordCategory内容改变而改变.
+     *
+     * @param position 单词分类对象在列表中对应的位置
+     * @return 返回计算出的标题
+     */
+    String calculationTitle(int position);
+
+    /**
+     * 根据规则计算出某个WordCategory的描述信息.<br>
+     * 该方法的返回值会随着对应的WordCategory内容改变而改变.
+     *
+     * @param position 单词分类对象在列表中对应的位置
+     * @return 返回计算出的描述信息
+     */
+    String calculationDescribe(int position);
+
+    void categoryRemove(int fromPosition, int toPosition);
 
 }

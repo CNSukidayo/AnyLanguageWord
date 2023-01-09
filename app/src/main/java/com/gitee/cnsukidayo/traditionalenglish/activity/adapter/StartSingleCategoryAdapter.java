@@ -7,11 +7,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
@@ -19,7 +22,6 @@ import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.MoveAnd
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateChangedListener;
 import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.StartFunctionHandler;
-import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +41,6 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     // 用于处理单词收藏功能的Handler
     private StartFunctionHandler startFunctionHandler;
 
-    private boolean isFirst = true;
-
     public StartSingleCategoryAdapter(Context context) {
         this.context = context;
     }
@@ -56,22 +56,9 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     @Override
     public void onBindViewHolder(@NonNull StartSingleCategoryAdapter.RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // 重置改变，防止由于复用而导致的显示问题
-        holder.itemView.scrollTo(0,0);
-        WordCategory wordCategory = startFunctionHandler.getWordCategoryByPosition(position);
-        StringBuilder defaultNameRule = new StringBuilder();
-        for (int i = 0; i < 10 && i < wordCategory.getWords().size(); i++) {
-            defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin());
-        }
-        if (wordCategory.isDefaultTitleRule() && !Strings.notEmpty(wordCategory.getTitle())) {
-            holder.title.setText(defaultNameRule.toString());
-        } else {
-            holder.title.setText(wordCategory.getTitle());
-        }
-        if (wordCategory.isDefaultDescribeRule() && !Strings.notEmpty(wordCategory.getDescribe())) {
-            holder.describe.setText(defaultNameRule.toString());
-        } else {
-            holder.describe.setText(wordCategory.getDescribe());
-        }
+        holder.itemView.scrollTo(0, 0);
+        holder.title.setText(startFunctionHandler.calculationTitle(position));
+        holder.describe.setText(startFunctionHandler.calculationDescribe(position));
     }
 
     @Override
@@ -80,6 +67,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     }
 
     public void onItemMove(int fromPosition, int toPosition) {
+        startFunctionHandler.categoryRemove(fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
     }
 
@@ -126,6 +114,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
             this.move = itemView.findViewById(R.id.fragment_word_credit_start_move);
             this.move.setOnTouchListener(this);
             this.delete.setOnClickListener(this);
+            this.edit.setOnClickListener(this);
         }
 
         @Override
@@ -159,6 +148,27 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
                     notifyItemRemoved(getAdapterPosition());
                     break;
                 case R.id.fragment_word_credit_start_edit:
+                    // 编辑收藏夹信息
+                    View editStart = LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
+                    EditText categoryTile = editStart.findViewById(R.id.fragment_word_credit_start_new_title);
+                    EditText categoryDescribe = editStart.findViewById(R.id.fragment_word_credit_start_new_describe);
+                    CheckBox titleDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_title_default);
+                    CheckBox describeDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_describe_default);
+                    new AlertDialog.Builder(context)
+                            .setView(editStart)
+                            .setCancelable(true)
+                            .setPositiveButton("确定", (dialog, which) -> {
+                                WordCategory wordCategory = startFunctionHandler.getWordCategoryByPosition(getAdapterPosition());
+                                wordCategory.setTitle(categoryTile.getText().toString());
+                                wordCategory.setDescribe(categoryDescribe.getText().toString());
+                                wordCategory.setDefaultTitleRule(titleDefault.isChecked());
+                                wordCategory.setDefaultDescribeRule(describeDefault.isChecked());
+                                title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
+                                describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
+                            })
+                            .setNegativeButton("取消", (dialog, which) -> {
+                            })
+                            .show();
                     break;
             }
         }

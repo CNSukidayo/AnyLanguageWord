@@ -2,7 +2,7 @@ package com.gitee.cnsukidayo.traditionalenglish.factory;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordMeaningConvertHandler;
-import com.gitee.cnsukidayo.traditionalenglish.handler.WordMeaningConvertHandlerImpl;
+import com.gitee.cnsukidayo.traditionalenglish.handler.impl.WordMeaningConvertHandlerImpl;
 import com.google.gson.Gson;
 
 import java.util.concurrent.ExecutorService;

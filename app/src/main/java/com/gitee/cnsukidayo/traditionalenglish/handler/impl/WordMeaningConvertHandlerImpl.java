@@ -1,7 +1,9 @@
-package com.gitee.cnsukidayo.traditionalenglish.handler;
+package com.gitee.cnsukidayo.traditionalenglish.handler.impl;
 
+import com.gitee.cnsukidayo.traditionalenglish.context.KeyValueMap;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.MeaningCategory;
+import com.gitee.cnsukidayo.traditionalenglish.handler.WordMeaningConvertHandler;
 import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
 
 import java.util.ArrayList;
@@ -43,32 +45,6 @@ public class WordMeaningConvertHandlerImpl implements WordMeaningConvertHandler 
         if (Strings.notEmpty(word.getAUX()))
             result.add(new KeyValueMap<>(MeaningCategory.AUXILIARY, word.getAUX()));
         return Collections.unmodifiableList(result);
-    }
-
-    public static class KeyValueMap<K, V> {
-        private K key;
-        private V value;
-
-        public KeyValueMap(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public K getKey() {
-            return key;
-        }
-
-        public void setKey(K key) {
-            this.key = key;
-        }
-
-        public V getValue() {
-            return value;
-        }
-
-        public void setValue(V value) {
-            this.value = value;
-        }
     }
 
 }

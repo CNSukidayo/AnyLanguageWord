@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.handler;
+package com.gitee.cnsukidayo.traditionalenglish.handler.impl;
 
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
@@ -6,6 +6,8 @@ import com.gitee.cnsukidayo.traditionalenglish.enums.CreditState;
 import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
+import com.gitee.cnsukidayo.traditionalenglish.handler.CategoryFunctionHandler;
+import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandler;
 import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ import java.util.Set;
  * 每个单词都是有棕色的,棕色是不可变的颜色,也就是说用户不可以取消单词的棕色标记.<br>
  * 变色龙的每一种状态都是可以进入的,不管当前单词列表中是否有该颜色对应的单词<br>
  */
-public class WordFunctionHandlerImpl implements WordFunctionHandler, StartFunctionHandler {
+public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFunctionHandler {
     private List<Word> allWordList;
     private final List<Set<FlagColor>> wordsFlagList;
     private int currentOrder = 0, currentIndex = 0;
@@ -240,10 +242,14 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, StartFuncti
         WordCategory wordCategory = getWordCategoryByPosition(position);
         if (wordCategory.isDefaultTitleRule() && !Strings.notEmpty(wordCategory.getTitle())) {
             StringBuilder defaultNameRule = new StringBuilder();
-            for (int i = 0; i < 10 && i < wordCategory.getWords().size(); i++) {
-                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin());
+            for (int i = 0; i < 3 && i < wordCategory.getWords().size(); i++) {
+                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin()).append("、");
             }
-            return defaultNameRule.toString();
+            if (defaultNameRule.length() > 1) {
+                return defaultNameRule.substring(0, defaultNameRule.length() - 1);
+            } else {
+                return defaultNameRule.toString();
+            }
         }
         return wordCategory.getTitle();
     }
@@ -253,10 +259,14 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, StartFuncti
         WordCategory wordCategory = getWordCategoryByPosition(position);
         if (wordCategory.isDefaultDescribeRule() && !Strings.notEmpty(wordCategory.getDescribe())) {
             StringBuilder defaultNameRule = new StringBuilder();
-            for (int i = 0; i < 10 && i < wordCategory.getWords().size(); i++) {
-                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin());
+            for (int i = 0; i < 3 && i < wordCategory.getWords().size(); i++) {
+                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin()).append("、");
             }
-            return defaultNameRule.toString();
+            if (defaultNameRule.length() > 1) {
+                return defaultNameRule.substring(0, defaultNameRule.length() - 1);
+            } else {
+                return defaultNameRule.toString();
+            }
         }
         return wordCategory.getDescribe();
     }
@@ -266,4 +276,28 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, StartFuncti
         Collections.swap(wordCategoryList, fromPosition, toPosition);
     }
 
+    @Override
+    public int currentCategorySize(int categoryID) {
+        return getWordCategoryByPosition(categoryID).getWords().size();
+    }
+
+    @Override
+    public void addWordToCategory(int categoryID, Word addWord) {
+        getWordCategoryByPosition(categoryID).getWords().add(addWord);
+    }
+
+    @Override
+    public void removeWordFromCategory(int categoryID, int position) {
+        getWordCategoryByPosition(categoryID).getWords().remove(position);
+    }
+
+    @Override
+    public Word getWordFromCategory(int categoryID, int position) {
+        return getWordCategoryByPosition(categoryID).getWords().get(position);
+    }
+
+    @Override
+    public void moveCategoryWord(int categoryID, int sourcePosition, int targetPosition) {
+        Collections.swap(getWordCategoryByPosition(categoryID).getWords(), sourcePosition, targetPosition);
+    }
 }

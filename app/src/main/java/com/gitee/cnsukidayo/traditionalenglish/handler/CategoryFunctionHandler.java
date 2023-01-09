@@ -1,12 +1,22 @@
 package com.gitee.cnsukidayo.traditionalenglish.handler;
 
+import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
 
 /**
  * @author cnsukidayo
  * @date 2023/1/8 19:48
  */
-public interface StartFunctionHandler {
+public interface CategoryFunctionHandler extends CategoryWordFunctionHandler {
+
+    /**
+     * 得到当前停留的单词(得到当前正在背诵的单词)
+     * 该方法返回的单词是用户可能想要将其收藏到某个收藏夹内的单词.
+     *
+     * @return 返回当前正在背诵的单词引用
+     */
+    Word getCurrentWord();
+
     /**
      * 添加一个单词分类
      *

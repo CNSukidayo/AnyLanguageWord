@@ -40,7 +40,7 @@ import com.gitee.cnsukidayo.traditionalenglish.enums.FlagColor;
 import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandler;
-import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandlerImpl;
+import com.gitee.cnsukidayo.traditionalenglish.handler.impl.WordFunctionHandlerImpl;
 import com.gitee.cnsukidayo.traditionalenglish.utils.AnimationUtil;
 import com.gitee.cnsukidayo.traditionalenglish.utils.DPUtils;
 import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
@@ -299,7 +299,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                         .setPositiveButton("确定", (dialog, which) -> {
                             WordCategory wordCategory = new WordCategory(categoryTile.getText().toString(),
                                     categoryDescribe.getText().toString(), titleDefault.isChecked(), describeDefault.isChecked());
-                            startSingleCategoryAdapter.addNewCategory(wordCategory);
+                            startSingleCategoryAdapter.addItem(wordCategory);
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
                         })
@@ -741,7 +741,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.playWord = rootView.findViewById(R.id.fragment_word_credit_play_word);
         this.startDrawer = rootView.findViewById(R.id.fragment_word_credit_start_drawer);
         this.start = rootView.findViewById(R.id.fragment_word_credit_click_start);
-        this.startSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_single_category);
+        this.startSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_category_recycler);
         this.addNewStartCategory = rootView.findViewById(R.id.fragment_word_credit_start_add);
 
         this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);

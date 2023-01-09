@@ -1,5 +1,6 @@
 package com.gitee.cnsukidayo.traditionalenglish.handler;
 
+import com.gitee.cnsukidayo.traditionalenglish.context.KeyValueMap;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.MeaningCategory;
 
@@ -17,6 +18,6 @@ public interface WordMeaningConvertHandler {
      * @param word 待转换单词的引用
      * @return 返回一个Map, 该列表存储当前单词有哪些意思,返回的集合应该是不可变集合
      */
-    List<WordMeaningConvertHandlerImpl.KeyValueMap<MeaningCategory, String>> convertWordMeaning(Word word);
+    List<KeyValueMap<MeaningCategory, String>> convertWordMeaning(Word word);
 
 }

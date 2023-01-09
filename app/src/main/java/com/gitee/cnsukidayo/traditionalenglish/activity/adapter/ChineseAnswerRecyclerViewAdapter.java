@@ -11,11 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.context.KeyValueMap;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.enums.MeaningCategory;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordMeaningConvertHandler;
-import com.gitee.cnsukidayo.traditionalenglish.handler.WordMeaningConvertHandlerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +44,8 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
             holder.meaningCategoryHint.setVisibility(View.GONE);
         }
         WordMeaningConvertHandler wordMeaningConvertHandler = StaticFactory.getWordMeaningConvertHandler();
-        List<WordMeaningConvertHandlerImpl.KeyValueMap<MeaningCategory, String>> meaningCategories = wordMeaningConvertHandler.convertWordMeaning(word);
-        for (WordMeaningConvertHandlerImpl.KeyValueMap<MeaningCategory, String> meaningCategory : meaningCategories) {
+        List<KeyValueMap<MeaningCategory, String>> meaningCategories = wordMeaningConvertHandler.convertWordMeaning(word);
+        for (KeyValueMap<MeaningCategory, String> meaningCategory : meaningCategories) {
             RecyclerViewHolder holder = cacheElement.get(meaningCategory.getKey().ordinal());
             holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
             holder.meaningCategoryHint.setVisibility(View.VISIBLE);
@@ -102,8 +102,7 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
 
     public enum RecyclerViewState {
         MAIN,
-        DRAWER,
-        START
+        DRAWER
     }
 
 }

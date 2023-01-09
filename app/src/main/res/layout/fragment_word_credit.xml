@@ -942,14 +942,15 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="7dp"
-                    android:layout_marginEnd="7dp"
+                    android:layout_marginBottom="7dp"
                     android:minHeight="600dp"
                     android:orientation="vertical">
 
                     <HorizontalScrollView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:layout_marginEnd="7dp"
                         android:scrollbars="none">
 
                         <LinearLayout
@@ -997,13 +998,21 @@
                         </LinearLayout>
                     </HorizontalScrollView>
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:layout_marginStart="7dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginEnd="7dp"
+                        android:background="@drawable/fragment_word_credit_drawer_radius_line" />
+
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp">
-
+                        <!--这里实际上是三层嵌套,逻辑比较复杂-->
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/fragment_word_credit_start_single_category"
+                            android:id="@+id/fragment_word_credit_start_category_recycler"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content" />
                     </RelativeLayout>

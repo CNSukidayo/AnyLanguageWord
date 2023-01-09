@@ -10,28 +10,34 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.MoveAndSwipedListener;
 import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateChangedListener;
 import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
-import com.gitee.cnsukidayo.traditionalenglish.handler.StartFunctionHandler;
+import com.gitee.cnsukidayo.traditionalenglish.handler.RecyclerViewAdapterItemChange;
+import com.gitee.cnsukidayo.traditionalenglish.handler.CategoryFunctionHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
+ * 每个分类的Adapter
+ *
  * @author cnsukidayo
  * @date 2023/1/7 17:35
  */
-public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingleCategoryAdapter.RecyclerViewHolder> implements MoveAndSwipedListener {
+public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingleCategoryAdapter.RecyclerViewHolder> implements MoveAndSwipedListener, RecyclerViewAdapterItemChange<WordCategory> {
 
     private Context context;
     // 用于存储所有所有的element
@@ -39,7 +45,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     // 用于回调startDrag方法的接口,该接口耦合了,定义方式不好.
     private Consumer<RecyclerView.ViewHolder> startDragListener;
     // 用于处理单词收藏功能的Handler
-    private StartFunctionHandler startFunctionHandler;
+    private CategoryFunctionHandler startFunctionHandler;
 
     public StartSingleCategoryAdapter(Context context) {
         this.context = context;
@@ -56,7 +62,8 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     @Override
     public void onBindViewHolder(@NonNull StartSingleCategoryAdapter.RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // 重置改变，防止由于复用而导致的显示问题
-        holder.itemView.scrollTo(0, 0);
+        holder.scroller.scrollTo(0, 0);
+        holder.underNowStartAllWord.setVisibility(View.GONE);
         holder.title.setText(startFunctionHandler.calculationTitle(position));
         holder.describe.setText(startFunctionHandler.calculationDescribe(position));
     }
@@ -77,17 +84,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         notifyItemRemoved(position);
     }
 
-    public void addNewCategory(WordCategory wordCategory) {
-        if (startFunctionHandler == null) {
-            Log.e("no Handler", "caller want to use StartFunction,but no settings startFunctionHandler");
-            return;
-        }
-        startFunctionHandler.addNewCategory(wordCategory);
-        notifyItemInserted(startFunctionHandler.categoryListSize() - 1);
-    }
-
-
-    public void setStartFunctionHandler(StartFunctionHandler startFunctionHandler) {
+    public void setStartFunctionHandler(CategoryFunctionHandler startFunctionHandler) {
         this.startFunctionHandler = startFunctionHandler;
     }
 
@@ -96,35 +93,76 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     }
 
 
-    protected class RecyclerViewHolder extends RecyclerView.ViewHolder implements StateChangedListener, View.OnTouchListener, View.OnClickListener {
-        public View itemView;
-        public TextView title, describe, edit, delete;
-        public LinearLayout categoryLinearLayout;
-        public ImageButton openList, move;
+    @Override
+    public void addItem(WordCategory wordCategory) {
+        if (startFunctionHandler == null) {
+            Log.e("no Handler", "caller want to use StartFunction,but no settings startFunctionHandler");
+            return;
+        }
+        startFunctionHandler.addNewCategory(wordCategory);
+        notifyItemInserted(startFunctionHandler.categoryListSize() - 1);
+    }
+
+    @Override
+    public void removeItem(WordCategory wordCategory) {
+
+    }
+
+
+    protected class RecyclerViewHolder extends RecyclerView.ViewHolder
+            implements StateChangedListener, View.OnTouchListener, View.OnClickListener, StartSingleCategoryWordAdapter.FunctionListener {
+        public View itemView, scroller;
+        public TextView title, describe, edit, delete, addWord;
+        public LinearLayout openList;
+        public ImageView listState;
+        public ImageButton move;
+        /*
+         如果某个分类展开与否的状态需要由StartFunctionHandler来控制,则托管由StartFunctionHandler来实现该功能.
+         目前而言,暂时不需要外部接入,内部就能够完成,就内部来实现这个功能
+         */
+        private boolean isOpen;
+        // 显示当前收藏夹下的所有单词的RecyclerView
+        public RecyclerView underNowStartAllWord;
+        public StartSingleCategoryWordAdapter startSingleCategoryWordAdapter;
+        public ItemTouchHelper touchHelper;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             this.title = itemView.findViewById(R.id.fragment_word_credit_start_single_category_title);
             this.describe = itemView.findViewById(R.id.fragment_word_credit_start_single_category_detail);
-            this.categoryLinearLayout = itemView.findViewById(R.id.fragment_word_credit_start_single_category_linear_layout);
+            this.scroller = itemView.findViewById(R.id.fragment_word_credit_start_single_category_scroller);
             this.openList = itemView.findViewById(R.id.fragment_word_credit_start_open_list);
+            this.listState = itemView.findViewById(R.id.fragment_word_credit_start_list_state);
             this.edit = itemView.findViewById(R.id.fragment_word_credit_start_edit);
             this.delete = itemView.findViewById(R.id.fragment_word_credit_start_delete);
             this.move = itemView.findViewById(R.id.fragment_word_credit_start_move);
+            this.addWord = itemView.findViewById(R.id.fragment_word_credit_start_add_word);
+            this.underNowStartAllWord = itemView.findViewById(R.id.fragment_word_credit_start_single_category_word_recycler_view);
+            // 加载当前分类下的所有单词
+            this.underNowStartAllWord.setLayoutManager(new LinearLayoutManager(context));
+            this.startSingleCategoryWordAdapter = new StartSingleCategoryWordAdapter(context);
+            this.underNowStartAllWord.setAdapter(startSingleCategoryWordAdapter);
+            this.touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryWordAdapter));
+            this.touchHelper.attachToRecyclerView(underNowStartAllWord);
+            startSingleCategoryWordAdapter.setCategoryWordFunctionHandler(startFunctionHandler);
+            startSingleCategoryWordAdapter.setFunctionListener(this);
+
             this.move.setOnTouchListener(this);
             this.delete.setOnClickListener(this);
             this.edit.setOnClickListener(this);
+            this.openList.setOnClickListener(this);
+            this.addWord.setOnClickListener(this);
         }
 
         @Override
         public void onItemSelected() {
-            categoryLinearLayout.setAlpha(0.5f);
+            itemView.setAlpha(0.5f);
         }
 
         @Override
         public void onItemClear() {
-            categoryLinearLayout.setAlpha(1.0f);
+            itemView.setAlpha(1.0f);
         }
 
         @Override
@@ -170,7 +208,40 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
                             })
                             .show();
                     break;
+                case R.id.fragment_word_credit_start_open_list:
+                    if (isOpen) {
+                        underNowStartAllWord.setVisibility(View.GONE);
+                        listState.setRotation(90);
+                        listState.getDrawable().setTint(context.getResources().getColor(R.color.dark_gray, null));
+                    } else {
+                        underNowStartAllWord.setVisibility(View.VISIBLE);
+                        listState.getDrawable().setTint(context.getResources().getColor(android.R.color.holo_blue_dark, null));
+                        listState.setRotation(180);
+                    }
+                    isOpen = !isOpen;
+                    break;
+                case R.id.fragment_word_credit_start_add_word:
+                    startSingleCategoryWordAdapter.addItem(startFunctionHandler.getCurrentWord());
+                    title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
+                    describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
+                    break;
             }
+        }
+
+        @Override
+        public void startDrag(RecyclerView.ViewHolder viewHolder) {
+            this.touchHelper.startDrag(viewHolder);
+        }
+
+        @Override
+        public int getCurrentWordCategoryID() {
+            return getAdapterPosition();
+        }
+
+        @Override
+        public void updateCategoryMessage() {
+            title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
+            describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
         }
     }
 

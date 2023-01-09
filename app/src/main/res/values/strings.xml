@@ -84,5 +84,6 @@
     <string name="default_name_rule">采用默认命名规则</string>
     <string name="describe">描述信息(简短地描述该分类)</string>
     <string name="describe_message">描述信息</string>
+    <string name="add_word">添加单词</string>
 
 </resources>

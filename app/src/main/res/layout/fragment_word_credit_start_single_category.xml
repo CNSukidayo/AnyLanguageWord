@@ -1,98 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_word_credit_start_single_category_linear_layout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:orientation="horizontal">
+    android:layout_marginBottom="3dp"
+    android:background="@drawable/fragment_word_credit_start_single_category_background"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout
+        android:id="@+id/fragment_word_credit_start_single_category_scroller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="7dp"
         android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/fragment_word_credit_start_open_list"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/back_to_trace"
-            android:foreground="@drawable/item_gray_select_radius_18dp"
-            android:gravity="center"
-            android:scaleType="fitCenter"
-            android:src="?attr/actionModeCloseDrawable" />
 
         <LinearLayout
+            android:id="@+id/fragment_word_credit_start_open_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:orientation="vertical">
+            android:clickable="true"
+            android:foreground="@drawable/item_gray_select"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/fragment_word_credit_start_single_category_title"
+            <ImageView
+                android:id="@+id/fragment_word_credit_start_list_state"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:rotation="90"
+                android:scaleType="fitCenter"
+                android:src="@drawable/up"
+                app:tint="@color/dark_gray" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="test"
-                android:textColor="@color/black"
-                android:textSize="22sp" />
+                android:layout_marginStart="7dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/fragment_word_credit_start_single_category_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="test"
+                    android:textColor="@color/black"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:id="@+id/fragment_word_credit_start_single_category_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="test"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+
+            android:id="@+id/fragment_word_credit_start_single_category_menu"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/fragment_word_credit_start_single_category_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:maxLines="1"
-                android:text="test"
-                android:textColor="@color/black"
+                android:id="@+id/fragment_word_credit_start_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/holo_blue_light"
+                android:gravity="center"
+                android:text="@string/edit"
+                android:textColor="@color/white"
                 android:textSize="18sp" />
 
+            <TextView
+                android:id="@+id/fragment_word_credit_start_add_word"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/holo_orange_light"
+                android:gravity="center"
+                android:text="@string/add_word"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/fragment_word_credit_start_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/holo_red_light"
+                android:gravity="center"
+
+                android:text="@string/delete"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <ImageButton
+                android:id="@+id/fragment_word_credit_start_move"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.2"
+                android:background="@drawable/back_to_trace"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/element_move" />
         </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/fragment_word_credit_start_single_category_menu"
-        android:layout_width="200dp"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/fragment_word_credit_start_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@android:color/holo_blue_light"
-            android:gravity="center"
-            android:text="@string/edit"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/fragment_word_credit_start_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@android:color/holo_red_light"
-            android:gravity="center"
-
-            android:text="@string/delete"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
-
-        <ImageButton
-            android:id="@+id/fragment_word_credit_start_move"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="0.2"
-            android:background="@drawable/back_to_trace"
-            android:gravity="center"
-            android:scaleType="fitCenter"
-            android:src="@drawable/element_move" />
-    </LinearLayout>
 
 
-</com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout>
+    </com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="7dp"
+        android:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/fragment_word_credit_start_single_category_word_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+</LinearLayout>

@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener;
 
 /**
  * Item状态改变时调用该监听器

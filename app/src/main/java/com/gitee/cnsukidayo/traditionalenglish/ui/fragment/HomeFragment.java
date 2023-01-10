@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
+package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,7 +15,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.MainActivity;
+import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.google.android.material.internal.NavigationMenuView;
 import com.google.android.material.navigation.NavigationView;
 

@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
+package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.BottomViewAdapter;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.BottomViewAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;

@@ -1,12 +1,12 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.MoveAndSwipedListener;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateChangedListener;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.MoveAndSwipedListener;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.StateChangedListener;
 
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 

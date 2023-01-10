@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".activity.fragment.WordCreditFragment"
+    tools:context=".ui.fragment.WordCreditFragment"
     tools:openDrawer="end">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -942,7 +942,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="7dp"
+                    android:layout_marginBottom="4dp"
                     android:minHeight="600dp"
                     android:orientation="vertical">
 
@@ -1023,12 +1023,11 @@
             <TextView
                 android:id="@+id/fragment_word_credit_start_add"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginStart="7dp"
                 android:layout_marginEnd="7dp"
                 android:layout_marginBottom="2dp"
-                android:background="@drawable/welcome_disagree_button"
-                android:foreground="@drawable/item_gray_select"
+                android:background="@drawable/fragment_word_credit_drawer_add_new"
                 android:gravity="center"
                 android:paddingBottom="3dp"
                 android:text="@string/add_new_category"

@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener;
 
 /**
  * Item被移动或者滑动时的监听器

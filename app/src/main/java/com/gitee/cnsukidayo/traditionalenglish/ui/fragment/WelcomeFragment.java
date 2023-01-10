@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
+package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.MainActivity;
+import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.utils.UserUtils;
 
 public class WelcomeFragment extends Fragment implements View.OnClickListener {

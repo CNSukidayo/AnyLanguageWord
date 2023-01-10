@@ -7,7 +7,7 @@
     android:background="@color/white"
     android:fitsSystemWindows="true"
     android:theme="@style/Theme.TraditionalEnglish.Adapter"
-    tools:context=".activity.fragment.MainFragmentAdapter">
+    tools:context=".ui.fragment.MainFragmentAdapter">
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/fragment_main_drawer_layout"

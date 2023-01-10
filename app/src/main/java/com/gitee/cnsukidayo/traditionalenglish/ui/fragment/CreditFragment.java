@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
+package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.MainActivity;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.CreditAddToPlaneListAdapter;
+import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.CreditAddToPlaneListAdapter;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 

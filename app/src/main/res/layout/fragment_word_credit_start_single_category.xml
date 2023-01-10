@@ -7,21 +7,21 @@
     android:background="@drawable/fragment_word_credit_start_single_category_background"
     android:orientation="vertical">
 
-    <com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout
+    <com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.ScrollerLinearLayout
         android:id="@+id/fragment_word_credit_start_single_category_scroller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="7dp"
-        android:layout_marginTop="3dp"
-        android:layout_marginEnd="7dp"
+
         android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/fragment_word_credit_start_open_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/fragment_word_credit_start_single_category_background_open_list"
             android:clickable="true"
-            android:foreground="@drawable/item_gray_select"
             android:orientation="horizontal">
 
             <ImageView
@@ -29,6 +29,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="center_vertical"
+                android:layout_marginStart="4dp"
                 android:gravity="center"
                 android:rotation="90"
                 android:scaleType="fitCenter"
@@ -39,6 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="7dp"
+                android:layout_marginTop="3dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -66,11 +68,11 @@
         </LinearLayout>
 
         <LinearLayout
-
             android:id="@+id/fragment_word_credit_start_single_category_menu"
             android:layout_width="250dp"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:layout_marginTop="@dimen/fragment_word_credit_start_category_stroke"
+            android:layout_marginBottom="@dimen/fragment_word_credit_start_category_stroke"
             android:orientation="horizontal">
 
             <TextView
@@ -123,19 +125,18 @@
         </LinearLayout>
 
 
-    </com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout>
+    </com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.ScrollerLinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="7dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="7dp"
         android:visibility="visible">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fragment_word_credit_start_single_category_word_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="7dp" />
     </RelativeLayout>
 </LinearLayout>

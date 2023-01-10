@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -15,12 +15,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.MoveAndSwipedListener;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateChangedListener;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.MoveAndSwipedListener;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.StateChangedListener;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.handler.CategoryWordFunctionHandler;
 import com.gitee.cnsukidayo.traditionalenglish.handler.RecyclerViewAdapterItemChange;
 import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 每个分类中的每个单词Adapter
@@ -34,6 +38,8 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
     private FunctionListener functionListener;
     // 用于处理单词收藏功能的Handler
     private CategoryWordFunctionHandler categoryWordFunctionHandler;
+    // 用户缓存所有的element
+    private final List<RecyclerViewHolder> cacheElement = new ArrayList<>();
 
     public StartSingleCategoryWordAdapter(Context context) {
         this.context = context;
@@ -54,6 +60,13 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
         Word word = categoryWordFunctionHandler.getWordFromCategory(functionListener.getCurrentWordCategoryID(), position);
         holder.wordOrigin.setText(word.getWordOrigin());
         holder.wordPhonetics.setText(word.getWordPhonetics());
+        // 将第一根线设置为别的颜色
+        if (position == 0) {
+            holder.separator.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light, null));
+        } else {
+            holder.separator.setBackgroundColor(context.getResources().getColor(R.color.dark_gray, null));
+        }
+        cacheElement.add(holder);
         // 最后一个嵌套,单词中文意思的嵌套
         holder.chineseAnswerRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         holder.startChineseAnswerRecyclerViewAdapter = new StartChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getWordFromCategory(functionListener.getCurrentWordCategoryID(), position));
@@ -81,6 +94,11 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
     public void onItemMove(int fromPosition, int toPosition) {
         categoryWordFunctionHandler.moveCategoryWord(functionListener.getCurrentWordCategoryID(), fromPosition, toPosition);
         functionListener.updateCategoryMessage();
+        Collections.swap(cacheElement, fromPosition, toPosition);
+        // 维持第一个分割线的颜色是蓝色
+        cacheElement.get(fromPosition).separator.setBackgroundColor(context.getResources().getColor(R.color.dark_gray, null));
+        cacheElement.get(toPosition).separator.setBackgroundColor(context.getResources().getColor(R.color.dark_gray, null));
+        cacheElement.get(0).separator.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light, null));
         notifyItemMoved(fromPosition, toPosition);
     }
 
@@ -115,7 +133,7 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
 
 
     protected class RecyclerViewHolder extends RecyclerView.ViewHolder implements StateChangedListener, View.OnTouchListener, View.OnClickListener {
-        public View itemView, scroller;
+        public View itemView, scroller, separator;
         public TextView delete, wordOrigin, wordPhonetics, phraseAnswer, phraseHint;
         public ImageButton move;
         public RecyclerView chineseAnswerRecyclerView;
@@ -132,6 +150,7 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
             this.chineseAnswerRecyclerView = itemView.findViewById(R.id.fragment_word_credit_start_category_chinese_answer);
             this.phraseHint = itemView.findViewById(R.id.fragment_word_credit_start_phrase_hint);
             this.phraseAnswer = itemView.findViewById(R.id.fragment_word_credit_start_phrase_answer);
+            this.separator = itemView.findViewById(R.id.fragment_word_credit_start_single_category_word_separator);
             this.move.setOnTouchListener(this);
             this.delete.setOnClickListener(this);
         }
@@ -165,6 +184,8 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
                 case R.id.fragment_word_credit_start_word_delete:
                     categoryWordFunctionHandler.removeWordFromCategory(functionListener.getCurrentWordCategoryID(), getAdapterPosition());
                     functionListener.updateCategoryMessage();
+                    cacheElement.remove(getAdapterPosition());
+                    cacheElement.get(0).separator.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light, null));
                     notifyItemRemoved(getAdapterPosition());
                     break;
             }

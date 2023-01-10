@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity;
+package com.gitee.cnsukidayo.traditionalenglish.ui;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -10,9 +10,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WelcomeFragment;
+import com.gitee.cnsukidayo.traditionalenglish.ui.fragment.WelcomeFragment;
 import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishProperties;
 import com.gitee.cnsukidayo.traditionalenglish.context.UserSettings;
+import com.gitee.cnsukidayo.traditionalenglish.ui.fragment.WordCreditFragment;
 import com.gitee.cnsukidayo.traditionalenglish.utils.UserUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
         if (fragment instanceof WelcomeFragment) {
             ((WelcomeFragment) fragment).onKeyUp(keyCode, event);
         }
-        return super.onKeyUp(keyCode, event);
+        if (fragment instanceof WordCreditFragment) {
+            ((WordCreditFragment) fragment).onKeyUp(keyCode, event);
+        }
+        return true;
     }
 }

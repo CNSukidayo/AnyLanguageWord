@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.fragment;
+package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,9 +30,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.ChineseAnswerRecyclerViewAdapter;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.SimpleItemTouchHelperCallback;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.context.TraditionalEnglishProperties;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
 import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
@@ -41,6 +39,9 @@ import com.gitee.cnsukidayo.traditionalenglish.enums.WordFunctionState;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordFunctionHandler;
 import com.gitee.cnsukidayo.traditionalenglish.handler.impl.WordFunctionHandlerImpl;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.ChineseAnswerRecyclerViewAdapter;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.SimpleItemTouchHelperCallback;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.utils.AnimationUtil;
 import com.gitee.cnsukidayo.traditionalenglish.utils.DPUtils;
 import com.gitee.cnsukidayo.traditionalenglish.utils.Strings;
@@ -76,6 +77,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout, start;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
     private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
+    private long exitLastTime = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,6 +117,22 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         return rootView;
     }
 
+    public void onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            if (startDrawer.isDrawerOpen(GravityCompat.END)) {
+                startDrawer.closeDrawer(GravityCompat.END);
+                return;
+            }
+            if (System.currentTimeMillis() - exitLastTime > 2000) {
+                Toast toast = Toast.makeText(getContext(), "再按一次退出", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 500);
+                toast.show();
+                exitLastTime = System.currentTimeMillis();
+            } else {
+                Navigation.findNavController(popBackStack).popBackStack();
+            }
+        }
+    }
 
     @SuppressLint({"NonConstantResourceId", "UseCompatLoadingForDrawables"})
     @Override

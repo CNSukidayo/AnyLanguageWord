@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -4,4 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fragment_word_credit_hint_width">107dp</dimen>
     <dimen name="fragment_word_credit_pop_window_change_mode">15dp</dimen>
+    <!--收藏夹背景的弧度、画笔的宽度-->
+    <dimen name="fragment_word_credit_start_category_radius">10dp</dimen>
+    <dimen name="fragment_word_credit_start_category_stroke">1dp</dimen>
 </resources>

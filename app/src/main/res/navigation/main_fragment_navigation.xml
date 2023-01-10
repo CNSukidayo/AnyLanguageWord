@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/main_navigation"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.MainFragmentAdapter"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.MainFragmentAdapter"
         tools:layout="@layout/fragment_main_adapter">
         <action
             android:id="@+id/action_navigation_main_to_navigation_welcome"
@@ -21,7 +21,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_welcome"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WelcomeFragment"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.WelcomeFragment"
         tools:layout="@layout/fragment_welcome">
         <action
             android:id="@+id/action_placeholder2_to_placeholder3"
@@ -35,10 +35,10 @@
     <fragment android:id="@+id/placeholder4" />
     <fragment
         android:id="@+id/navigation_i_start"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.IStartFragment"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.IStartFragment"
         tools:layout="@layout/fragment_i_start" />
     <fragment
         android:id="@+id/navigation_word_credit"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.activity.fragment.WordCreditFragment"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.WordCreditFragment"
         tools:layout="@layout/fragment_word_credit" />
 </navigation>

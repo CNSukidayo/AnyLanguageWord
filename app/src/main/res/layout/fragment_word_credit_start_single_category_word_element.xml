@@ -6,11 +6,12 @@
     android:orientation="vertical">
 
     <View
+        android:id="@+id/fragment_word_credit_start_single_category_word_separator"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@color/dark_gray" />
 
-    <com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout
+    <com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.ScrollerLinearLayout
         android:id="@+id/fragment_word_credit_start_single_category_word_scroller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,7 +21,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
             android:foreground="@drawable/item_gray_select"
             android:orientation="horizontal">
 
@@ -83,7 +83,7 @@
         </LinearLayout>
 
 
-    </com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview.ScrollerLinearLayout>
+    </com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.ScrollerLinearLayout>
 
     <HorizontalScrollView
         android:layout_width="wrap_content"

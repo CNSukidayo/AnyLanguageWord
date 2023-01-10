@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.MoveAndSwipedListener;
-import com.gitee.cnsukidayo.traditionalenglish.activity.adapter.listener.StateChangedListener;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.MoveAndSwipedListener;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.StateChangedListener;
 import com.gitee.cnsukidayo.traditionalenglish.entity.WordCategory;
 import com.gitee.cnsukidayo.traditionalenglish.handler.RecyclerViewAdapterItemChange;
 import com.gitee.cnsukidayo.traditionalenglish.handler.CategoryFunctionHandler;

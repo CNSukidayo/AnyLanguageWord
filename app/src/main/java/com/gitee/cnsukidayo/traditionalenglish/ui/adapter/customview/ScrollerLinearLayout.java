@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.traditionalenglish.activity.adapter.customview;
+package com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview;
 
 import android.content.Context;
 import android.util.AttributeSet;

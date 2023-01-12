@@ -73,7 +73,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/fragment_welcome_userAgreement"
+                android:id="@+id/fragment_welcome_user_agreement"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fragment_welcome_userAgreement"

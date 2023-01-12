@@ -117,11 +117,11 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         return rootView;
     }
 
-    public void onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
             if (startDrawer.isDrawerOpen(GravityCompat.END)) {
                 startDrawer.closeDrawer(GravityCompat.END);
-                return;
+                return true;
             }
             if (System.currentTimeMillis() - exitLastTime > 2000) {
                 Toast toast = Toast.makeText(getContext(), "再按一次退出", Toast.LENGTH_SHORT);
@@ -132,6 +132,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 Navigation.findNavController(popBackStack).popBackStack();
             }
         }
+        return true;
     }
 
     @SuppressLint({"NonConstantResourceId", "UseCompatLoadingForDrawables"})

@@ -35,21 +35,14 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
         if (rootView == null) {
             this.rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
         }
+        bindView();
         return rootView;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        init();
-
-
-    }
-
-    private void init() {
+    private void bindView() {
         disAgree = rootView.findViewById(R.id.fragment_welcome_disagree);
         accept = rootView.findViewById(R.id.fragment_welcome_accept);
-        agreement = rootView.findViewById(R.id.fragment_welcome_userAgreement);
+        agreement = rootView.findViewById(R.id.fragment_welcome_user_agreement);
         userPolicy = rootView.findViewById(R.id.fragment_welcome_userPolicy);
         disAgree.setOnClickListener(this);
         accept.setOnClickListener(this);
@@ -69,8 +62,8 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
                 UserUtils.upDateUserSettings();
                 Navigation.findNavController(getView()).popBackStack();
                 break;
-            // todo 跳转到显示用户协议页面这里最好做成跳转到activity
-            case R.id.fragment_welcome_userAgreement:
+            case R.id.fragment_welcome_user_agreement:
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_welcome_to_navigation_user_agreement);
                 break;
             // todo 跳转到显示隐私政策页面
             case R.id.fragment_welcome_userPolicy:
@@ -84,10 +77,11 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
      * @param keyCode 按键代码
      * @param event   事件
      */
-    public void onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
             android.os.Process.killProcess(android.os.Process.myPid());
         }
+        return true;
     }
 
 

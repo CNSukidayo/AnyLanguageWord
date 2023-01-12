@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         Fragment fragment = getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment();
         if (fragment instanceof WelcomeFragment) {
-            ((WelcomeFragment) fragment).onKeyUp(keyCode, event);
+            return ((WelcomeFragment) fragment).onKeyUp(keyCode, event);
         }
         if (fragment instanceof WordCreditFragment) {
-            ((WordCreditFragment) fragment).onKeyUp(keyCode, event);
+            return ((WordCreditFragment) fragment).onKeyUp(keyCode, event);
         }
-        return true;
+        return super.onKeyUp(keyCode, event);
     }
 }

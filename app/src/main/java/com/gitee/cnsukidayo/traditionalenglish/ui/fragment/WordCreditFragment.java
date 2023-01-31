@@ -63,7 +63,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private Handler updateUIHandler;
     private WordFunctionHandler wordFunctionHandler;
     private DrawerLayout startDrawer;
-    private RecyclerView chineseAnswer, chineseAnswerDrawer, startSingleCategory;
+    private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter, chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
     /*
@@ -111,7 +111,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         // 必须在这里设置LayoutManager
         this.chineseAnswer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
-        this.startSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
+        this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
         return rootView;
@@ -615,8 +615,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             updateUIHandler.post(() -> {
                 this.chineseAnswer.setAdapter(chineseAnswerAdapter);
                 this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
-                this.startSingleCategory.setAdapter(startSingleCategoryAdapter);
-                touchHelper.attachToRecyclerView(startSingleCategory);
+                this.starSingleCategory.setAdapter(startSingleCategoryAdapter);
+                touchHelper.attachToRecyclerView(starSingleCategory);
                 creditWord(wordFunctionHandler.getWordByOrder(0));
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
                 flagChangeArea.setVisibility(View.GONE);
@@ -760,7 +760,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.playWord = rootView.findViewById(R.id.fragment_word_credit_play_word);
         this.startDrawer = rootView.findViewById(R.id.fragment_word_credit_start_drawer);
         this.start = rootView.findViewById(R.id.fragment_word_credit_click_start);
-        this.startSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_category_recycler);
+        this.starSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_category_recycler);
         this.addNewStartCategory = rootView.findViewById(R.id.fragment_word_credit_start_add);
 
         this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);

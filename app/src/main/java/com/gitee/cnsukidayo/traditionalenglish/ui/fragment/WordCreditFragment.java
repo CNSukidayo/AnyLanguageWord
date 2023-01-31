@@ -291,7 +291,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     creditWord(wordFunctionHandler.jumpToWord(0));
                 }
                 break;
-            case R.id.fragment_word_credit_back_to_trace:
+            case R.id.fragment_user_information_back_to_trace:
                 new AlertDialog.Builder(getContext())
                         .setMessage("确认返回主页")
                         .setCancelable(false)

@@ -6,11 +6,12 @@ import java.io.File;
 
 public class TraditionalEnglishProperties {
 
-    private TraditionalEnglishProperties(){
+    private TraditionalEnglishProperties() {
 
     }
 
     public static final String userInfoRoot = Environment.DIRECTORY_DOCUMENTS + File.separator + "userInfo";
+    public static final String cacheRoot = Environment.DIRECTORY_DOCUMENTS + File.separator + "cache";
     public static final String userSettings = userInfoRoot + File.separator + "userSettings.json";
     private static File externalFilesDir = null;
 

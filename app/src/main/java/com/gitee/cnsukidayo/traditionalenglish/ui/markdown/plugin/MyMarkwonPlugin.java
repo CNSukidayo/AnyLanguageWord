@@ -46,6 +46,7 @@ public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
     @Override
     public void configureTheme(@NonNull MarkwonTheme.Builder builder) {
         // 3
+        builder.headingBreakHeight(0);
     }
 
     @Override
@@ -70,8 +71,7 @@ public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
 //        builder.setFactory(Heading.class, (configuration, props) -> new NoUnderLineHeadingSpan(configuration.theme(), CoreProps.HEADING_LEVEL.get(props)));
     }
 
-    @Override
-    public void configureVisitor(@NonNull MarkwonVisitor.Builder builder) {
+    public void configureVisitor2(@NonNull MarkwonVisitor.Builder builder) {
         /* 5
         调用完beforeRender方法后会调用Visitor来访问每个节点
         configureVisitor主要的作用在于,可以对当前节点设置其具体的Spanned对象

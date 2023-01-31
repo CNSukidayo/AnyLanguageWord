@@ -27,15 +27,18 @@
             android:id="@+id/action_navigation_welcome_to_navigation_user_agreement"
             app:destination="@id/navigation_user_agreement" />
         <action
-            android:id="@+id/action_placeholder2_to_placeholder4"
-            app:destination="@id/placeholder4" />
+            android:id="@+id/action_navigation_welcome_to_navigation_privacy_policy"
+            app:destination="@id/navigation_user_privacy_policy" />
 
     </fragment>
     <fragment
         android:id="@+id/navigation_user_agreement"
         android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.UserAgreementFragment"
-        tools:layout="@layout/fragment_user_agreement" />
-    <fragment android:id="@+id/placeholder4" />
+        tools:layout="@layout/fragment_user_information" />
+    <fragment
+        android:id="@+id/navigation_user_privacy_policy"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.PrivacyPolicyFragment"
+        tools:layout="@layout/fragment_user_information" />
     <fragment
         android:id="@+id/navigation_i_start"
         android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.IStartFragment"

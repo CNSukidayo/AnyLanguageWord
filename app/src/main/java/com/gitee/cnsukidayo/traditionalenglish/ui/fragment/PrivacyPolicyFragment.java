@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 import io.noties.markwon.Markwon;
 
 /**
- * 用户协议界面
+ * 用户隐私政策页面
  */
-public class UserAgreementFragment extends Fragment implements View.OnClickListener {
+public class PrivacyPolicyFragment extends Fragment implements View.OnClickListener {
 
     private View rootView;
     private TextView markDownTextView, title;
@@ -52,7 +52,7 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
         loadingDialog = loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         bindView();
         // 展示标题信息
-        this.title.setText(getResources().getString(R.string.fragment_user_information_user_agreement));
+        this.title.setText(getResources().getString(R.string.fragment_user_information_privacy_policy));
         showMarkDown();
         return rootView;
     }
@@ -65,7 +65,7 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
                 StringBuilder markdownOrigin = new StringBuilder();
                 try {
                     String line = null;
-                    reader = new BufferedReader(new FileReader(new File(TraditionalEnglishProperties.getExternalFilesDir(), TraditionalEnglishProperties.cacheRoot + File.separator + "userAgreement.md")));
+                    reader = new BufferedReader(new FileReader(new File(TraditionalEnglishProperties.getExternalFilesDir(), TraditionalEnglishProperties.cacheRoot + File.separator + "privacyPolicy.md")));
                     while ((line = reader.readLine()) != null) {
                         markdownOrigin.append(line);
                         markdownOrigin.append("\n");
@@ -100,5 +100,4 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
         this.backToTrace = rootView.findViewById(R.id.fragment_user_information_back_to_trace);
         this.backToTrace.setOnClickListener(this);
     }
-
 }

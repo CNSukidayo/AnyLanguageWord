@@ -11,7 +11,9 @@
     <string name="fragment_welcome_enterMessage7">存储权限</string>
     <string name="fragment_welcome_enterMessage8">用于存放离线缓存的声音视频数据文档数据等</string>
     <string name="fragment_welcome_userAgreement">《用户协议》</string>
+    <string name="fragment_user_information_user_agreement">用户服务协议</string>
     <string name="fragment_welcome_userPolicy">《用户隐私保护政策》</string>
+    <string name="fragment_user_information_privacy_policy">用户隐私政策</string>
     <string name="user_name">userName</string>
     <string name="level_1">LV1</string>
     <string name="level_2">LV2</string>
@@ -85,5 +87,7 @@
     <string name="describe">描述信息(简短地描述该分类)</string>
     <string name="describe_message">描述信息</string>
     <string name="add_word">添加单词</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

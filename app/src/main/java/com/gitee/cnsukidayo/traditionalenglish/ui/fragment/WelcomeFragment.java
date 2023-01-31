@@ -14,9 +14,13 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.utils.UserUtils;
 
+/**
+ * 首次安装软件的欢迎界面
+ */
 public class WelcomeFragment extends Fragment implements View.OnClickListener {
 
     private View rootView;
@@ -63,10 +67,10 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
                 Navigation.findNavController(getView()).popBackStack();
                 break;
             case R.id.fragment_welcome_user_agreement:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_welcome_to_navigation_user_agreement);
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_welcome_to_navigation_user_agreement, null, StaticFactory.getSimpleNavOptions());
                 break;
-            // todo 跳转到显示隐私政策页面
             case R.id.fragment_welcome_userPolicy:
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_welcome_to_navigation_privacy_policy, null, StaticFactory.getSimpleNavOptions());
                 break;
         }
     }

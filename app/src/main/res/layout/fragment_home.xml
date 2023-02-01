@@ -64,20 +64,80 @@
         android:id="@+id/fragment_home_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/gray"
+        android:background="@color/light_gray"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/fragment_home_post_recycler_view"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="3dp"
-            android:layout_weight="0.5" />
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/fragment_home_nested_scroll_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.NestedScrollableHost
+                    android:id="@+id/fragment_home_picture_host"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="3dp">
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/fragment_home_picture_rotation"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:layout_alignParentTop="true" />
+                </com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.NestedScrollableHost>
+
+                <LinearLayout
+                    android:id="@+id/fragment_home_picture_rotation_oval_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@id/fragment_home_picture_host"
+                    android:layout_alignBottom="@id/fragment_home_picture_host"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:alpha="0.5"
+                        android:layout_width="@dimen/fragment_home_image_rotation_oval_width"
+                        android:layout_height="@dimen/fragment_home_image_rotation_oval_width"
+                        android:background="@drawable/fragment_home_image_rotation_oval"
+                        android:backgroundTint="@color/gray" />
+
+                    <View
+                        android:alpha="0.5"
+                        android:layout_width="@dimen/fragment_home_image_rotation_oval_width"
+                        android:layout_height="@dimen/fragment_home_image_rotation_oval_width"
+                        android:layout_marginStart="5dp"
+                        android:background="@drawable/fragment_home_image_rotation_oval"
+                        android:backgroundTint="@color/gray" />
+
+                    <View
+                        android:alpha="0.5"
+                        android:layout_width="@dimen/fragment_home_image_rotation_oval_width"
+                        android:layout_height="@dimen/fragment_home_image_rotation_oval_width"
+                        android:layout_marginStart="5dp"
+                        android:background="@drawable/fragment_home_image_rotation_oval"
+                        android:backgroundTint="@color/gray" />
+
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/fragment_home_post_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/fragment_home_picture_host"
+                    android:paddingStart="3dp"
+                    android:paddingEnd="3dp" />
+            </RelativeLayout>
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

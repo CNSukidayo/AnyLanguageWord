@@ -17,8 +17,8 @@
         app:layout_constraintBottom_toTopOf="@id/fragment_home_post_cover_element_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        roundiv:left_top_radius="15dp"
-        roundiv:right_top_radius="15dp" />
+        roundiv:left_top_radius="@dimen/fragment_home_post_bg_radius"
+        roundiv:right_top_radius="@dimen/fragment_home_post_bg_radius" />
 
     <TextView
         android:id="@+id/fragment_home_post_cover_element_title"

@@ -34,18 +34,20 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (position % 3 == 0) {
+        if (position % 4 == 0) {
             holder.postCover.setImageResource(R.drawable.post_cover0);
         } else if (position % 3 == 1) {
             holder.postCover.setImageResource(R.drawable.post_cover1);
-        } else {
+        } else if (position % 3 == 2) {
             holder.postCover.setImageResource(R.drawable.post_cover2);
+        } else {
+            holder.postCover.setImageResource(R.drawable.post_cover3);
         }
     }
 
     @Override
     public int getItemCount() {
-        return 15;
+        return 30;
     }
 
 

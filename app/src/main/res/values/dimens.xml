@@ -7,4 +7,9 @@
     <!--收藏夹背景的弧度、画笔的宽度-->
     <dimen name="fragment_word_credit_start_category_radius">10dp</dimen>
     <dimen name="fragment_word_credit_start_category_stroke">1dp</dimen>
+    <!--主页信息流图片的边角弧度、元组间距等-->
+    <dimen name="fragment_home_post_bg_radius">6dp</dimen>
+    <dimen name="fragment_home_image_rotation_radius">12dp</dimen>
+    <dimen name="fragment_home_image_rotation_oval_width">7dp</dimen>
+    <dimen name="fragment_home_post_distance">2dp</dimen>
 </resources>

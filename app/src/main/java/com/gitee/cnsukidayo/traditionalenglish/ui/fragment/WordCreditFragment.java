@@ -291,7 +291,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     creditWord(wordFunctionHandler.jumpToWord(0));
                 }
                 break;
-            case R.id.fragment_user_information_back_to_trace:
+            case R.id.fragment_word_credit_back_to_trace:
                 new AlertDialog.Builder(getContext())
                         .setMessage("确认返回主页")
                         .setCancelable(false)
@@ -329,8 +329,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     changeModePopupWindow = new PopupWindow(popWindowChangeModeLayout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     changeModePopupWindow.setOutsideTouchable(true);
                     changeModePopupWindow.setFocusable(true);
-                    // todo 这里设置动画有问题,正式机型上可以设置动画
-//                    changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
+                    changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
                     changeModePopupWindow.setOnDismissListener(() -> ((ViewGroup) rootView.getParent()).removeView(popWindowChangeModeLayout));
                 }
                 // PopWindow展示在某个组件的上方,这里的changeMode代表要展示在那个组件上方,popWindowChangeModeLayout代表要展示哪个组件.

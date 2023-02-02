@@ -1,10 +1,10 @@
 package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,15 +26,23 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.entity.PostCover;
 import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
+import com.gitee.cnsukidayo.traditionalenglish.handler.HomeMessageStreamHandler;
+import com.gitee.cnsukidayo.traditionalenglish.test.BeanTest;
 import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.HomePictureViewAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.PostRecyclerViewAdapter;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.NavigationItemSelectListener;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class HomeFragment extends Fragment implements View.OnClickListener, DrawerLayout.DrawerListener, NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, View.OnScrollChangeListener {
+public class HomeFragment extends Fragment implements View.OnClickListener, DrawerLayout.DrawerListener,
+        NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, View.OnScrollChangeListener,
+        NavigationItemSelectListener {
 
     private MainActivity mainActivity;
     private View rootView;
@@ -51,7 +59,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
     private LinearLayout imageRotationContainer;
     // 用户是否正在滑动图片的标识
     private volatile boolean userSlideImage;
+    private volatile boolean isLoadMore;
+
     private StaggeredGridLayoutManager postRecyclerViewLayoutManager;
+    private HomeMessageStreamHandler homeMessageStreamHandler;
+    private PostRecyclerViewAdapter postRecyclerViewAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +117,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         return false;
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         // 解决上划冲突
@@ -114,10 +127,46 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
             }
             downRefreshLayout.setEnabled(true);
         }
-        // 下滑加载更多
-        if (nestedScrollView.getScrollY() + nestedScrollView.getHeight() >= nestedScrollView.computeVerticalScrollRange()) {
-            Log.d("message", "滚到到最下方");
+        // 下滑加载更多,当滑动的距离+组件的高度-可滑动的范围<2000时加载新的数据(防止网络卡顿的预加载方案)
+        if (!isLoadMore && nestedScrollView.computeVerticalScrollRange() - (nestedScrollView.getScrollY() + nestedScrollView.getHeight()) < 1000) {
+            StaticFactory.getExecutorService().submit(() -> {
+                isLoadMore = true;
+                // 先加载好所有的数据,然后再统一更新UI
+                List<PostCover> list = new ArrayList<>(6);
+                for (int i = 0; i < 6; i++) {
+                    PostCover postCover = BeanTest.createPostCover();
+                    list.add(postCover);
+                }
+                updateUIHandler.post(() -> postRecyclerViewAdapter.addAll(list));
+                isLoadMore = false;
+            });
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        StaticFactory.getExecutorService().submit(() -> {
+            // 先执行网络请求,请求完成后统一更新UI
+            homeMessageStreamHandler.refresh();
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // 更新UI
+            updateUIHandler.post(() -> {
+                postRecyclerViewAdapter.notifyDataSetChanged();
+                downRefreshLayout.setRefreshing(false);
+            });
+        });
+    }
+
+
+    @Override
+    public void onClickCurrentPage(@NonNull MenuItem item) {
+        nestedScrollView.smoothScrollTo(nestedScrollView.getScrollX(), 0);
+        downRefreshLayout.setRefreshing(true);
+        onRefresh();
     }
 
     /**
@@ -126,7 +175,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
     private void initPost() {
         this.postRecyclerViewLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         this.postRecyclerView.setLayoutManager(postRecyclerViewLayoutManager);
-        this.postRecyclerView.setAdapter(new PostRecyclerViewAdapter(getContext()));
+        this.postRecyclerViewAdapter = new PostRecyclerViewAdapter(getContext());
+        this.homeMessageStreamHandler = StaticFactory.getHomeMessageStreamHandler();
+        homeMessageStreamHandler.refresh();
+        postRecyclerViewAdapter.setHomeMessageStreamHandler(homeMessageStreamHandler);
+        this.postRecyclerView.setAdapter(postRecyclerViewAdapter);
         this.postRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
@@ -185,11 +238,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         this.popDrawerLayoutButton.setOnClickListener(this);
         this.drawerNavigationView.setNavigationItemSelectedListener(this);
         this.nestedScrollView.setOnScrollChangeListener(this);
-        this.postRecyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-            }
-        });
         drawerLayout.addDrawerListener(this);
 
         // 禁止左滑出现
@@ -197,15 +245,5 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         downRefreshLayout.setSize(CircularProgressDrawable.LARGE);
         downRefreshLayout.setColorSchemeResources(R.color.theme_color);
         downRefreshLayout.setOnRefreshListener(this);
-    }
-
-    @Override
-    public void onRefresh() {
-        updateUIHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                downRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
     }
 }

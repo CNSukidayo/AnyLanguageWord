@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -16,10 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.CreditAddToPlaneListAdapter;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.NavigationItemSelectListener;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class CreditFragment extends Fragment implements View.OnClickListener {
+public class CreditFragment extends Fragment implements View.OnClickListener, NavigationItemSelectListener {
 
     private View rootView;
     private RecyclerView addToPlaneList;
@@ -48,6 +50,20 @@ public class CreditFragment extends Fragment implements View.OnClickListener {
         return rootView;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_credit_start_credit:
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, new Bundle(),
+                        new NavOptions.Builder().build());
+                break;
+        }
+    }
+
+    @Override
+    public void onClickCurrentPage(@NonNull MenuItem item) {
+        addToPlaneList.smoothScrollToPosition(RecyclerView.SCROLLBAR_POSITION_DEFAULT);
+    }
 
     private void initRecyclerView() {
         this.addToPlaneList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -70,15 +86,5 @@ public class CreditFragment extends Fragment implements View.OnClickListener {
         });
         this.addToPlaneList.setAdapter(addToPlaneListAdapter);
 
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fragment_credit_start_credit:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, new Bundle(),
-                        new NavOptions.Builder().build());
-                break;
-        }
     }
 }

@@ -12,17 +12,20 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.BottomViewAdapter;
+import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.NavigationItemSelectListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainFragmentAdapter extends Fragment implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener {
 
     private View rootView;
     private BottomNavigationView viewPageChangeNavigationView;
     private ViewPager2 viewPager;
     private MenuItem nowSelectMenuItem;
+    private ArrayList<Fragment> listFragment;
+    private volatile int position = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,14 +46,18 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int position = 0;
         switch (item.getItemId()) {
-            case R.id.fragment_main_bottom_main:
-                viewPager.setCurrentItem(0);
-                break;
             case R.id.fragment_main_bottom_recite:
-                viewPager.setCurrentItem(1);
+                position = 1;
                 break;
         }
+        viewPager.setCurrentItem(position);
+        // 如果当前点击的目标页面就是当前页面则触发回调事件
+        if (this.position == position) {
+            ((NavigationItemSelectListener) listFragment.get(position)).onClickCurrentPage(item);
+        }
+        this.position = position;
         return true;
     }
 
@@ -58,10 +65,10 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
      * 初始化ViewPage,实现滑动切换的功能
      */
     private void initViewPage() {
-        List<Fragment> list_fragment = new ArrayList<>();
-        list_fragment.add(new HomeFragment());
-        list_fragment.add(new CreditFragment());
-        BottomViewAdapter adapter = new BottomViewAdapter(getChildFragmentManager(), getLifecycle(), list_fragment);
+        this.listFragment = new ArrayList<>();
+        listFragment.add(new HomeFragment());
+        listFragment.add(new CreditFragment());
+        BottomViewAdapter adapter = new BottomViewAdapter(getChildFragmentManager(), getLifecycle(), listFragment);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(adapter);
         viewPager.setSaveEnabled(false);
@@ -81,7 +88,7 @@ public class MainFragmentAdapter extends Fragment implements BottomNavigationVie
         if (viewPager.fakeDragBy(100f)) {
             viewPager.endFakeDrag();
         }
-        this.viewPageChangeNavigationView.setOnNavigationItemSelectedListener(this);
+        this.viewPageChangeNavigationView.setOnItemSelectedListener(this);
     }
 
 }

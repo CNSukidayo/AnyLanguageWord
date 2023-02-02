@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 
-public class HomePictureViewAdapter extends RecyclerView.Adapter<HomePictureViewAdapter.RecyclerViewHolder> {
+public class HomePictureViewAdapter extends RecyclerView.Adapter<HomePictureViewAdapter.RecyclerViewHolder>  {
 
     private Context context;
 
@@ -24,6 +24,8 @@ public class HomePictureViewAdapter extends RecyclerView.Adapter<HomePictureView
     public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ImageFilterView imageView = new ImageFilterView(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.setMarginStart(context.getResources().getDimensionPixelSize(R.dimen.fragment_home_image_rotation_margin));
+        params.setMarginEnd(context.getResources().getDimensionPixelSize(R.dimen.fragment_home_image_rotation_margin));
         imageView.setLayoutParams(params);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setRound(context.getResources().getDimensionPixelSize(R.dimen.fragment_home_image_rotation_radius));

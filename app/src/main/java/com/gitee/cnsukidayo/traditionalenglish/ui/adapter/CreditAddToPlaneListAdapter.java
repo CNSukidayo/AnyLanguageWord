@@ -38,7 +38,7 @@ public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddT
 
     @Override
     public int getItemCount() {
-        return 15;
+        return 30;
     }
 
     public void setItemOnClickListener(ItemOnClickListener itemOnClickListener) {

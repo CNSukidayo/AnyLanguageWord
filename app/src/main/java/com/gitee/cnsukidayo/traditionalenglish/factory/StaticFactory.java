@@ -4,7 +4,9 @@ import androidx.navigation.NavOptions;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 import com.gitee.cnsukidayo.traditionalenglish.entity.Word;
+import com.gitee.cnsukidayo.traditionalenglish.handler.HomeMessageStreamHandler;
 import com.gitee.cnsukidayo.traditionalenglish.handler.WordMeaningConvertHandler;
+import com.gitee.cnsukidayo.traditionalenglish.handler.impl.HomeMessageStreamHandlerImpl;
 import com.gitee.cnsukidayo.traditionalenglish.handler.impl.WordMeaningConvertHandlerImpl;
 import com.google.gson.Gson;
 
@@ -39,6 +41,10 @@ public class StaticFactory {
                 .setExitAnim(R.anim.fade_out)
                 .setPopExitAnim(R.anim.slide_out_left)
                 .build();
+    }
+
+    private static final class HomeMessageStreamHandlerHolder {
+        static final HomeMessageStreamHandler homeMessageStreamHandler = new HomeMessageStreamHandlerImpl();
     }
 
     /**
@@ -85,6 +91,16 @@ public class StaticFactory {
      */
     public static NavOptions getSimpleNavOptions() {
         return SimpleNavOptionsHolder.navOptions;
+    }
+
+    /**
+     * 得到主页信息流功能的处理Handler<br>
+     * 详情见{@link HomeMessageStreamHandler}接口
+     *
+     * @return 返回封装动画参数的NavOptions实例
+     */
+    public static HomeMessageStreamHandler getHomeMessageStreamHandler() {
+        return HomeMessageStreamHandlerHolder.homeMessageStreamHandler;
     }
 
 

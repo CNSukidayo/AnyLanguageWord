@@ -87,8 +87,8 @@
     <string name="describe">描述信息(简短地描述该分类)</string>
     <string name="describe_message">描述信息</string>
     <string name="add_word">添加单词</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="zero">0</string>
+    <string name="thousand">千</string>
+    <string name="ten_thousand">万</string>
 
 </resources>

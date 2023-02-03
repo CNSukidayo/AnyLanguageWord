@@ -86,9 +86,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_word_credit, container, false);
-        }
+        // 每次进入学习页面都要重新加载信息
+        rootView = inflater.inflate(R.layout.fragment_word_credit, container, false);
         this.updateUIHandler = new Handler();
         /*
         调用流程明细:

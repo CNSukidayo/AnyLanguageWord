@@ -36,9 +36,10 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            this.rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
+        if (rootView != null) {
+            return rootView;
         }
+        this.rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
         bindView();
         return rootView;
     }

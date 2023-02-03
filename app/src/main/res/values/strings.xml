@@ -90,5 +90,11 @@
     <string name="zero">0</string>
     <string name="thousand">千</string>
     <string name="ten_thousand">万</string>
+    <string name="none_vip">正式会员</string>
+    <string name="vip">大会员</string>
+    <string name="one_year_vip">年度大会员</string>
+    <string name="ten_year_vip">十年大会员</string>
+    <string name="one_thousand_vip">百年大会员</string>
+    <string name="forever_vip">永久大会员</string>
 
 </resources>

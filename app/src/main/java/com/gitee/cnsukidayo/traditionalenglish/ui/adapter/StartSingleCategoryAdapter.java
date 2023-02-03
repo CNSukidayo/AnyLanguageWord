@@ -69,6 +69,11 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
     public int getItemCount() {
         return startFunctionHandler.categoryListSize();
     }

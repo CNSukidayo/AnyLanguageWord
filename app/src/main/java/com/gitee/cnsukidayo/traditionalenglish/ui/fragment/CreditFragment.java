@@ -68,7 +68,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     private void initRecyclerView() {
         this.addToPlaneList.setLayoutManager(new LinearLayoutManager(getContext()));
         CreditAddToPlaneListAdapter addToPlaneListAdapter = new CreditAddToPlaneListAdapter(getContext());
-        boolean[] choose = new boolean[15];
+        boolean[] choose = new boolean[30];
         addToPlaneListAdapter.setItemOnClickListener(position -> {
             choose[position] = !choose[position];
             if (choose[position]) {

@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.traditionalenglish.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,13 @@ public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddT
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.divideTextView.setText(context.getResources().getString(R.string.divide) + position);
         holder.position = position;
+        Log.d("message", String.valueOf(holder.addToPlane));
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        // 解决View复用错乱的问题
+        return position;
     }
 
     @Override

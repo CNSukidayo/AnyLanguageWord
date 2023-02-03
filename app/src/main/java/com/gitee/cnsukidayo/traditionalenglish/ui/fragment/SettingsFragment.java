@@ -9,8 +9,11 @@ import androidx.fragment.app.Fragment;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 
-
-public class IStartFragment extends Fragment {
+/**
+ * @author sukidayo
+ * @date 2023/2/2 20:00
+ */
+public class SettingsFragment extends Fragment {
 
     private View rootView;
 
@@ -20,11 +23,24 @@ public class IStartFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         if (rootView != null) {
             return rootView;
         }
-        rootView = inflater.inflate(R.layout.fragment_i_start, container, false);
+        rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+        bindView();
+        initView();
         return rootView;
     }
+
+    private void bindView() {
+
+    }
+
+    private void initView() {
+
+    }
+
+
 }

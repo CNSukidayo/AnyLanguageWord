@@ -45,9 +45,10 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_user_information, container, false);
+        if (rootView != null) {
+            return rootView;
         }
+        rootView = inflater.inflate(R.layout.fragment_user_information, container, false);
         updateUIHandler = new Handler();
         loadingDialog = loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         bindView();

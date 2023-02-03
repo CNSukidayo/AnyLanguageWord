@@ -5,27 +5,46 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.utils.widget.ImageFilterView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.entity.UserInfo;
+import com.gitee.cnsukidayo.traditionalenglish.enums.UserLevel;
+import com.gitee.cnsukidayo.traditionalenglish.enums.VIPLevel;
+import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
+import com.gitee.cnsukidayo.traditionalenglish.test.BeanTest;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.BottomViewAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.NavigationItemSelectListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 
-public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener {
+public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener, DrawerLayout.DrawerListener,
+        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
-    private View rootView;
+    private View rootView, headerLayout;
     private BottomNavigationView viewPageChangeNavigationView;
     private ViewPager2 viewPager;
     private MenuItem nowSelectMenuItem;
     private ArrayList<Fragment> listFragment;
     private volatile int position = 0;
+    private NavigationView drawerNavigationView;
+    private ImageFilterView drawerUserFace;
+    private TextView userName, userLevel, userVipLevel, userMoney;
+    private LinearLayout settings;
+    private DrawerLayout drawerLayout;
+    private final Fragment homeFragment = new HomeFragment(), creditFragment = new CreditFragment();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,27 +57,78 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
             return rootView;
         }
         rootView = inflater.inflate(R.layout.fragment_main_adapter, container, false);
-        this.viewPageChangeNavigationView = rootView.findViewById(R.id.fragment_home_navigation_view);
-        this.viewPager = rootView.findViewById(R.id.fragment_main_adapter_viewpager);
+        bindView();
+        initView();
         initViewPage();
         return rootView;
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int position = 0;
-        switch (item.getItemId()) {
-            case R.id.fragment_main_bottom_recite:
-                position = 1;
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_main_navigation_header_settings:
+                Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_settings, null, StaticFactory.getSimpleNavOptions());
                 break;
         }
-        viewPager.setCurrentItem(position);
-        // 如果当前点击的目标页面就是当前页面则触发回调事件
-        if (this.position == position) {
-            ((NavigationItemSelectListener) listFragment.get(position)).onClickCurrentPage(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (item.getGroupId() == R.id.fragment_main_bottom_group) {
+            int position = 0;
+            switch (item.getItemId()) {
+                case R.id.fragment_main_bottom_recite:
+                    position = 1;
+                    break;
+            }
+            viewPager.setCurrentItem(position);
+            // 如果当前点击的目标页面就是当前页面则触发回调事件
+            if (this.position == position) {
+                ((NavigationItemSelectListener) listFragment.get(position)).onClickCurrentPage(item);
+            }
+            this.position = position;
+        } else if (item.getGroupId() == R.id.fragment_main_drawer_group) {
+            switch (item.getItemId()) {
+                case R.id.fragment_main_drawer_i_start:
+                    Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_navigation_i_start);
+                    break;
+            }
         }
-        this.position = position;
-        return true;
+        return false;
+    }
+
+    @Override
+    public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+
+    }
+
+    @Override
+    public void onDrawerOpened(@NonNull View drawerView) {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    @Override
+    public void onDrawerClosed(@NonNull View drawerView) {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {
+
+    }
+
+    public void onClickUserFace(View v) {
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+    private void initView() {
+        // 进入主页时加载用户个人信息
+        UserInfo userInfo = BeanTest.createUserInfo();
+        this.drawerUserFace.setImageResource(userInfo.getUserFacePathID());
+        this.userName.setText(userInfo.getUserName());
+        this.userLevel.setText(getResources().getString(UserLevel.values()[userInfo.getUserLevel() - 1].getLevelDescribe()));
+        this.userVipLevel.setText(getResources().getString(VIPLevel.values()[userInfo.getUserLevel() - 1].getVipDescribe()));
+        this.userMoney.setText(String.valueOf(userInfo.getMoney()));
     }
 
     /**
@@ -66,8 +136,8 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
      */
     private void initViewPage() {
         this.listFragment = new ArrayList<>();
-        listFragment.add(new HomeFragment());
-        listFragment.add(new CreditFragment());
+        listFragment.add(homeFragment);
+        listFragment.add(creditFragment);
         BottomViewAdapter adapter = new BottomViewAdapter(getChildFragmentManager(), getLifecycle(), listFragment);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(adapter);
@@ -91,4 +161,25 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         this.viewPageChangeNavigationView.setOnItemSelectedListener(this);
     }
 
+    private void bindView() {
+        this.viewPageChangeNavigationView = rootView.findViewById(R.id.fragment_home_navigation_view);
+        this.viewPager = rootView.findViewById(R.id.fragment_main_adapter_viewpager);
+        this.drawerNavigationView = rootView.findViewById(R.id.fragment_word_credit_view_drawer);
+        this.headerLayout = drawerNavigationView.getHeaderView(0);
+        this.drawerUserFace = headerLayout.findViewById(R.id.fragment_main_navigation_header_face);
+        this.userName = headerLayout.findViewById(R.id.fragment_main_navigation_header_user_name);
+        this.userLevel = headerLayout.findViewById(R.id.fragment_main_navigation_header_user_level);
+        this.userVipLevel = headerLayout.findViewById(R.id.fragment_main_navigation_header_vip_level);
+        this.userMoney = headerLayout.findViewById(R.id.fragment_main_navigation_header_money);
+        this.drawerLayout = rootView.findViewById(R.id.fragment_main_drawer_layout);
+        this.settings = rootView.findViewById(R.id.fragment_main_navigation_header_settings);
+
+        ((HomeFragment) homeFragment).setPopDrawerListener(this::onClickUserFace);
+        drawerLayout.addDrawerListener(this);
+        this.drawerNavigationView.setNavigationItemSelectedListener(this);
+        this.settings.setOnClickListener(this);
+        // 禁止左滑出现
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+    }
 }

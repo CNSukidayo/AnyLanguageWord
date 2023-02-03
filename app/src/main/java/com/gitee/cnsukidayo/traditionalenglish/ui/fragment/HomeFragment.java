@@ -9,16 +9,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
+import androidx.constraintlayout.utils.widget.ImageFilterView;
 import androidx.core.widget.NestedScrollView;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
@@ -34,22 +30,19 @@ import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.HomePictureViewAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.PostRecyclerViewAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.NavigationItemSelectListener;
-import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class HomeFragment extends Fragment implements View.OnClickListener, DrawerLayout.DrawerListener,
-        NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, View.OnScrollChangeListener,
-        NavigationItemSelectListener {
+public class HomeFragment extends Fragment implements View.OnClickListener,
+        SwipeRefreshLayout.OnRefreshListener, View.OnScrollChangeListener, NavigationItemSelectListener {
 
     private MainActivity mainActivity;
     private View rootView;
-    private ImageButton popDrawerLayoutButton;
-    private DrawerLayout drawerLayout;
-    private NavigationView drawerNavigationView;
-    private NavController navController;
+    private ImageFilterView popDrawerLayoutButton;
+    // 当用户点击头像后弹出抽屉布局的回调时间,委托上一层来执行该事件
+    private OnClickListener popDrawerListener;
     private SwipeRefreshLayout downRefreshLayout;
     private Handler updateUIHandler;
     private RecyclerView postRecyclerView;
@@ -71,9 +64,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        if (rootView != null) {
+            return rootView;
         }
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
         updateUIHandler = new Handler();
         mainActivity = (MainActivity) rootView.getContext();
         bindView();
@@ -83,38 +77,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
 
     @Override
     public void onClick(View v) {
-        drawerLayout.openDrawer(GravityCompat.START);
-    }
-
-    @Override
-    public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-
-    }
-
-    @Override
-    public void onDrawerOpened(@NonNull View drawerView) {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-    }
-
-    @Override
-    public void onDrawerClosed(@NonNull View drawerView) {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-    }
-
-    @Override
-    public void onDrawerStateChanged(int newState) {
-
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // 通过这种方式切换fragment
-        switch (item.getItemId()) {
-            case R.id.fragment_main_drawer_i_start:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_navigation_i_start);
-                break;
-        }
-        return false;
+        popDrawerListener.onClickUserFace(v);
     }
 
     @SuppressLint("RestrictedApi")
@@ -167,6 +130,19 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
         nestedScrollView.smoothScrollTo(nestedScrollView.getScrollX(), 0);
         downRefreshLayout.setRefreshing(true);
         onRefresh();
+    }
+
+    /**
+     * 设置当HomeFragment页面点击头像后交由父级页面的回调时间
+     *
+     * @param popDrawerListener 回调接口
+     */
+    public void setPopDrawerListener(OnClickListener popDrawerListener) {
+        this.popDrawerListener = popDrawerListener;
+    }
+
+    public interface OnClickListener {
+        void onClickUserFace(View v);
     }
 
     /**
@@ -226,24 +202,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Draw
 
     private void bindView() {
         this.popDrawerLayoutButton = rootView.findViewById(R.id.fragment_home_user_face);
-        this.drawerLayout = mainActivity.findViewById(R.id.fragment_main_drawer_layout);
-        this.drawerNavigationView = mainActivity.findViewById(R.id.fragment_word_credit_view_drawer);
         this.downRefreshLayout = rootView.findViewById(R.id.fragment_home_swipe_refresh);
-        this.navController = Navigation.findNavController(drawerLayout);
         this.postRecyclerView = rootView.findViewById(R.id.fragment_home_post_recycler_view);
         this.imageRotationViewPager = rootView.findViewById(R.id.fragment_home_picture_rotation);
         this.nestedScrollView = rootView.findViewById(R.id.fragment_home_nested_scroll_view);
         this.imageRotationContainer = rootView.findViewById(R.id.fragment_home_picture_rotation_oval_container);
 
         this.popDrawerLayoutButton.setOnClickListener(this);
-        this.drawerNavigationView.setNavigationItemSelectedListener(this);
         this.nestedScrollView.setOnScrollChangeListener(this);
-        drawerLayout.addDrawerListener(this);
 
-        // 禁止左滑出现
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         downRefreshLayout.setSize(CircularProgressDrawable.LARGE);
         downRefreshLayout.setColorSchemeResources(R.color.theme_color);
         downRefreshLayout.setOnRefreshListener(this);
     }
+
 }

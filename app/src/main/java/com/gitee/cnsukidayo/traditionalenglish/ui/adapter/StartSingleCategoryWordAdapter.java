@@ -87,6 +87,11 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
     public int getItemCount() {
         return categoryWordFunctionHandler.currentCategorySize(functionListener.getCurrentWordCategoryID());
     }

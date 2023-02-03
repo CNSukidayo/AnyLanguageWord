@@ -3,22 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-    <group android:checkableBehavior="none">
+    <group
+        android:id="@+id/fragment_main_bottom_group"
+        android:checkableBehavior="none">
         <item
-            android:icon="@drawable/main"
             android:id="@+id/fragment_main_bottom_main"
+            android:icon="@drawable/main"
             android:title="@string/main" />
         <item
-            android:icon="@drawable/credit"
             android:id="@+id/fragment_main_bottom_recite"
+            android:icon="@drawable/credit"
             android:title="@string/recite" />
         <item
-            android:icon="@drawable/hearing"
             android:id="@+id/fragment_main_bottom_hearing"
+            android:icon="@drawable/hearing"
             android:title="@string/hearing" />
         <item
-            android:icon="@drawable/analysis"
             android:id="@+id/fragment_main_bottom_analysis"
+            android:icon="@drawable/analysis"
             android:title="@string/analysis" />
     </group>
 </menu>

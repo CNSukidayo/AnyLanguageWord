@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_navigation_main_to_word_credit"
             app:destination="@id/navigation_word_credit" />
+        <action
+            android:id="@+id/action_main_navigation_to_settings"
+            app:destination="@id/navigation_settings" />
     </fragment>
     <fragment
         android:id="@+id/navigation_welcome"
@@ -47,4 +50,8 @@
         android:id="@+id/navigation_word_credit"
         android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.WordCreditFragment"
         tools:layout="@layout/fragment_word_credit" />
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.SettingsFragment"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

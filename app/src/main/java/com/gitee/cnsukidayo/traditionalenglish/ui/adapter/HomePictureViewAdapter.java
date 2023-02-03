@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
 
-public class HomePictureViewAdapter extends RecyclerView.Adapter<HomePictureViewAdapter.RecyclerViewHolder>  {
+public class HomePictureViewAdapter extends RecyclerView.Adapter<HomePictureViewAdapter.RecyclerViewHolder> {
 
     private Context context;
 
@@ -41,6 +41,11 @@ public class HomePictureViewAdapter extends RecyclerView.Adapter<HomePictureView
         } else if (position % 3 == 2) {
             holder.imageView.setImageResource(R.drawable.post_cover2);
         }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @Override

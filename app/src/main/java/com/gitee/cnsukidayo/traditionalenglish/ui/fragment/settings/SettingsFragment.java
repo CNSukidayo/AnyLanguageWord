@@ -20,7 +20,7 @@ import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     private View rootView;
-    private RelativeLayout accountAndSecurity, triplePartInfoShare;
+    private RelativeLayout accountAndSecurity, accountProfile, triplePartInfoShare;
     private TextView title;
     private ImageButton backUp;
 
@@ -45,9 +45,12 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.fragment_settings_content_account:
+            case R.id.fragment_settings_account_security:
                 break;
-            case R.id.fragment_settings_content_triple:
+            case R.id.fragment_settings_account_profile:
+                Navigation.findNavController(getView()).navigate(R.id.navigation_account_profile, null, StaticFactory.getSimpleNavOptions());
+                break;
+            case R.id.fragment_settings_triple:
                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_settings_to_navigation_user_agreement, null, StaticFactory.getSimpleNavOptions());
                 break;
             case R.id.toolbar_back_to_trace:
@@ -57,11 +60,13 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     }
 
     private void bindView() {
-        this.accountAndSecurity = rootView.findViewById(R.id.fragment_settings_content_account);
-        this.triplePartInfoShare = rootView.findViewById(R.id.fragment_settings_content_triple);
+        this.accountAndSecurity = rootView.findViewById(R.id.fragment_settings_account_security);
+        this.triplePartInfoShare = rootView.findViewById(R.id.fragment_settings_triple);
         this.title = rootView.findViewById(R.id.toolbar_title);
         this.backUp = rootView.findViewById(R.id.toolbar_back_to_trace);
+        this.accountProfile = rootView.findViewById(R.id.fragment_settings_account_profile);
 
+        this.accountProfile.setOnClickListener(this);
         this.backUp.setOnClickListener(this);
         this.accountAndSecurity.setOnClickListener(this);
         this.triplePartInfoShare.setOnClickListener(this);

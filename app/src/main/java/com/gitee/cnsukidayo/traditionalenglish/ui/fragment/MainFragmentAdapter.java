@@ -44,7 +44,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
     private TextView userName, userLevel, userVipLevel, userMoney;
     private LinearLayout settings;
     private DrawerLayout drawerLayout;
-    private final Fragment homeFragment = new HomeFragment(), creditFragment = new CreditFragment();
+    private final Fragment homeFragment = new HomeFragment(), creditFragment = new CreditFragment(), hearingFragment = new HearingFragment(), analysisFragment = new AnalysisFragment();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,8 +80,14 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
                 case R.id.fragment_main_bottom_recite:
                     position = 1;
                     break;
+                case R.id.fragment_main_bottom_hearing:
+                    position = 2;
+                    break;
+                case R.id.fragment_main_bottom_analysis:
+                    position = 3;
+                    break;
             }
-            viewPager.setCurrentItem(position);
+            viewPager.setCurrentItem(position,false);
             // 如果当前点击的目标页面就是当前页面则触发回调事件
             if (this.position == position) {
                 ((NavigationItemSelectListener) listFragment.get(position)).onClickCurrentPage(item);
@@ -135,11 +141,12 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
      * 初始化ViewPage,实现滑动切换的功能
      */
     private void initViewPage() {
-        this.listFragment = new ArrayList<>();
+        this.listFragment = new ArrayList<>(4);
         listFragment.add(homeFragment);
         listFragment.add(creditFragment);
+        listFragment.add(hearingFragment);
+        listFragment.add(analysisFragment);
         BottomViewAdapter adapter = new BottomViewAdapter(getChildFragmentManager(), getLifecycle(), listFragment);
-        viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(adapter);
         viewPager.setSaveEnabled(false);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {

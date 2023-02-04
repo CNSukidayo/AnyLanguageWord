@@ -57,5 +57,11 @@
         <action
             android:id="@+id/action_navigation_settings_to_navigation_user_agreement"
             app:destination="@id/navigation_user_agreement" />
+        <action
+            android:id="@+id/action_navigation_settings_to_account_profile"
+            app:destination="@id/navigation_account_profile" />
     </fragment>
+    <fragment android:id="@+id/navigation_account_profile"
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.settings.AccountProfileFragment"
+        tools:layout="@layout/fragment_account_profile"/>
 </navigation>

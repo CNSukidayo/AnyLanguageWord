@@ -103,7 +103,17 @@
     <string name="third_party_information_share_list">第三方信息共享清单</string>
     <string name="about_we">关于我们</string>
     <string name="logout">退出登陆</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="account_profile">账号资料</string>
+    <string name="nickname">昵称</string>
+    <string name="UUID">UUID</string>
+    <string name="introduction">简介</string>
+    <string name="introduction_hint">简单地介绍一下自已吧~</string>
+    <string name="sex">性别</string>
+    <string name="sex_hint">选择您的性别</string>
+    <string name="birthday">生日</string>
+    <string name="birthday_hint">选择生日</string>
+    <string name="school">学校</string>
+    <string name="school_hint">选择学校</string>
+    <string name="qrcode">二维码名片</string>
 
 </resources>

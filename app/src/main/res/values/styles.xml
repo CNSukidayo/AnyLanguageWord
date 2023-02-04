@@ -10,14 +10,53 @@
         <item name="android:backgroundTint">@color/white</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:showDividers">middle</item>
+        <item name="android:divider">@drawable/divider_1dp</item>
     </style>
 
     <style name="settings_text_view">
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:textColor">@color/black</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
         <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="settings_profile_text_view" parent="settings_text_view">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="settings_profile_hint_text_view" parent="settings_profile_text_view">
+        <item name="android:layout_marginEnd">5dp</item>
+    </style>
+
+    <style name="settings_relate_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+    </style>
+
+    <style name="settings_image_view">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:rotation">90</item>
+        <item name="android:src">@drawable/up</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+
+    <style name="under_line_view_1dp">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/gray</item>
     </style>
 
 </resources>

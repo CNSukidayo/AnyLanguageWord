@@ -21,7 +21,7 @@
             android:layout_alignParentStart="true"
             android:scaleType="fitXY"
             app:round="@dimen/user_face_oval"
-            app:srcCompat="@drawable/post_cover0" />
+            android:src="@drawable/face"/>
 
         <ImageView
             android:id="@+id/fragment_main_navigation_header_scanning_qrcode"
@@ -29,7 +29,7 @@
             android:layout_height="50dp"
             android:layout_alignParentEnd="true"
             android:background="@drawable/image_button_halo"
-            app:srcCompat="@drawable/scanning_qrcode" />
+            android:src="@drawable/scanning_qrcode" />
 
         <TextView
             android:id="@+id/fragment_main_navigation_header_user_name"

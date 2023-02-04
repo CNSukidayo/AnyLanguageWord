@@ -34,7 +34,7 @@
                 android:foreground="@drawable/item_gray_select_radius_22dp"
                 android:gravity="center"
                 android:scaleType="fitXY"
-                android:src="@drawable/post_cover0"
+                android:src="@drawable/face"
                 app:round="@dimen/user_face_oval" />
 
             <SearchView

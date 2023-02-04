@@ -6,7 +6,8 @@
     android:id="@+id/credit_fragment_add_to_plane_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/fragment_home_post_cover_element_bg_radius_blr"
+    android:background="@drawable/background_radius_6dp"
+    android:backgroundTint="@color/white"
     android:paddingBottom="3dp">
 
     <com.gitee.cnsukidayo.traditionalenglish.ui.adapter.customview.RoundImageView

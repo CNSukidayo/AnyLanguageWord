@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
+import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.CreditAddToPlaneListAdapter;
 import com.gitee.cnsukidayo.traditionalenglish.ui.adapter.listener.NavigationItemSelectListener;
@@ -54,8 +54,8 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_credit_start_credit:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, new Bundle(),
-                        new NavOptions.Builder().build());
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, null,
+                        StaticFactory.getSimpleNavOptions());
                 break;
         }
     }

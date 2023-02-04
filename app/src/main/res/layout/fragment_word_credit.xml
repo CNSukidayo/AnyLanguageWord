@@ -13,37 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/fragment_word_credit_app_bar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:theme="@style/ThemeOverlay.AppCompat.Light"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-
-                <ImageButton
-                    android:id="@+id/fragment_word_credit_back_to_trace"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/back_to_trace"
-                    android:foreground="@drawable/item_gray_select_radius_18dp"
-                    android:gravity="center"
-                    android:scaleType="fitCenter"
-                    android:src="?attr/actionModeCloseDrawable" />
-
-            </RelativeLayout>
-
-        </com.google.android.material.appbar.AppBarLayout>
+        <include
+            android:id="@+id/include"
+            layout="@layout/global_back_toolbar" />
 
         <TextView
             android:id="@+id/text_view_source_word"
@@ -56,7 +28,7 @@
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_word_credit_app_bar_layout" />
+            app:layout_constraintTop_toBottomOf="@id/include" />
 
         <TextView
             android:id="@+id/text_view_source_word_phonetics"

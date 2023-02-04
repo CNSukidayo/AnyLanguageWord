@@ -52,6 +52,10 @@
         tools:layout="@layout/fragment_word_credit" />
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.SettingsFragment"
-        tools:layout="@layout/fragment_settings" />
+        android:name="com.gitee.cnsukidayo.traditionalenglish.ui.fragment.settings.SettingsFragment"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_navigation_settings_to_navigation_user_agreement"
+            app:destination="@id/navigation_user_agreement" />
+    </fragment>
 </navigation>

@@ -90,7 +90,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         } else if (item.getGroupId() == R.id.fragment_main_drawer_group) {
             switch (item.getItemId()) {
                 case R.id.fragment_main_drawer_i_start:
-                    Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_navigation_i_start);
+                    Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_navigation_i_start, null, StaticFactory.getSimpleNavOptions());
                     break;
             }
         }

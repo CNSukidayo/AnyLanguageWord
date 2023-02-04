@@ -3,58 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/white"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.fragment.UserAgreementFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/fragment_user_information_app_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:theme="@style/ThemeOverlay.AppCompat.Light"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageButton
-                android:id="@+id/fragment_user_information_back_to_trace"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentStart="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/back_to_trace"
-                android:foreground="@drawable/item_gray_select_radius_18dp"
-                android:gravity="center"
-                android:scaleType="fitCenter"
-                android:src="?attr/actionModeCloseDrawable" />
-
-            <TextView
-                android:id="@+id/fragment_user_information_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-
-        </RelativeLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/include"
+        layout="@layout/global_back_toolbar" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/fragment_user_information_app_bar_layout"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_user_information_app_bar_layout">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include">
 
         <LinearLayout
             android:layout_width="wrap_content"

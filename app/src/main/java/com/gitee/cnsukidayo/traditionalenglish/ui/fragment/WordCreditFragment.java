@@ -290,7 +290,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     creditWord(wordFunctionHandler.jumpToWord(0));
                 }
                 break;
-            case R.id.fragment_word_credit_back_to_trace:
+            case R.id.toolbar_back_to_trace:
                 new AlertDialog.Builder(getContext())
                         .setMessage("确认返回主页")
                         .setCancelable(false)
@@ -748,7 +748,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.sectionImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_section);
         this.shuffleImageView = rootView.findViewById(R.id.fragment_word_credit_imageview_shuffle);
         this.section = rootView.findViewById(R.id.fragment_word_credit_click_section);
-        this.popBackStack = rootView.findViewById(R.id.fragment_word_credit_back_to_trace);
+        this.popBackStack = rootView.findViewById(R.id.toolbar_back_to_trace);
         this.changeMode = rootView.findViewById(R.id.fragment_word_credit_click_change_mode);
         this.popWindowChangeModeLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.fragment_word_credit_popwindow_change_mode, null);
         this.listeningWriteMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_listening_write_mode);

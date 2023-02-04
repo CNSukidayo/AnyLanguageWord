@@ -96,5 +96,14 @@
     <string name="ten_year_vip">十年大会员</string>
     <string name="one_thousand_vip">百年大会员</string>
     <string name="forever_vip">永久大会员</string>
+    <string name="account_and_security">账号与安全</string>
+    <string name="message_settings">通知设置</string>
+    <string name="universal_settings">通用设置</string>
+    <string name="personal_information_collect_list">个人信息收集清单</string>
+    <string name="third_party_information_share_list">第三方信息共享清单</string>
+    <string name="about_we">关于我们</string>
+    <string name="logout">退出登陆</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -97,8 +97,8 @@ public class PrivacyPolicyFragment extends Fragment implements View.OnClickListe
 
     private void bindView() {
         this.markDownTextView = rootView.findViewById(R.id.fragment_user_information_markdown_context);
-        this.title = rootView.findViewById(R.id.fragment_user_information_title);
-        this.backToTrace = rootView.findViewById(R.id.fragment_user_information_back_to_trace);
+        this.title = rootView.findViewById(R.id.toolbar_title);
+        this.backToTrace = rootView.findViewById(R.id.toolbar_back_to_trace);
         this.backToTrace.setOnClickListener(this);
     }
 }

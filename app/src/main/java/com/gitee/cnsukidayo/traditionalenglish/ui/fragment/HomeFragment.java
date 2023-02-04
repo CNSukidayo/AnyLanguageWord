@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 public class HomeFragment extends Fragment implements View.OnClickListener,
         SwipeRefreshLayout.OnRefreshListener, View.OnScrollChangeListener, NavigationItemSelectListener {
 
-    private MainActivity mainActivity;
     private View rootView;
     private ImageFilterView popDrawerLayoutButton;
     // 当用户点击头像后弹出抽屉布局的回调时间,委托上一层来执行该事件
@@ -69,7 +68,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         }
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         updateUIHandler = new Handler();
-        mainActivity = (MainActivity) rootView.getContext();
+        MainActivity mainActivity = (MainActivity) rootView.getContext();
         bindView();
         initPost();
         return rootView;

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fitsSystemWindows="true"
-    android:theme="@style/Theme.TraditionalEnglish.Adapter"
+    android:theme="@style/Theme.AnyLanguageWord.Adapter"
     tools:context=".ui.fragment.MainFragmentAdapter">
 
     <androidx.drawerlayout.widget.DrawerLayout
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/gray"
-                android:theme="@style/Theme.TraditionalEnglish"
+                android:theme="@style/Theme.AnyLanguageWord"
                 app:itemIconTint="@color/fragment_home_viewpage_change"
                 app:itemTextColor="@color/fragment_home_viewpage_change"
                 app:labelVisibilityMode="labeled"

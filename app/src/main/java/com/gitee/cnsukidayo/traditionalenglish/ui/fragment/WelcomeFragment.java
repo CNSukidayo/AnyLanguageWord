@@ -1,6 +1,12 @@
 package com.gitee.cnsukidayo.traditionalenglish.ui.fragment;
 
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.traditionalenglish.R;
-import com.gitee.cnsukidayo.traditionalenglish.factory.StaticFactory;
 import com.gitee.cnsukidayo.traditionalenglish.ui.MainActivity;
 import com.gitee.cnsukidayo.traditionalenglish.utils.UserUtils;
 
@@ -26,7 +31,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
     private View rootView;
     private MainActivity mainActivity;
     private Button disAgree, accept;
-    private TextView agreement, userPolicy;
+    private TextView welcomeMessage;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -41,18 +46,47 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
         }
         this.rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
         bindView();
+        initView();
         return rootView;
     }
 
     private void bindView() {
         disAgree = rootView.findViewById(R.id.fragment_welcome_disagree);
         accept = rootView.findViewById(R.id.fragment_welcome_accept);
-        agreement = rootView.findViewById(R.id.fragment_welcome_user_agreement);
-        userPolicy = rootView.findViewById(R.id.fragment_welcome_userPolicy);
+        this.welcomeMessage = rootView.findViewById(R.id.welcome_message);
         disAgree.setOnClickListener(this);
         accept.setOnClickListener(this);
-        agreement.setOnClickListener(this);
-        userPolicy.setOnClickListener(this);
+    }
+
+    private void initView() {
+        SpannableString spannableString = new SpannableString("如果我是陈奕迅");
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
+
+
+
+            @Override
+            public void onClick(View widget) {
+                int i = 0;
+                if (widget instanceof TextView) {
+                    Log.d("message", "onClick");
+                }
+            }
+
+            @Override
+
+            public void updateDrawState(TextPaint ds) {
+
+                ds.setUnderlineText(false);
+            }
+
+        };
+
+        spannableString.setSpan(clickableSpan, 4, 7, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+        welcomeMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        welcomeMessage.setHighlightColor(getResources().getColor(android.R.color.transparent,null));
+        welcomeMessage.setText(spannableString);
     }
 
 
@@ -66,12 +100,6 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
                 UserUtils.getUserSettings().setAcceptUserAgreement(true);
                 UserUtils.upDateUserSettings();
                 Navigation.findNavController(getView()).popBackStack();
-                break;
-            case R.id.fragment_welcome_user_agreement:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_welcome_to_navigation_user_agreement, null, StaticFactory.getSimpleNavOptions());
-                break;
-            case R.id.fragment_welcome_userPolicy:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_welcome_to_navigation_privacy_policy, null, StaticFactory.getSimpleNavOptions());
                 break;
         }
     }

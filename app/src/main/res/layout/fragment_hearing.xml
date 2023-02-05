@@ -6,8 +6,8 @@
     tools:context=".ui.fragment.HearingFragment">
 
     <TextView
+        android:id="@+id/spannable"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="听力界面" />
+        android:layout_height="match_parent" />
 
 </FrameLayout>

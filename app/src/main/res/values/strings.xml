@@ -3,16 +3,11 @@
     <string name="accept">同意并进入</string>
     <string name="disagree">不同意</string>
     <string name="fragment_welcome_welcome">欢迎使用</string>
-    <string name="fragment_welcome_enterMessage1">欧陆软件重视你的个人信息安全和隐私保护.我</string>
-    <string name="fragment_welcome_enterMessage2">们在</string>
-    <string name="fragment_welcome_enterMessage3">和</string>
-    <string name="fragment_welcome_enterMessage5">中详细披露了软件对个人数据的处理和使用方式,请您仔细阅读并理解.若选择不同意,将无法使用我们的产品和服务.</string>
+    <string name="fragment_welcome_enterMessage1">我们重视你的个人信息安全和隐私保护.我们在《用户协议》和《用户隐私保护政策》中详细披露了软件对个人数据的处理和使用方式,请您仔细阅读并理解.若选择不同意,将无法使用我们的产品和服务.</string>
     <string name="fragment_welcome_enterMessage6">软件运行中涉及的权限:</string>
     <string name="fragment_welcome_enterMessage7">存储权限</string>
     <string name="fragment_welcome_enterMessage8">用于存放离线缓存的声音视频数据文档数据等</string>
-    <string name="fragment_welcome_userAgreement">《用户协议》</string>
     <string name="fragment_user_information_user_agreement">用户服务协议</string>
-    <string name="fragment_welcome_userPolicy">《用户隐私保护政策》</string>
     <string name="fragment_user_information_privacy_policy">用户隐私政策</string>
     <string name="user_name">userName</string>
     <string name="level_1">LV1</string>

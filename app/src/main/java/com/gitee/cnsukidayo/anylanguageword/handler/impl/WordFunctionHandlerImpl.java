@@ -1,5 +1,7 @@
 package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
+import android.text.TextUtils;
+
 import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
@@ -8,7 +10,6 @@ import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordFunctionHandler;
-import com.gitee.cnsukidayo.anylanguageword.utils.Strings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -240,7 +241,7 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFun
     @Override
     public String calculationTitle(int position) {
         WordCategory wordCategory = getWordCategoryByPosition(position);
-        if (wordCategory.isDefaultTitleRule() && !Strings.notEmpty(wordCategory.getTitle())) {
+        if (wordCategory.isDefaultTitleRule() && TextUtils.isEmpty(wordCategory.getTitle())) {
             StringBuilder defaultNameRule = new StringBuilder();
             for (int i = 0; i < 3 && i < wordCategory.getWords().size(); i++) {
                 defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin()).append("、");
@@ -257,7 +258,7 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFun
     @Override
     public String calculationDescribe(int position) {
         WordCategory wordCategory = getWordCategoryByPosition(position);
-        if (wordCategory.isDefaultDescribeRule() && !Strings.notEmpty(wordCategory.getDescribe())) {
+        if (wordCategory.isDefaultDescribeRule() && TextUtils.isEmpty(wordCategory.getDescribe())) {
             StringBuilder defaultNameRule = new StringBuilder();
             for (int i = 0; i < 3 && i < wordCategory.getWords().size(); i++) {
                 defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin()).append("、");

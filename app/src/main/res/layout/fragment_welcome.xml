@@ -46,50 +46,16 @@
             android:textStyle="bold" />
 
         <TextView
-            android:textIsSelectable="true"
             android:id="@+id/welcome_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/iconImageView"
             android:layout_marginTop="30dp"
+            android:inputType="none"
             android:scrollbars="vertical"
-            android:text="@string/fragment_welcome_enterMessage1"
             android:textColor="@color/black"
+            android:textIsSelectable="true"
             android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/fragment_welcome_enterMessage6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/welcome_message"
-            android:layout_marginTop="30dp"
-            android:text="@string/fragment_welcome_enterMessage6"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/fragment_welcome_enterMessage6"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fragment_welcome_enterMessage7"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fragment_welcome_enterMessage8"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="18sp" />
-        </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"

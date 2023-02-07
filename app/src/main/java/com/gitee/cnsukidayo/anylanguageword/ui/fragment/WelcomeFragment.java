@@ -1,12 +1,6 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +14,15 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
+import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
+import com.gitee.cnsukidayo.anylanguageword.utils.FileReaders;
 import com.gitee.cnsukidayo.anylanguageword.utils.UserUtils;
+
+import java.io.IOException;
+
+import io.noties.markwon.Markwon;
 
 /**
  * 首次安装软件的欢迎界面
@@ -59,34 +60,16 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initView() {
-        SpannableString spannableString = new SpannableString("如果我是陈奕迅");
+        String message = null;
+        try {
+            message = FileReaders.readWithExternal(SystemFilePath.WELCOME_MESSAGE.getPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
+        markwon.setMarkdown(welcomeMessage, message);
 
-        ClickableSpan clickableSpan = new ClickableSpan() {
-
-
-
-            @Override
-            public void onClick(View widget) {
-                int i = 0;
-                if (widget instanceof TextView) {
-                    Log.d("message", "onClick");
-                }
-            }
-
-            @Override
-
-            public void updateDrawState(TextPaint ds) {
-
-                ds.setUnderlineText(false);
-            }
-
-        };
-
-        spannableString.setSpan(clickableSpan, 4, 7, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-        welcomeMessage.setMovementMethod(LinkMovementMethod.getInstance());
-        welcomeMessage.setHighlightColor(getResources().getColor(android.R.color.transparent,null));
-        welcomeMessage.setText(spannableString);
     }
 
 

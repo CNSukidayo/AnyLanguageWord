@@ -15,8 +15,8 @@ import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.ui.markdown.plugin.MyMarkwonPlugin;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,7 +66,7 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
                 StringBuilder markdownOrigin = new StringBuilder();
                 try {
                     String line = null;
-                    reader = new BufferedReader(new FileReader(new File(AnyLanguageWordProperties.getExternalFilesDir(), AnyLanguageWordProperties.cacheRoot + File.separator + "userAgreement.md")));
+                    reader = new BufferedReader(new FileReader(new File(AnyLanguageWordProperties.getExternalFilesDir(), SystemFilePath.USER_AGREEMENT.getPath())));
                     while ((line = reader.readLine()) != null) {
                         markdownOrigin.append(line);
                         markdownOrigin.append("\n");
@@ -75,7 +75,7 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                final Markwon markwon = Markwon.builder(getContext()).usePlugin(MyMarkwonPlugin.getInstance(getContext())).build();
+                final Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
                 final Spanned markdown = markwon.toMarkdown(markdownOrigin.toString());
                 try {
                     TimeUnit.SECONDS.sleep(1);

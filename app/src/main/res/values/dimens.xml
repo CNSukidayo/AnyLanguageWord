@@ -14,4 +14,11 @@
     <dimen name="fragment_home_image_rotation_margin">5dp</dimen>
     <dimen name="fragment_home_image_rotation_oval_width">7dp</dimen>
     <dimen name="fragment_home_post_distance">2dp</dimen>
+    <!--markdown的一些基础配置-->
+    <dimen name="markwon_heading_h1">26sp</dimen>
+    <dimen name="markwon_heading_h2">22sp</dimen>
+    <dimen name="markwon_heading_h3">18sp</dimen>
+    <dimen name="markwon_heading_h4">16sp</dimen>
+    <dimen name="markwon_heading_h5">14sp</dimen>
+    <dimen name="markwon_heading_h6">12sp</dimen>
 </resources>

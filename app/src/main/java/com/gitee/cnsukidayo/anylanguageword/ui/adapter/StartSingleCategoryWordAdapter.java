@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,12 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.MoveAndSwipedListener;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.StateChangedListener;
 import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryWordFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
-import com.gitee.cnsukidayo.anylanguageword.utils.Strings;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.MoveAndSwipedListener;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.StateChangedListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +71,7 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
         holder.chineseAnswerRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         holder.startChineseAnswerRecyclerViewAdapter = new StartChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getWordFromCategory(functionListener.getCurrentWordCategoryID(), position));
         holder.chineseAnswerRecyclerView.setAdapter(holder.startChineseAnswerRecyclerViewAdapter);
-        if (Strings.notEmpty(word.getPhrase())) {
+        if (!TextUtils.isEmpty(word.getPhrase())) {
             holder.phraseAnswer.setText(word.getPhrase());
             holder.phraseHint.setVisibility(View.VISIBLE);
             holder.phraseAnswer.setVisibility(View.VISIBLE);

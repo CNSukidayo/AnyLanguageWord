@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.anylanguageword.utils;
 
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.google.gson.Gson;
 
@@ -26,7 +27,7 @@ public class UserUtils {
         if (userSettings == null) {
             synchronized (UserUtils.class) {
                 Gson gson = StaticFactory.getGson();
-                File userSettingsFiles = new File(AnyLanguageWordProperties.getExternalFilesDir(), AnyLanguageWordProperties.userSettings);
+                File userSettingsFiles = new File(AnyLanguageWordProperties.getExternalFilesDir(), UserInfoPath.USER_SETTINGS.getPath());
                 if (userSettingsFiles.exists()) {
                     try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(userSettingsFiles), StandardCharsets.UTF_8)) {
                         userSettings = gson.fromJson(inputStreamReader, UserSettings.class);
@@ -43,7 +44,7 @@ public class UserUtils {
     }
 
     public static void upDateUserSettings() {
-        File userSettingsFiles = new File(AnyLanguageWordProperties.getExternalFilesDir(), AnyLanguageWordProperties.userSettings);
+        File userSettingsFiles = new File(AnyLanguageWordProperties.getExternalFilesDir(), UserInfoPath.USER_SETTINGS.getPath());
         if (!userSettingsFiles.getParentFile().exists()) {
             userSettingsFiles.getParentFile().mkdirs();
         }

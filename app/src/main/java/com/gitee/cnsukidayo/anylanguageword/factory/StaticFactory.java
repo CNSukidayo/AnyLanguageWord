@@ -1,5 +1,7 @@
 package com.gitee.cnsukidayo.anylanguageword.factory;
 
+import android.content.Context;
+
 import androidx.navigation.NavOptions;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
@@ -8,10 +10,15 @@ import com.gitee.cnsukidayo.anylanguageword.handler.HomeMessageStreamHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordMeaningConvertHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.HomeMessageStreamHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordMeaningConvertHandlerImpl;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.plugin.GlobalMarkwonPlugin;
 import com.google.gson.Gson;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import io.noties.markwon.Markwon;
+import io.noties.markwon.html.CssInlineStyleParser;
+import io.noties.markwon.html.HtmlPlugin;
 
 public class StaticFactory {
 
@@ -45,6 +52,10 @@ public class StaticFactory {
 
     private static final class HomeMessageStreamHandlerHolder {
         static final HomeMessageStreamHandler homeMessageStreamHandler = new HomeMessageStreamHandlerImpl();
+    }
+
+    private static final class CssInlineStyleParserHolder {
+        static final CssInlineStyleParser cssInlineStyleParser = CssInlineStyleParser.create();
     }
 
     /**
@@ -101,6 +112,28 @@ public class StaticFactory {
      */
     public static HomeMessageStreamHandler getHomeMessageStreamHandler() {
         return HomeMessageStreamHandlerHolder.homeMessageStreamHandler;
+    }
+
+    /**
+     * 得到全局的markdown解析对象
+     *
+     * @param context 上下文
+     * @return 返回全局解析对象
+     */
+    public static Markwon getGlobalMarkwon(Context context) {
+        return Markwon.builder(context)
+                .usePlugin(HtmlPlugin.create())
+                .usePlugin(GlobalMarkwonPlugin.create(context))
+                .build();
+    }
+
+    /**
+     * 得到Css行内解析器
+     *
+     * @return 返回单利的Css行内解析器对象
+     */
+    public static CssInlineStyleParser getCssInlineStyleParser() {
+        return CssInlineStyleParserHolder.cssInlineStyleParser;
     }
 
 

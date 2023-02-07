@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.anylanguageword.ui.markdown.spans;
+package com.gitee.cnsukidayo.anylanguageword.ui.markdown.spanfactory.span;
 
 import android.graphics.Paint;
 import android.graphics.Rect;

@@ -6,30 +6,41 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.handler.APPLinkResolver;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.handler.SpanHandler;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.movementmethod.ClickableSpanMovementMethod;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.spanfactory.AppHeadingSpanFactory;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.spanfactory.AppLinkSpanFactory;
+
 import org.commonmark.node.Heading;
+import org.commonmark.node.Link;
 import org.commonmark.node.Node;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.MarkwonConfiguration;
+import io.noties.markwon.MarkwonPlugin;
 import io.noties.markwon.MarkwonSpansFactory;
 import io.noties.markwon.MarkwonVisitor;
+import io.noties.markwon.core.CorePlugin;
 import io.noties.markwon.core.CoreProps;
 import io.noties.markwon.core.MarkwonTheme;
+import io.noties.markwon.html.HtmlPlugin;
 
 /**
  * @author cnsukidayo
  * @date 2023/1/12 12:20
  */
-public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
-
+public class GlobalMarkwonPlugin extends AbstractMarkwonPlugin {
     private Context context;
 
-    private MyMarkwonPlugin(Context context) {
+    private GlobalMarkwonPlugin(Context context) {
         this.context = context;
     }
 
-    public static MyMarkwonPlugin getInstance(Context context) {
-        return new MyMarkwonPlugin(context);
+    @NonNull
+    public static MarkwonPlugin create(Context context) {
+        return new GlobalMarkwonPlugin(context);
     }
 
     @Override
@@ -40,18 +51,32 @@ public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
         并且如果当前的markwon没有使用第一个参数对应的插件,则这里会报错.
         并且该方法应该会在一开始就调用
         */
+        registry.require(HtmlPlugin.class).addHandler(new SpanHandler(context));
+        registry.require(CorePlugin.class).hasExplicitMovementMethod(true);
         super.configure(registry);
     }
 
     @Override
     public void configureTheme(@NonNull MarkwonTheme.Builder builder) {
         // 3
+        builder.isLinkUnderlined(false);
         builder.headingBreakHeight(0);
+
+        // custom 自定义的一些属性
+        final float[] absoluteHeadingSize = new float[6];
+        absoluteHeadingSize[0] = context.getResources().getDimensionPixelSize(R.dimen.markwon_heading_h1);
+        absoluteHeadingSize[1] = context.getResources().getDimensionPixelSize(R.dimen.markwon_heading_h2);
+        absoluteHeadingSize[2] = context.getResources().getDimensionPixelSize(R.dimen.markwon_heading_h3);
+        absoluteHeadingSize[3] = context.getResources().getDimensionPixelSize(R.dimen.markwon_heading_h4);
+        absoluteHeadingSize[4] = context.getResources().getDimensionPixelSize(R.dimen.markwon_heading_h5);
+        absoluteHeadingSize[5] = context.getResources().getDimensionPixelSize(R.dimen.markwon_heading_h6);
+        builder.headingTextSizeMultipliers(absoluteHeadingSize);
     }
 
     @Override
     public void configureConfiguration(@NonNull MarkwonConfiguration.Builder builder) {
         // 配置解析器功能
+        builder.linkResolver(new APPLinkResolver());
     }
 
     @Override
@@ -67,11 +92,13 @@ public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
         getFactory 这两个方法本质上没有区别
 
         */
-
 //        builder.setFactory(Heading.class, (configuration, props) -> new NoUnderLineHeadingSpan(configuration.theme(), CoreProps.HEADING_LEVEL.get(props)));
+        builder.setFactory(Link.class, new AppLinkSpanFactory());
+        builder.setFactory(Heading.class, new AppHeadingSpanFactory());
     }
 
-    public void configureVisitor2(@NonNull MarkwonVisitor.Builder builder) {
+    @Override
+    public void configureVisitor(@NonNull MarkwonVisitor.Builder builder) {
         /* 5
         调用完beforeRender方法后会调用Visitor来访问每个节点
         configureVisitor主要的作用在于,可以对当前节点设置其具体的Spanned对象
@@ -132,7 +159,7 @@ public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
     @Override
     public void beforeRender(@NonNull Node node) {
         /*
-        当一个节点Node渲染之前会先调用该方法,你可以在该方法内检查或修改节点
+        当一个节点Node解析之前会先调用该方法,你可以在该方法内检查或修改节点
         第一步:先解析节点,节点会被解析为Node节点
         第二步:根据解析出的Node节点,将其渲染为Spanned实例.
         而Spanned实例是通过SpannableBuilder、SpanFactory共同进行构建的.
@@ -144,19 +171,20 @@ public class MyMarkwonPlugin extends AbstractMarkwonPlugin {
 
     @Override
     public void afterRender(@NonNull Node node, @NonNull MarkwonVisitor visitor) {
-        // 当一个节点渲染完成之后会调用该方法,你可以在该方法内检查节点,该方法调用在Visitor之后
+        // 当一个节点解析完成之后会调用该方法,你可以在该方法内检查节点,该方法调用在Visitor之后
         super.afterRender(node, visitor);
     }
 
     @Override
     public void beforeSetText(@NonNull TextView textView, @NonNull Spanned markdown) {
-        // 在markdown应用到一个textView之前调用该方法
+        // 在一个Spanned应用到TextView时会调用该方法
         super.beforeSetText(textView, markdown);
     }
 
     @Override
     public void afterSetText(@NonNull TextView textView) {
-        // 在markdown应用到一个textView之后调用该方法
+        // 在markdown应用到一个textView之后调用该方法,走到这一步基本上已经结束了
+        textView.setMovementMethod(ClickableSpanMovementMethod.getInstance());
         super.afterSetText(textView);
     }
 

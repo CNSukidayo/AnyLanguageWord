@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -44,7 +45,6 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCall
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
-import com.gitee.cnsukidayo.anylanguageword.utils.Strings;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
@@ -561,7 +561,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             chineseAnswerAdapterDrawer.showWordChineseMessage(toBeShowWord);
             this.sourceWordDrawer.setText(toBeShowWord.getWordOrigin());
             this.sourceWordPhoneticsDrawer.setText(toBeShowWord.getWordPhonetics());
-            if (Strings.notEmpty(toBeShowWord.getPhrase())) {
+            if (!TextUtils.isEmpty(toBeShowWord.getPhrase())) {
                 phraseAnswerDrawer.setText(toBeShowWord.getPhrase());
                 phraseHintDrawer.setVisibility(View.VISIBLE);
                 phraseAnswerDrawer.setVisibility(View.VISIBLE);
@@ -701,22 +701,22 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.sourceWordPhonetics.setText(word.getWordPhonetics());
         chineseAnswer.setVisibility(View.VISIBLE);
         chineseAnswerAdapter.showWordChineseMessage(word);
-        if (Strings.notEmpty(word.getExampleSentence())) {
+        if (!TextUtils.isEmpty(word.getExampleSentence())) {
             this.exampleSentenceAnswer.setText(word.getExampleSentence());
             this.exampleSentenceAnswer.setVisibility(View.VISIBLE);
             this.exampleSentenceHint.setVisibility(View.VISIBLE);
         }
-        if (Strings.notEmpty(word.getPhrase())) {
+        if (!TextUtils.isEmpty(word.getPhrase())) {
             this.phraseAnswer.setText(word.getPhrase());
             this.phraseAnswer.setVisibility(View.VISIBLE);
             this.phraseHint.setVisibility(View.VISIBLE);
         }
-        if (Strings.notEmpty(word.getDistinguish())) {
+        if (!TextUtils.isEmpty(word.getDistinguish())) {
             this.distinguishAnswer.setText(word.getDistinguish());
             this.distinguishAnswer.setVisibility(View.VISIBLE);
             this.distinguishHint.setVisibility(View.VISIBLE);
         }
-        if (Strings.notEmpty(word.getCategory())) {
+        if (!TextUtils.isEmpty(word.getCategory())) {
             this.categorizeOriginAnswer.setText(word.getCategoryID());
             this.categorizeOriginAnswer.setVisibility(View.VISIBLE);
             this.categorizeOriginHint.setVisibility(View.VISIBLE);

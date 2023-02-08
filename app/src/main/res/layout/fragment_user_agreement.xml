@@ -11,6 +11,14 @@
         android:id="@+id/include"
         layout="@layout/global_back_toolbar" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar_loading"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:indeterminateTint="@color/theme_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -19,10 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <LinearLayout style="@style/system_markdown_style">
 
             <TextView
                 android:id="@+id/fragment_user_information_markdown_context"

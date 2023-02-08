@@ -19,7 +19,8 @@ public class AppLinkSpan extends LinkSpan {
 
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
-
     }
+
+
 
 }

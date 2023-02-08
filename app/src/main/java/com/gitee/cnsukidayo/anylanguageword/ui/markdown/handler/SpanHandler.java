@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 
 import java.util.Collection;
@@ -45,7 +46,7 @@ public class SpanHandler extends SimpleTagHandler {
                     case "color":
                         colorID = context.getResources().getIdentifier(property.value(), "color", context.getPackageName());
                         if (colorID == 0) {
-                            colorID = context.getResources().getIdentifier(property.value(), "color", "android");
+                            colorID = context.getResources().getIdentifier(property.value(), "color", AnyLanguageWordProperties.androidPackageName);
                         }
                         if (colorID == 0) {
                             return null;

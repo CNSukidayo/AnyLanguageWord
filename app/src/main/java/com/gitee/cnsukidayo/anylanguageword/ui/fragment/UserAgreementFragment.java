@@ -2,27 +2,22 @@ package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.utils.FileReaders;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import io.noties.markwon.Markwon;
 
@@ -34,8 +29,9 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
     private View rootView;
     private TextView markDownTextView, title;
     private Handler updateUIHandler;
-    private AlertDialog loadingDialog = null;
+    private ProgressBar loadingBar;
     private ImageButton backToTrace;
+    private String markdownOrigin;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,9 +44,8 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
         if (rootView != null) {
             return rootView;
         }
-        rootView = inflater.inflate(R.layout.fragment_user_information, container, false);
+        rootView = inflater.inflate(R.layout.fragment_user_agreement, container, false);
         updateUIHandler = new Handler();
-        loadingDialog = loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         bindView();
         // 展示标题信息
         this.title.setText(getResources().getString(R.string.fragment_user_information_user_agreement));
@@ -59,34 +54,18 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
     }
 
     private void showMarkDown() {
-        StaticFactory.getExecutorService().submit(new Runnable() {
-            @Override
-            public void run() {
-                BufferedReader reader = null;
-                StringBuilder markdownOrigin = new StringBuilder();
-                try {
-                    String line = null;
-                    reader = new BufferedReader(new FileReader(new File(AnyLanguageWordProperties.getExternalFilesDir(), SystemFilePath.USER_AGREEMENT.getPath())));
-                    while ((line = reader.readLine()) != null) {
-                        markdownOrigin.append(line);
-                        markdownOrigin.append("\n");
-                    }
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                final Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
-                final Spanned markdown = markwon.toMarkdown(markdownOrigin.toString());
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                updateUIHandler.post(() -> {
-                    markwon.setParsedMarkdown(markDownTextView, markdown);
-                    loadingDialog.dismiss();
-                });
+        StaticFactory.getExecutorService().submit(() -> {
+            try {
+                markdownOrigin = FileReaders.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
             }
+            Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
+            updateUIHandler.post(() -> {
+                markwon.setMarkdown(markDownTextView, markdownOrigin);
+                loadingBar.setVisibility(View.GONE);
+            });
         });
     }
 
@@ -99,6 +78,7 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
         this.markDownTextView = rootView.findViewById(R.id.fragment_user_information_markdown_context);
         this.title = rootView.findViewById(R.id.toolbar_title);
         this.backToTrace = rootView.findViewById(R.id.toolbar_back_to_trace);
+        this.loadingBar = rootView.findViewById(R.id.progress_bar_loading);
         this.backToTrace.setOnClickListener(this);
     }
 

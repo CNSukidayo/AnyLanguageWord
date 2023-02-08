@@ -21,4 +21,5 @@
     <dimen name="markwon_heading_h4">16sp</dimen>
     <dimen name="markwon_heading_h5">14sp</dimen>
     <dimen name="markwon_heading_h6">12sp</dimen>
+    <dimen name="markwon_between_heading_height">0dp</dimen>
 </resources>

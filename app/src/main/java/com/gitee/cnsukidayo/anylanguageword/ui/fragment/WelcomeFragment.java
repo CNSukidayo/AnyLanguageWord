@@ -58,9 +58,8 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
         disAgree.setOnClickListener(this);
         accept.setOnClickListener(this);
     }
-
+    String message = null;
     private void initView() {
-        String message = null;
         try {
             message = FileReaders.readWithExternal(SystemFilePath.WELCOME_MESSAGE.getPath());
         } catch (IOException e) {
@@ -69,7 +68,6 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
         }
         Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
         markwon.setMarkdown(welcomeMessage, message);
-
     }
 
 

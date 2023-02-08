@@ -62,9 +62,9 @@
     <style name="system_markdown_style">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginStart">12dp</item>
         <item name="android:layout_marginTop">15dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
         <item name="android:layout_marginBottom">3dp</item>
         <item name="android:orientation">vertical</item>
     </style>

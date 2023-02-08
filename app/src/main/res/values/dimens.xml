@@ -11,7 +11,7 @@
     <!--主页信息流图片的边角弧度、元组间距等-->
     <dimen name="fragment_home_post_bg_radius">6dp</dimen>
     <dimen name="fragment_home_image_rotation_radius">12dp</dimen>
-    <dimen name="fragment_home_image_rotation_margin">5dp</dimen>
+    <dimen name="fragment_home_image_rotation_margin">3dp</dimen>
     <dimen name="fragment_home_image_rotation_oval_width">7dp</dimen>
     <dimen name="fragment_home_post_distance">2dp</dimen>
     <!--markdown的一些基础配置-->

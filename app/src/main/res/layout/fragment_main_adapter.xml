@@ -38,6 +38,7 @@
                 android:background="@color/gray"
                 android:theme="@style/Theme.AnyLanguageWord"
                 app:itemIconTint="@color/fragment_home_viewpage_change"
+                app:itemRippleColor="@color/dark_gray"
                 app:itemTextColor="@color/fragment_home_viewpage_change"
                 app:labelVisibilityMode="labeled"
                 app:layout_constraintBottom_toBottomOf="parent"

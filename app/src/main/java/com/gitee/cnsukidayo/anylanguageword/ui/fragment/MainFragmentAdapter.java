@@ -24,6 +24,7 @@ import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.BottomViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
@@ -31,7 +32,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.ArrayList;
 
 public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener, DrawerLayout.DrawerListener,
-        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
 
     private View rootView, headerLayout;
     private BottomNavigationView viewPageChangeNavigationView;
@@ -45,6 +46,8 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
     private LinearLayout settings;
     private DrawerLayout drawerLayout;
     private final Fragment homeFragment = new HomeFragment(), creditFragment = new CreditFragment(), hearingFragment = new HearingFragment(), analysisFragment = new AnalysisFragment();
+    private BottomNavigationItemView bottomHome, bottomRecite, bottomHearing, bottomAnalysis;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,7 +90,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
                     position = 3;
                     break;
             }
-            viewPager.setCurrentItem(position,false);
+            viewPager.setCurrentItem(position, false);
             // 如果当前点击的目标页面就是当前页面则触发回调事件
             if (this.position == position) {
                 ((NavigationItemSelectListener) listFragment.get(position)).onClickCurrentPage(item);
@@ -101,6 +104,16 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_main_bottom_recite:
+                // todo 长按查询单词
+                break;
+        }
+        return true;
     }
 
     @Override
@@ -180,11 +193,20 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         this.userMoney = headerLayout.findViewById(R.id.fragment_main_navigation_header_money);
         this.drawerLayout = rootView.findViewById(R.id.fragment_main_drawer_layout);
         this.settings = rootView.findViewById(R.id.fragment_main_navigation_header_settings);
+        this.bottomHome = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_main);
+        this.bottomRecite = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_recite);
+        this.bottomHearing = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_hearing);
+        this.bottomAnalysis = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_analysis);
+
 
         ((HomeFragment) homeFragment).setPopDrawerListener(this::onClickUserFace);
         drawerLayout.addDrawerListener(this);
         this.drawerNavigationView.setNavigationItemSelectedListener(this);
         this.settings.setOnClickListener(this);
+        this.bottomHome.setOnLongClickListener(this);
+        this.bottomRecite.setOnLongClickListener(this);
+        this.bottomHearing.setOnLongClickListener(this);
+        this.bottomAnalysis.setOnLongClickListener(this);
         // 禁止左滑出现
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 

@@ -106,5 +106,11 @@
     <string name="school">学校</string>
     <string name="school_hint">选择学校</string>
     <string name="qrcode">二维码名片</string>
+    <string name="hearing_practice">听力训练</string>
+    <string name="recent_play">最近播放</string>
+    <string name="offline_cache">离线缓存</string>
+    <string name="start_list">收藏列表</string>
+    <string name="error_add_hint">添加失败!当前未选择单词</string>
+    <string name="quick_query_word">单词速查</string>
 
 </resources>

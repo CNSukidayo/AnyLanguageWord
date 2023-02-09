@@ -54,7 +54,7 @@ import java.io.FileReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class WordCreditFragment extends Fragment implements View.OnClickListener {
+public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
 
     private ImageButton popMoreFunction;
@@ -74,7 +74,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private TextView exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
     private TextView sourceWordDrawer, sourceWordPhoneticsDrawer, phraseHintDrawer, phraseAnswerDrawer, addNewStartCategory;
     private AlertDialog loadingDialog = null;
-    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout, start;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout, start, searchWord;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
     private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
     private long exitLastTime = 0;
@@ -86,7 +86,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // 每次进入学习页面都要重新加载信息
+        // 如果是从主页进入背词页面是一定会从新加载的,如果是从查词界面进入背词界面则不能重新加载.
+        if (rootView != null) {
+            return rootView;
+        }
         rootView = inflater.inflate(R.layout.fragment_word_credit, container, false);
         this.updateUIHandler = new Handler();
         /*
@@ -116,6 +119,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         return rootView;
     }
 
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
             if (startDrawer.isDrawerOpen(GravityCompat.END)) {
@@ -133,6 +137,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         }
         return true;
     }
+
 
     @SuppressLint({"NonConstantResourceId", "UseCompatLoadingForDrawables"})
     @Override
@@ -232,8 +237,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     break;
                 }
                 if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
-                    this.chameleonImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
-                    this.sectionImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
+                    this.chameleonImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
+                    this.sectionImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
                     this.shuffleImageView.getDrawable().setTint(getResources().getColor(wordFunctionHandler.getChameleon().getMapColorID(), null));
                     wordFunctionHandler.shuffle();
                     creditWord(wordFunctionHandler.jumpToWord(0));
@@ -277,7 +282,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                                 // 确定执行区间随机时执行的内容
                                 wordFunctionHandler.shuffleRange(minRange, maxRange);
                                 creditWord(wordFunctionHandler.jumpToWord(0));
-                                this.shuffleImageView.setForeground(getResources().getDrawable(R.drawable.prohibit_foreground, null));
+                                this.shuffleImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
                                 this.sectionImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
                             })
                             .setNegativeButton("取消", (dialog, which) -> {
@@ -338,6 +343,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 changeModePopupWindow.showAtLocation(changeMode, Gravity.NO_GRAVITY,
                         (location[0] + changeMode.getWidth() / 2) - popWindowChangeModeLayout.getMeasuredWidth() / 2,
                         location[1] - popWindowChangeModeLayout.getMeasuredHeight());
+                break;
+            case R.id.fragment_word_credit_search_word:
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_word_credit_to_navigation_search_word, null, StaticFactory.getSimpleNavOptions());
                 break;
             case R.id.fragment_word_credit_pop_listening_write_mode:
                 wordFunctionHandler.setCurrentCreditState(CreditState.LISTENING);
@@ -760,6 +768,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.start = rootView.findViewById(R.id.fragment_word_credit_click_start);
         this.starSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_category_recycler);
         this.addNewStartCategory = rootView.findViewById(R.id.fragment_word_credit_start_add);
+        this.searchWord = rootView.findViewById(R.id.fragment_word_credit_search_word);
 
         this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);
         this.sourceWordPhoneticsDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_phonetics);
@@ -799,6 +808,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.playWord.setOnClickListener(this);
         this.start.setOnClickListener(this);
         this.addNewStartCategory.setOnClickListener(this);
+        this.searchWord.setOnClickListener(this);
 
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_green).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_red).setOnClickListener(this);
@@ -811,5 +821,21 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_gray).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_black).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_brown).setOnClickListener(this);
+    }
+
+    // ----下面是一些用不到的方法----
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
+        return false;
     }
 }

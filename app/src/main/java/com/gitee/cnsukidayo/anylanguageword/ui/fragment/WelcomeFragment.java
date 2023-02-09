@@ -27,7 +27,7 @@ import io.noties.markwon.Markwon;
 /**
  * 首次安装软件的欢迎界面
  */
-public class WelcomeFragment extends Fragment implements View.OnClickListener {
+public class WelcomeFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
 
     private View rootView;
     private MainActivity mainActivity;
@@ -58,7 +58,9 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
         disAgree.setOnClickListener(this);
         accept.setOnClickListener(this);
     }
+
     String message = null;
+
     private void initView() {
         try {
             message = FileReaders.readWithExternal(SystemFilePath.WELCOME_MESSAGE.getPath());
@@ -91,11 +93,28 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
      * @param keyCode 按键代码
      * @param event   事件
      */
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
             android.os.Process.killProcess(android.os.Process.myPid());
         }
         return true;
+    }
+
+    // ----下面是一些用不到的方法----
+    @Override
+    public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        return false;
     }
 
 

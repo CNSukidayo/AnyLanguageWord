@@ -2,7 +2,9 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,8 +15,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +33,7 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.StateChangedList
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -70,7 +75,8 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
 
     @Override
     public int getItemViewType(int position) {
-        return position;
+        // 栽大坑,这里不能返回不同的ViewType否则处大问题,所以要做好position的状态复用考虑
+        return 0;
     }
 
     @Override
@@ -182,6 +188,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
             return false;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -226,9 +233,16 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
                     isOpen = !isOpen;
                     break;
                 case R.id.fragment_word_credit_start_add_word:
-                    startSingleCategoryWordAdapter.addItem(startFunctionHandler.getCurrentWord());
-                    title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
-                    describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
+                    Optional.ofNullable(startFunctionHandler.getCurrentWord()).ifPresentOrElse(word -> {
+                        startSingleCategoryWordAdapter.addItem(word);
+                        title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
+                        describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
+                    }, () -> {
+                        // 不能添加单词到分类的提示
+                        Toast errorAddTint = Toast.makeText(context, context.getResources().getString(R.string.error_add_hint), Toast.LENGTH_SHORT);
+                        errorAddTint.setGravity(Gravity.CENTER, 0, 500);
+                        errorAddTint.show();
+                    });
                     break;
             }
         }

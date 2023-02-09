@@ -11,8 +11,6 @@ import androidx.navigation.Navigation;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
-import com.gitee.cnsukidayo.anylanguageword.ui.fragment.WelcomeFragment;
-import com.gitee.cnsukidayo.anylanguageword.ui.fragment.WordCreditFragment;
 import com.gitee.cnsukidayo.anylanguageword.utils.UserUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,11 +38,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         Fragment fragment = getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment();
-        if (fragment instanceof WelcomeFragment) {
-            return ((WelcomeFragment) fragment).onKeyUp(keyCode, event);
-        }
-        if (fragment instanceof WordCreditFragment) {
-            return ((WordCreditFragment) fragment).onKeyUp(keyCode, event);
+        if (fragment instanceof KeyEvent.Callback) {
+            return ((KeyEvent.Callback) fragment).onKeyUp(keyCode, event);
         }
         return super.onKeyUp(keyCode, event);
     }

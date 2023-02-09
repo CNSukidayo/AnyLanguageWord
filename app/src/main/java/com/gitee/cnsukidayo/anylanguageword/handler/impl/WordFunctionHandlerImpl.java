@@ -1,9 +1,6 @@
 package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
-import android.text.TextUtils;
-
 import com.gitee.cnsukidayo.anylanguageword.entity.Word;
-import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
@@ -22,7 +19,7 @@ import java.util.Set;
  * 每个单词都是有棕色的,棕色是不可变的颜色,也就是说用户不可以取消单词的棕色标记.<br>
  * 变色龙的每一种状态都是可以进入的,不管当前单词列表中是否有该颜色对应的单词<br>
  */
-public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFunctionHandler {
+public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implements WordFunctionHandler, CategoryFunctionHandler {
     private List<Word> allWordList;
     private final List<Set<FlagColor>> wordsFlagList;
     private int currentOrder = 0, currentIndex = 0;
@@ -36,8 +33,6 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFun
     private List<Word> dummyWordList;
     // 现在正在背诵的区间
     private int start = 0, end;
-    // 用于存储单词分类的列表
-    private final List<WordCategory> wordCategoryList = new ArrayList<>();
 
     public WordFunctionHandlerImpl(List<Word> initWordList) {
         this.allWordList = new ArrayList<>(initWordList.size());
@@ -72,7 +67,7 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFun
         if (nowSelectChameleonSize == 0) {
             currentOrder = 0;
             currentIndex = 0;
-            return StaticFactory.getEmptyWord();
+            return null;
         }
         return allWordList.get(currentIndex);
     }
@@ -217,88 +212,4 @@ public class WordFunctionHandlerImpl implements WordFunctionHandler, CategoryFun
         return creditState;
     }
 
-    @Override
-    public void addNewCategory(WordCategory wordCategory) {
-        wordCategoryList.add(wordCategory);
-        wordCategory.setOrder(wordCategoryList.size() - 1);
-    }
-
-    @Override
-    public void removeCategory(int position) {
-        wordCategoryList.remove(position);
-    }
-
-    @Override
-    public int categoryListSize() {
-        return wordCategoryList.size();
-    }
-
-    @Override
-    public WordCategory getWordCategoryByPosition(int position) {
-        return wordCategoryList.get(position);
-    }
-
-    @Override
-    public String calculationTitle(int position) {
-        WordCategory wordCategory = getWordCategoryByPosition(position);
-        if (wordCategory.isDefaultTitleRule() && TextUtils.isEmpty(wordCategory.getTitle())) {
-            StringBuilder defaultNameRule = new StringBuilder();
-            for (int i = 0; i < 3 && i < wordCategory.getWords().size(); i++) {
-                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin()).append("、");
-            }
-            if (defaultNameRule.length() > 1) {
-                return defaultNameRule.substring(0, defaultNameRule.length() - 1);
-            } else {
-                return defaultNameRule.toString();
-            }
-        }
-        return wordCategory.getTitle();
-    }
-
-    @Override
-    public String calculationDescribe(int position) {
-        WordCategory wordCategory = getWordCategoryByPosition(position);
-        if (wordCategory.isDefaultDescribeRule() && TextUtils.isEmpty(wordCategory.getDescribe())) {
-            StringBuilder defaultNameRule = new StringBuilder();
-            for (int i = 0; i < 3 && i < wordCategory.getWords().size(); i++) {
-                defaultNameRule.append(wordCategory.getWords().get(i).getWordOrigin()).append("、");
-            }
-            if (defaultNameRule.length() > 1) {
-                return defaultNameRule.substring(0, defaultNameRule.length() - 1);
-            } else {
-                return defaultNameRule.toString();
-            }
-        }
-        return wordCategory.getDescribe();
-    }
-
-    @Override
-    public void categoryRemove(int fromPosition, int toPosition) {
-        Collections.swap(wordCategoryList, fromPosition, toPosition);
-    }
-
-    @Override
-    public int currentCategorySize(int categoryID) {
-        return getWordCategoryByPosition(categoryID).getWords().size();
-    }
-
-    @Override
-    public void addWordToCategory(int categoryID, Word addWord) {
-        getWordCategoryByPosition(categoryID).getWords().add(addWord);
-    }
-
-    @Override
-    public void removeWordFromCategory(int categoryID, int position) {
-        getWordCategoryByPosition(categoryID).getWords().remove(position);
-    }
-
-    @Override
-    public Word getWordFromCategory(int categoryID, int position) {
-        return getWordCategoryByPosition(categoryID).getWords().get(position);
-    }
-
-    @Override
-    public void moveCategoryWord(int categoryID, int sourcePosition, int targetPosition) {
-        Collections.swap(getWordCategoryByPosition(categoryID).getWords(), sourcePosition, targetPosition);
-    }
 }

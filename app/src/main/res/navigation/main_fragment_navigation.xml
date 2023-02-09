@@ -21,6 +21,9 @@
         <action
             android:id="@+id/action_main_navigation_to_settings"
             app:destination="@id/navigation_settings" />
+        <action
+            android:id="@+id/action_main_navigation_to_navigation_search_word"
+            app:destination="@id/navigation_search_word" />
     </fragment>
     <fragment
         android:id="@+id/navigation_welcome"
@@ -49,7 +52,11 @@
     <fragment
         android:id="@+id/navigation_word_credit"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.WordCreditFragment"
-        tools:layout="@layout/fragment_word_credit" />
+        tools:layout="@layout/fragment_word_credit" >
+        <action
+            android:id="@+id/action_navigation_word_credit_to_navigation_search_word"
+            app:destination="@id/navigation_search_word" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.settings.SettingsFragment"
@@ -64,4 +71,7 @@
     <fragment android:id="@+id/navigation_account_profile"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.settings.AccountProfileFragment"
         tools:layout="@layout/fragment_account_profile"/>
+    <fragment android:id="@+id/navigation_search_word"
+        android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.SearchWordFragment"
+        tools:layout="@layout/fragment_search_word"/>
 </navigation>

@@ -1,10 +1,6 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,14 +45,6 @@ public class HearingFragment extends Fragment implements NavigationItemSelectLis
     }
 
     private void bindView() {
-        this.spannable = rootView.findViewById(R.id.spannable);
-
-        SpannableString spannableString = new SpannableString("如果我是陈奕迅");
-
-        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(Color.GREEN);
-
-        spannableString.setSpan(foregroundColorSpan, 4, 7, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
 
     }
 

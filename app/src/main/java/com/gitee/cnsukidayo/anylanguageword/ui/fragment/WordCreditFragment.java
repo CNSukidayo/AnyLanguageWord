@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -32,8 +33,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
+import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
 import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
+import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
@@ -74,10 +77,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private TextView exampleSentenceAnswer, phraseAnswer, distinguishAnswer, categorizeOriginAnswer, currentIndexTextView, wordCount;
     private TextView sourceWordDrawer, sourceWordPhoneticsDrawer, phraseHintDrawer, phraseAnswerDrawer, addNewStartCategory;
     private AlertDialog loadingDialog = null;
-    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, popWindowChangeModeLayout, start, searchWord;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, start, searchWord;
+    private CardView popWindowChangeModeLayout;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
     private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
     private long exitLastTime = 0;
+    private UserCreditStyle userCreditStyle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,6 +119,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.chineseAnswer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
+        // 读取状态
+        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable("userCreditStyleWrapper");
+        this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
         return rootView;
@@ -353,12 +361,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 this.listeningWriteMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
                 break;
             case R.id.fragment_word_credit_pop_english_translation_chinese:
-                wordFunctionHandler.setCurrentCreditState(CreditState.ENGLISHTRANSLATIONCHINESE);
+                wordFunctionHandler.setCurrentCreditState(CreditState.ENGLISH_TRANSLATION_CHINESE);
                 clearChangeModePopWindowState();
                 this.englishTranslationChineseMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
                 break;
             case R.id.fragment_word_credit_pop_chinese_translation_english:
-                wordFunctionHandler.setCurrentCreditState(CreditState.CHINESETRANSLATIONENGLISH);
+                wordFunctionHandler.setCurrentCreditState(CreditState.CHINESE_TRANSLATION_ENGLISH);
                 clearChangeModePopWindowState();
                 this.chineseTranslationEnglish.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
                 break;
@@ -544,13 +552,13 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 case LISTENING:
                     // 听写模式只播放音频,不执行多余的操作.
                     break;
-                case ENGLISHTRANSLATIONCHINESE:
+                case ENGLISH_TRANSLATION_CHINESE:
                     // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏
                     visibleWordAllMessage(toBeShowWord);
                     this.chineseAnswer.setVisibility(View.GONE);
                     hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
                     break;
-                case CHINESETRANSLATIONENGLISH:
+                case CHINESE_TRANSLATION_ENGLISH:
                     // 先展示所有单词信息,然后将英文原文和音标进行隐藏
                     visibleWordAllMessage(toBeShowWord);
                     sourceWord.setText("");
@@ -758,7 +766,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.section = rootView.findViewById(R.id.fragment_word_credit_click_section);
         this.popBackStack = rootView.findViewById(R.id.toolbar_back_to_trace);
         this.changeMode = rootView.findViewById(R.id.fragment_word_credit_click_change_mode);
-        this.popWindowChangeModeLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.fragment_word_credit_popwindow_change_mode, null);
+        this.popWindowChangeModeLayout = (CardView) getLayoutInflater().inflate(R.layout.fragment_word_credit_popwindow_change_mode, null);
         this.listeningWriteMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_listening_write_mode);
         this.englishTranslationChineseMode = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_english_translation_chinese);
         this.chineseTranslationEnglish = popWindowChangeModeLayout.findViewById(R.id.fragment_word_credit_pop_chinese_translation_english);

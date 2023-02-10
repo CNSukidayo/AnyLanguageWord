@@ -21,9 +21,10 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:layout_marginStart="10dp"
+                android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
                 android:gravity="center"
                 android:text="@string/add_to_plan"
                 android:textColor="@color/black"
@@ -32,15 +33,24 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ProgressBar
+                android:visibility="invisible"
+                android:id="@+id/credit_fragment_loading_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/theme_color"
+                app:layout_constraintEnd_toStartOf="@+id/fragment_credit_start_credit"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
                 android:id="@+id/fragment_credit_start_credit"
-                android:layout_marginEnd="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="@string/start_lean"
-                android:textSize="18sp"
+                android:layout_marginEnd="10dp"
                 android:gravity="center"
+                android:text="@string/start_lean"
                 android:textColor="@color/theme_color"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -10,7 +10,8 @@ import java.io.File;
  */
 public enum UserInfoPath {
     USER_INFO_ROOT_PATH(null),
-    USER_SETTINGS("userSettings.json");
+    USER_SETTINGS("userSettings.json"),
+    USER_CREDIT_STYLE("userCreditStyle.json");
 
     private final String userInfoRootPath = Environment.DIRECTORY_DOCUMENTS + File.separator + "userInfo" + File.separator;
     private final String path;

@@ -27,8 +27,8 @@ public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implemen
     private int nowSelectChameleonSize = -0x3f3f3f;
     // 默认的单词功能为空
     private WordFunctionState wordFunctionState = WordFunctionState.NONE;
-    // 当前的背诵模式
-    private CreditState creditState = CreditState.ENGLISHTRANSLATIONCHINESE;
+    // todo 当前的背诵风格功能
+    private CreditState creditState = CreditState.ENGLISH_TRANSLATION_CHINESE;
     // 这是一个临时的集合,它指向allWordList,用于保存由按色打乱、区间重背功能被重置的allWordList引用
     private List<Word> dummyWordList;
     // 现在正在背诵的区间

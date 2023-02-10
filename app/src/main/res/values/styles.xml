@@ -6,7 +6,7 @@
     </style>
 
     <style name="settings_linear_layout">
-        <item name="android:background">@drawable/background_radius_6dp</item>
+        <item name="android:background">@drawable/background_solid_radius_6dp</item>
         <item name="android:backgroundTint">@color/white</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>

@@ -1,0 +1,3 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:topRightRadius="@dimen/fragment_home_post_bg_radius" android:bottomRightRadius="@dimen/fragment_home_post_bg_radius"/>
+</shape>

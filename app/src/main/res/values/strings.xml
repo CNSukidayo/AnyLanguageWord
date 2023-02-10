@@ -112,5 +112,27 @@
     <string name="start_list">收藏列表</string>
     <string name="error_add_hint">添加失败!当前未选择单词</string>
     <string name="quick_query_word">单词速查</string>
+    <string name="classic">经典格式</string>
+    <string name="orderly">有序</string>
+    <string name="disorder">无序</string>
+    <string name="lexicographic_order">字典序</string>
+    <string name="word">单词</string>
+    <string name="concise_phrase">介词短语</string>
+    <string name="select_count">选词量:</string>
+    <string name="credit_mode">背诵模式:</string>
+    <string name="credit_mode_hint">不同的背诵模式会产生不同的效果,进入背词页面后可自由更改.</string>
+    <string name="credit_order">背诵顺序</string>
+    <string name="credit_order_hint">有序:背诵时按照单词在划分中的顺序背诵\n无序:随机打乱当前选择的单词进行背诵\n字典序:按照字典的顺序排列单词后背诵</string>
+    <string name="credit_filter">背诵过滤:</string>
+    <string name="credit_content_hint">单词:正常背诵所有单词\n介词短语:会自动筛选出包含介词短语的单词,其余单词不会被纳入背诵列表</string>
+    <string name="credit_format">背诵格式:</string>
+    <string name="association">联想模式</string>
+    <string name="credit_format_hint_association">联想模式:单词不再标序号,想到什么就输入什么</string>
+    <string name="credit_format_hint_classic" >经典模式:正常背诵单词</string>
+    <string name="save_settings">保存设置</string>
+    <string name="restore_default">恢复默认</string>
+    <string name="next_crediting_ignore">下次背诵时跳过设置</string>
+    <string name="next_crediting_ignore_hint"><![CDATA[下次背诵单词时将自动使用当前保存的配置,不再进入设置界面.您可以在\'设置\'->\"\"中进行修改]]></string>
+    <string name="style">风格</string>
 
 </resources>

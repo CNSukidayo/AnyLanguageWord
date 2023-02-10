@@ -24,6 +24,9 @@
         <action
             android:id="@+id/action_main_navigation_to_navigation_search_word"
             app:destination="@id/navigation_search_word" />
+        <action
+            android:id="@+id/action_main_navigation_to_navigation_word_credit_launch"
+            app:destination="@id/navigation_word_credit_launch" />
     </fragment>
     <fragment
         android:id="@+id/navigation_welcome"
@@ -52,7 +55,7 @@
     <fragment
         android:id="@+id/navigation_word_credit"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.WordCreditFragment"
-        tools:layout="@layout/fragment_word_credit" >
+        tools:layout="@layout/fragment_word_credit">
         <action
             android:id="@+id/action_navigation_word_credit_to_navigation_search_word"
             app:destination="@id/navigation_search_word" />
@@ -60,7 +63,7 @@
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.settings.SettingsFragment"
-        tools:layout="@layout/fragment_settings" >
+        tools:layout="@layout/fragment_settings">
         <action
             android:id="@+id/action_navigation_settings_to_navigation_user_agreement"
             app:destination="@id/navigation_user_agreement" />
@@ -68,10 +71,20 @@
             android:id="@+id/action_navigation_settings_to_account_profile"
             app:destination="@id/navigation_account_profile" />
     </fragment>
-    <fragment android:id="@+id/navigation_account_profile"
+    <fragment
+        android:id="@+id/navigation_account_profile"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.settings.AccountProfileFragment"
-        tools:layout="@layout/fragment_account_profile"/>
-    <fragment android:id="@+id/navigation_search_word"
+        tools:layout="@layout/fragment_account_profile" />
+    <fragment
+        android:id="@+id/navigation_search_word"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.SearchWordFragment"
-        tools:layout="@layout/fragment_search_word"/>
+        tools:layout="@layout/fragment_search_word" />
+    <fragment
+        android:id="@+id/navigation_word_credit_launch"
+        android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.WordCreditLaunchFragment"
+        tools:layout="@layout/fragment_word_credit_launch" >
+        <action
+            android:id="@+id/action_navigation_word_credit_launch_to_navigation_word_credit"
+            app:destination="@id/navigation_word_credit" />
+    </fragment>
 </navigation>

@@ -15,7 +15,7 @@ import androidx.navigation.Navigation;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.utils.FileReaders;
+import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 
 import java.io.IOException;
 
@@ -56,7 +56,7 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
     private void showMarkDown() {
         StaticFactory.getExecutorService().submit(() -> {
             try {
-                markdownOrigin = FileReaders.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
+                markdownOrigin = FileUtils.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

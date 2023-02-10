@@ -8,9 +8,9 @@ import com.gitee.cnsukidayo.anylanguageword.R;
  */
 public enum CreditState {
 
+    ENGLISH_TRANSLATION_CHINESE(R.string.english_translation_chinese),
+    CHINESE_TRANSLATION_ENGLISH(R.string.chinese_translation_english),
     LISTENING(R.string.listening_write_mode),
-    ENGLISHTRANSLATIONCHINESE(R.string.english_translation_chinese),
-    CHINESETRANSLATIONENGLISH(R.string.chinese_translation_english),
     CREDIT(R.string.only_credit);
 
     private int modeID;

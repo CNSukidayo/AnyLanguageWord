@@ -14,11 +14,13 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
-import com.gitee.cnsukidayo.anylanguageword.utils.FileReaders;
-import com.gitee.cnsukidayo.anylanguageword.utils.UserUtils;
+import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 
 import java.io.IOException;
 
@@ -63,7 +65,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
 
     private void initView() {
         try {
-            message = FileReaders.readWithExternal(SystemFilePath.WELCOME_MESSAGE.getPath());
+            message = FileUtils.readWithExternal(SystemFilePath.WELCOME_MESSAGE.getPath());
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -80,8 +82,13 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
                 android.os.Process.killProcess(android.os.Process.myPid());
                 break;
             case R.id.fragment_welcome_accept:
-                UserUtils.getUserSettings().setAcceptUserAgreement(true);
-                UserUtils.upDateUserSettings();
+                try {
+                    UserSettings userSettings = JsonUtils.readJson(UserInfoPath.USER_SETTINGS.getPath(), UserSettings.class);
+                    userSettings.setAcceptUserAgreement(true);
+                    JsonUtils.writeJson(UserInfoPath.USER_SETTINGS.getPath(),userSettings);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Navigation.findNavController(getView()).popBackStack();
                 break;
         }

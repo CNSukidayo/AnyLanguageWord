@@ -11,11 +11,15 @@ import androidx.navigation.Navigation;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
-import com.gitee.cnsukidayo.anylanguageword.utils.UserUtils;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
     private UserSettings userSettings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +28,12 @@ public class MainActivity extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         // 初始化外部存储路径
         AnyLanguageWordProperties.setExternalFilesDir(getExternalFilesDir(""));
-        this.userSettings = UserUtils.getUserSettings();
+        // 得到用户信息文件
+        try {
+            userSettings = JsonUtils.readJson(UserInfoPath.USER_SETTINGS.getPath(), UserSettings.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // 根据状态创建fragment
         createFragment();
     }

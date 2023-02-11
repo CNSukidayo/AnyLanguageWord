@@ -141,6 +141,10 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      */
     void shuffleRange(int start, int end);
 
+    /**
+     *
+     * @param creditState
+     */
     void setCurrentCreditState(CreditState creditState);
 
     CreditState getCurrentCreditState();

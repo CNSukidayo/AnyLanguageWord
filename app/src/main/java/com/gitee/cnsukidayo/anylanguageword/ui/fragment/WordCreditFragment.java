@@ -37,6 +37,8 @@ import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
 import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
+import com.gitee.cnsukidayo.anylanguageword.enums.CreditFilter;
+import com.gitee.cnsukidayo.anylanguageword.enums.CreditOrder;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
@@ -54,8 +56,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
@@ -357,23 +361,19 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.fragment_word_credit_pop_listening_write_mode:
                 wordFunctionHandler.setCurrentCreditState(CreditState.LISTENING);
-                clearChangeModePopWindowState();
-                this.listeningWriteMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                updateChangeModePopWindowState();
                 break;
             case R.id.fragment_word_credit_pop_english_translation_chinese:
                 wordFunctionHandler.setCurrentCreditState(CreditState.ENGLISH_TRANSLATION_CHINESE);
-                clearChangeModePopWindowState();
-                this.englishTranslationChineseMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                updateChangeModePopWindowState();
                 break;
             case R.id.fragment_word_credit_pop_chinese_translation_english:
                 wordFunctionHandler.setCurrentCreditState(CreditState.CHINESE_TRANSLATION_ENGLISH);
-                clearChangeModePopWindowState();
-                this.chineseTranslationEnglish.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                updateChangeModePopWindowState();
                 break;
             case R.id.fragment_word_credit_pop_only_credit:
                 wordFunctionHandler.setCurrentCreditState(CreditState.CREDIT);
-                clearChangeModePopWindowState();
-                this.onlyCreditMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+                updateChangeModePopWindowState();
                 break;
             case R.id.fragment_word_credit_button_flag_green:
                 if (changingChameleon) {
@@ -550,7 +550,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         updateUIHandler.post(() -> {
             switch (wordFunctionHandler.getCurrentCreditState()) {
                 case LISTENING:
-                    // 听写模式只播放音频,不执行多余的操作.
+                    // 听写模式只播放音频
+                    this.chineseAnswer.setVisibility(View.GONE);
                     break;
                 case ENGLISH_TRANSLATION_CHINESE:
                     // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏
@@ -602,15 +603,36 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         StaticFactory.getExecutorService().submit(() -> {
             // todo 这里正确的做法应该是将代表用户当前所选择的所有待加载的单词列表丢入WordMessageHandlerImpl实现类中,这里暂且先这么做.
             File wordFile = new File(AnyLanguageWordProperties.getExternalFilesDir(), Environment.DIRECTORY_DOCUMENTS + File.separator + "temp");
+            List<Word> wordList = null;
             for (File singleWordList : wordFile.listFiles()) {
                 try {
-                    List<Word> wordList = StaticFactory.getGson().fromJson(new BufferedReader(new FileReader(singleWordList)), new TypeToken<List<Word>>() {
+                    wordList = StaticFactory.getGson().fromJson(new BufferedReader(new FileReader(singleWordList)), new TypeToken<List<Word>>() {
 
                     }.getType());
-                    this.wordFunctionHandler = new WordFunctionHandlerImpl(wordList);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
+            }
+            // 根据自定义风格背诵
+            Bundle bundle = getArguments();
+            if (bundle != null) {
+                UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable("userCreditStyleWrapper");
+                if (userCreditStyleWrapper != null) {
+                    this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
+                    // TODO 这个地方可以用责任链设计模式,暂且先这么写
+                    if (userCreditStyle.getCreditOrder() == CreditOrder.DISORDER) {
+                        Collections.shuffle(wordList);
+                    } else if (userCreditStyle.getCreditOrder() == CreditOrder.LEXICOGRAPHIC) {
+                        wordList.sort((o1, o2) -> o1.getWordOrigin().compareTo(o2.getWordOrigin()));
+                    }
+                    if (userCreditStyle.getCreditFilter() == CreditFilter.PHRASE) {
+                        wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
+                    }
+                }
+            }
+            this.wordFunctionHandler = new WordFunctionHandlerImpl(wordList);
+            if (userCreditStyle != null) {
+                this.wordFunctionHandler.setCurrentCreditState(userCreditStyle.getCreditState());
             }
             // 初始化所有RecyclerView
             try {
@@ -635,6 +657,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
                 flagChangeArea.setVisibility(View.GONE);
                 closeFlagChangeAreaFlush();
+                updateChangeModePopWindowState();
                 loadingDialog.dismiss();
             });
         });
@@ -699,13 +722,23 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     }
 
     /**
-     * 清除模式更改弹出窗口中所有按钮的状态
+     * 更新弹出窗口中所有按钮的状态
      */
-    private void clearChangeModePopWindowState() {
+    private void updateChangeModePopWindowState() {
         this.listeningWriteMode.setBackground(null);
         this.englishTranslationChineseMode.setBackground(null);
         this.chineseTranslationEnglish.setBackground(null);
         this.onlyCreditMode.setBackground(null);
+        CreditState currentCreditState = wordFunctionHandler.getCurrentCreditState();
+        if (currentCreditState == CreditState.ENGLISH_TRANSLATION_CHINESE) {
+            this.englishTranslationChineseMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+        } else if (currentCreditState == CreditState.CHINESE_TRANSLATION_ENGLISH) {
+            this.chineseTranslationEnglish.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+        } else if (currentCreditState == CreditState.LISTENING) {
+            this.listeningWriteMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+        } else if (currentCreditState == CreditState.CREDIT) {
+            this.onlyCreditMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+        }
     }
 
     /**

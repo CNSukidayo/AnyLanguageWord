@@ -89,6 +89,9 @@
         <action
             android:id="@+id/action_navigation_word_credit_launch_to_navigation_word_credit"
             app:destination="@id/navigation_word_credit" />
+        <action
+            android:id="@+id/action_navigation_word_credit_launch_to_navigation_search_word"
+            app:destination="@id/navigation_search_word" />
     </fragment>
     <fragment
         android:id="@+id/navigation_login"

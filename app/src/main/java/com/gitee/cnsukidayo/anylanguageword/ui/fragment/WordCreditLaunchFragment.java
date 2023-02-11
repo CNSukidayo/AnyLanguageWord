@@ -46,6 +46,7 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
     private UserCreditStyle userCreditStyle;
     private final Handler updateUIHandler = new Handler();
     private final List<LinearLayout> settingsLinearLayouts = new ArrayList<>(4);
+    private LinearLayout modeParent, orderParent, filterParent;
     private CheckBox ignore;
 
     @Override
@@ -75,8 +76,12 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
             case R.id.fragment_word_credit_launch_start:
                 Bundle bundle = new Bundle();
                 UserCreditStyleWrapper userCreditStyleWrapper = new UserCreditStyleWrapper(userCreditStyle);
-                bundle.putParcelable("userCreditStyleWrapper",userCreditStyleWrapper);
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_word_credit_launch_to_navigation_word_credit, bundle, StaticFactory.getSimpleNavOptions());
+                bundle.putParcelable("userCreditStyleWrapper", userCreditStyleWrapper);
+                if (userCreditStyle.getCreditFormat() == CreditFormat.CLASSIC) {
+                    Navigation.findNavController(getView()).navigate(R.id.action_navigation_word_credit_launch_to_navigation_word_credit, bundle, StaticFactory.getSimpleNavOptions());
+                } else {
+                    Navigation.findNavController(getView()).navigate(R.id.action_navigation_word_credit_launch_to_navigation_search_word, bundle, StaticFactory.getSimpleNavOptions());
+                }
                 break;
             case R.id.fragment_word_credit_launch_save_settings:
                 try {
@@ -132,6 +137,15 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
         changeState(userCreditStyle.getCreditOrder().ordinal(), 1);
         changeState(userCreditStyle.getCreditFilter().ordinal(), 2);
         changeState(userCreditStyle.getCreditFormat().ordinal(), 3);
+        if (userCreditStyle.getCreditFormat() == CreditFormat.ASSOCIATION) {
+            modeParent.setVisibility(View.GONE);
+            orderParent.setVisibility(View.GONE);
+            filterParent.setVisibility(View.GONE);
+        } else {
+            modeParent.setVisibility(View.VISIBLE);
+            orderParent.setVisibility(View.VISIBLE);
+            filterParent.setVisibility(View.VISIBLE);
+        }
     }
 
     private void changeState(int ordinal, int position) {
@@ -156,6 +170,9 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
         settingsLinearLayouts.add(rootView.findViewById(R.id.fragment_word_credit_launch_order));
         settingsLinearLayouts.add(rootView.findViewById(R.id.fragment_word_credit_launch_filter));
         settingsLinearLayouts.add(rootView.findViewById(R.id.fragment_word_credit_launch_format));
+        this.modeParent = rootView.findViewById(R.id.fragment_word_credit_launch_mode_parent);
+        this.orderParent = rootView.findViewById(R.id.fragment_word_credit_launch_order_parent);
+        this.filterParent = rootView.findViewById(R.id.fragment_word_credit_launch_filter_parent);
         for (int i = 0; i < settingsLinearLayouts.size(); i++) {
             for (int j = 0; j < settingsLinearLayouts.get(i).getChildCount(); j++) {
                 settingsLinearLayouts.get(i).getChildAt(j).setOnClickListener(this);

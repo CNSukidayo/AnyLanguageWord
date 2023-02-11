@@ -13,11 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemOnClickListener;
 
 public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddToPlaneListAdapter.RecyclerViewHolder> {
 
     private Context context;
-    private ItemOnClickListener itemOnClickListener;
+    private RecycleViewItemOnClickListener itemOnClickListener;
 
     public CreditAddToPlaneListAdapter(Context context) {
         this.context = context;
@@ -47,7 +48,7 @@ public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddT
         return 30;
     }
 
-    public void setItemOnClickListener(ItemOnClickListener itemOnClickListener) {
+    public void setItemOnClickListener(RecycleViewItemOnClickListener itemOnClickListener) {
         this.itemOnClickListener = itemOnClickListener;
     }
 
@@ -77,12 +78,9 @@ public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddT
             } else {
                 this.addToPlane.setImageDrawable(null);
             }
-            itemOnClickListener.onClick(position);
+            itemOnClickListener.recycleViewOnClick(position);
         }
     }
 
-    public interface ItemOnClickListener {
-        void onClick(int position);
-    }
 
 }

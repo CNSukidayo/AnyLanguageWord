@@ -56,6 +56,7 @@
             android:textColor="@color/black"
             android:textIsSelectable="true"
             android:textSize="18sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -79,6 +80,7 @@
                 android:layout_marginStart="30dp"
                 android:layout_weight="1"
                 android:background="@drawable/welcome_accept_button"
+                android:backgroundTint="@color/theme_color"
                 android:text="@string/accept"
                 android:textColor="@android:color/white"
                 android:textSize="25sp" />

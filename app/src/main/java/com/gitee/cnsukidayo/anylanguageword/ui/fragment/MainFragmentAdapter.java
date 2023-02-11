@@ -72,6 +72,10 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
             case R.id.fragment_main_navigation_header_settings:
                 Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_settings, null, StaticFactory.getSimpleNavOptions());
                 break;
+            case R.id.fragment_main_navigation_header_face:
+                // TODO 如果当前用户已经登陆了,则跳转到用户个人主页,否则跳转到登陆界面
+                Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_navigation_login, null, StaticFactory.getSimpleNavOptions());
+                break;
         }
     }
 
@@ -207,6 +211,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         this.bottomRecite.setOnLongClickListener(this);
         this.bottomHearing.setOnLongClickListener(this);
         this.bottomAnalysis.setOnLongClickListener(this);
+        this.drawerUserFace.setOnClickListener(this);
         // 禁止左滑出现
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 

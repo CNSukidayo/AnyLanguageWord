@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_main_navigation_to_navigation_word_credit_launch"
             app:destination="@id/navigation_word_credit_launch" />
+        <action
+            android:id="@+id/action_main_navigation_to_navigation_login"
+            app:destination="@id/navigation_login" />
     </fragment>
     <fragment
         android:id="@+id/navigation_welcome"
@@ -82,9 +85,29 @@
     <fragment
         android:id="@+id/navigation_word_credit_launch"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.WordCreditLaunchFragment"
-        tools:layout="@layout/fragment_word_credit_launch" >
+        tools:layout="@layout/fragment_word_credit_launch">
         <action
             android:id="@+id/action_navigation_word_credit_launch_to_navigation_word_credit"
             app:destination="@id/navigation_word_credit" />
     </fragment>
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_navigation_login_to_navigation_create_account"
+            app:destination="@id/navigation_create_account" />
+        <action
+            android:id="@+id/action_navigation_login_to_navigation_user_privacy_policy"
+            app:destination="@id/navigation_user_privacy_policy" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_create_account"
+        android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.CreateAccountFragment"
+        tools:layout="@layout/fragment_create_account" >
+        <action
+            android:id="@+id/action_navigation_create_account_to_navigation_user_privacy_policy"
+            app:destination="@id/navigation_user_privacy_policy" />
+    </fragment>
+
 </navigation>

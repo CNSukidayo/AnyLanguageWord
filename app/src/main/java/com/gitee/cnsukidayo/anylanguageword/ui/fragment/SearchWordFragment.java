@@ -37,23 +37,27 @@ import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditFormat;
+import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.AssociationModeHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.ABSCategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.AssociationModeHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagAreaRecyclerViewAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagClickRecyclerViewAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagDecorateRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemOnClickListener;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
+import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -65,14 +69,14 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
 
     private View rootView;
     private ImageButton backToTrace;
-    private ImageView clickFlag, saveProgressImageView;
+    private ImageView clickFlagImageView, saveProgressImageView;
     private AlertDialog loadingDialog = null;
-    private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
+    private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory, flagAreaRecyclerView, flagDecorateRecyclerView;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
     private Handler updateUIHandler;
-    private LinearLayout analysisWord, openStartDrawer, association, queryWord, flag, saveProgress;
+    private LinearLayout analysisWord, openStartDrawer, association, queryWord, flagLinearLayout, saveProgress;
     private Word testWord = null;
     private TextView sourceWord, sourceWordPhonetics, drawerSourceWord, drawerSourceWordPhonetics;
     private TextView exampleSentenceAnswer, exampleSentenceHint, phraseAnswer, phraseHint, distinguishAnswer, distinguishHint, categorizeOriginAnswer, categorizeOriginHint;
@@ -86,8 +90,8 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     };
     // 对于本类来说,如果当前的格式是经典模式,则代表当前展示的功能是查词功能,否则当前是联想模式,不包含查词的功能
     private CreditFormat creditFormat = CreditFormat.CLASSIC;
-    private RecyclerView flagAreaRecyclerView;
-    private FlagAreaRecyclerViewAdapter flagAreaAdapter;
+    private FlagClickRecyclerViewAdapter flagAreaAdapter;
+    private FlagDecorateRecyclerViewAdapter flagDecorateAdapter;
     private AssociationModeHandler associationModeHandler;
     private SearchView searchInput;
 
@@ -132,18 +136,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 showWord(testWord);
                 break;
             case R.id.fragment_search_word_click_flag:
-                if (flagAreaAdapter.isOpen()) {
-                    if (AnimationUtil.with().moveToViewEnd(flagAreaRecyclerView, 500)) {
-                        flagAreaAdapter.setOpened(!flagAreaAdapter.isOpen());
-                        flag.setBackgroundResource(R.drawable.flag_close);
-                    }
-                } else {
-                    if (AnimationUtil.with().endMoveToViewLocation(flagAreaRecyclerView, 500)) {
-                        flagAreaAdapter.setOpened(!flagAreaAdapter.isOpen());
-                        flag.setBackgroundResource(R.drawable.flag_open);
-                    }
-                }
-                flagAreaAdapter.setOpened(!flagAreaAdapter.isOpen());
+                setFlagAreaStatus(!flagAreaAdapter.isOpen());
                 break;
             case R.id.fragment_search_word_click_start:
                 startDrawer.openDrawer(GravityCompat.END);
@@ -185,9 +178,27 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     }
 
 
+    private List<FlagColor> flagColorsList = new ArrayList<>(FlagColor.values().length);
+
     @Override
     public void recycleViewOnClick(int position) {
         // 点击旗帜的回调事件
+        if (position == FlagColor.values().length - 1) {
+            return;
+        }
+        boolean flag = true;
+        FlagColor value = FlagColor.values()[position];
+        for (int i = 0; i < flagColorsList.size(); i++) {
+            if (flagColorsList.get(i) == value) {
+                flagColorsList.remove(i);
+                flag = false;
+                break;
+            }
+        }
+        if (flag) {
+            flagColorsList.add(FlagColor.values()[position]);
+        }
+        flagDecorateAdapter.setFlagStatus(flagColorsList);
     }
 
     @Override
@@ -259,10 +270,11 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         if (bundle == null) {
             this.creditFormat = CreditFormat.CLASSIC;
             this.association.setVisibility(View.GONE);
-            this.flag.setVisibility(View.GONE);
+            this.flagLinearLayout.setVisibility(View.GONE);
             this.queryWord.setVisibility(View.GONE);
             this.getAnswer.setVisibility(View.GONE);
             this.flagAreaRecyclerView.setVisibility(View.GONE);
+            this.flagDecorateRecyclerView.setVisibility(View.GONE);
             this.saveProgress.setVisibility(View.GONE);
         } else if ((userCreditStyleWrapper = bundle.getParcelable("userCreditStyleWrapper")) != null) {
             this.creditFormat = userCreditStyleWrapper.getUserCreditStyle().getCreditFormat();
@@ -272,6 +284,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         this.flagAreaRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        this.flagDecorateRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         StaticFactory.getExecutorService().submit(() -> {
             // todo 这里正确的做法应该是将代表用户当前所选择的所有待加载的单词列表丢入WordMessageHandlerImpl实现类中,这里暂且先这么做.
@@ -290,10 +303,11 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext());
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             // 实现旗帜功能
-            this.flagAreaAdapter = new FlagAreaRecyclerViewAdapter(getContext());
-            this.flagAreaRecyclerView.setAdapter(flagAreaAdapter);
+            this.flagAreaAdapter = new FlagClickRecyclerViewAdapter(getContext());
             this.flagAreaAdapter.setRecycleViewItemOnClickListener(this);
+            this.flagDecorateAdapter = new FlagDecorateRecyclerViewAdapter(getContext());
             this.chineseAnswerAdapterDrawer.setRecyclerViewState(ChineseAnswerRecyclerViewAdapter.RecyclerViewState.DRAWER);
+            flagColorsList.add(FlagColor.BROWN);
             // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能
             ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryAdapter));
             startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
@@ -307,11 +321,13 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 this.chineseAnswer.setAdapter(chineseAnswerAdapter);
                 this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
                 this.starSingleCategory.setAdapter(startSingleCategoryAdapter);
+                this.flagAreaRecyclerView.setAdapter(flagAreaAdapter);
+                this.flagDecorateRecyclerView.setAdapter(flagDecorateAdapter);
                 touchHelper.attachToRecyclerView(starSingleCategory);
-                flagAreaAdapter.setOpened(false);
                 updateUIHandler.post(() -> {
                     this.chineseAnswer.setVisibility(View.GONE);
                     this.chineseAnswerDrawer.setVisibility(View.GONE);
+                    setFlagAreaStatus(false);
                 });
                 // 请求收藏夹信息,这一步是有可能造成网络延迟的
                 loadingDialog.dismiss();
@@ -340,24 +356,56 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             associationTextView.setTextColor(getResources().getColor(R.color.dark_gray, null));
             queryWordImageView.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.theme_color, null)));
             queryWordTextView.setTextColor(getResources().getColor(R.color.theme_color, null));
-            flagAreaAdapter.setOpened(false);
             this.getAnswer.setVisibility(View.GONE);
-            this.clickFlag.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
-            this.flag.setClickable(false);
+            this.clickFlagImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
+            this.flagLinearLayout.setClickable(false);
             this.saveProgressImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
             this.saveProgress.setClickable(false);
-            this.flagAreaRecyclerView.setVisibility(View.GONE);
+            setFlagAreaStatus(false);
+            this.flagDecorateRecyclerView.setVisibility(View.GONE);
         } else {
             associationImageView.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.theme_color, null)));
             associationTextView.setTextColor(getResources().getColor(R.color.theme_color, null));
             queryWordImageView.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_gray, null)));
             queryWordTextView.setTextColor(getResources().getColor(R.color.dark_gray, null));
             this.getAnswer.setVisibility(View.VISIBLE);
-            this.clickFlag.setForeground(null);
-            this.flag.setClickable(true);
+            this.clickFlagImageView.setForeground(null);
+            this.flagLinearLayout.setClickable(true);
             this.saveProgressImageView.setForeground(null);
             this.saveProgress.setClickable(true);
-            this.flagAreaRecyclerView.setVisibility(View.VISIBLE);
+            this.flagDecorateRecyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * 执行该方法不一定会成功,也就是动画无法打断
+     *
+     * @param targetStatus 想要改成的目标状态
+     */
+    private void setFlagAreaStatus(boolean targetStatus) {
+        if (!targetStatus) {
+            if (AnimationUtil.with().moveToViewEnd(flagAreaRecyclerView, 500)) {
+                flagAreaAdapter.setOpened(false);
+                clickFlagImageView.setImageResource(R.drawable.flag_close);
+                for (int i = 0; i < flagDecorateRecyclerView.getChildCount(); i++) {
+                    LinearLayout linearLayout = (LinearLayout) flagDecorateRecyclerView.getChildAt(i);
+                    linearLayout.getChildAt(0).setVisibility(View.GONE);
+                    ((RecyclerView.LayoutParams) linearLayout.getLayoutParams()).setMargins(0, 0, 0, 0);
+                }
+                for (FlagColor flagColor : flagColorsList) {
+                    ((LinearLayout) flagDecorateRecyclerView.getChildAt(flagColor.ordinal())).getChildAt(0).setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            if (AnimationUtil.with().endMoveToViewLocation(flagAreaRecyclerView, 500)) {
+                flagAreaAdapter.setOpened(true);
+                clickFlagImageView.setImageResource(R.drawable.flag_open);
+                for (int i = 0; i < flagDecorateRecyclerView.getChildCount(); i++) {
+                    LinearLayout linearLayout = (LinearLayout) flagDecorateRecyclerView.getChildAt(i);
+                    linearLayout.getChildAt(0).setVisibility(View.VISIBLE);
+                    ((RecyclerView.LayoutParams) linearLayout.getLayoutParams()).setMargins(0,DPUtils.dp2px(10), 0, DPUtils.dp2px(10));
+                }
+            }
         }
     }
 
@@ -387,13 +435,14 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.addNewCategory = rootView.findViewById(R.id.fragment_search_word_start_add);
         this.association = rootView.findViewById(R.id.fragment_search_word_click_association);
         this.queryWord = rootView.findViewById(R.id.fragment_search_word_click_query_word);
-        this.flag = rootView.findViewById(R.id.fragment_search_word_click_flag);
+        this.flagLinearLayout = rootView.findViewById(R.id.fragment_search_word_click_flag);
         this.getAnswer = rootView.findViewById(R.id.fragment_search_word_get_answer);
-        this.clickFlag = rootView.findViewById(R.id.fragment_search_word_imageview_click_flag);
+        this.clickFlagImageView = rootView.findViewById(R.id.fragment_search_word_imageview_click_flag);
         this.flagAreaRecyclerView = rootView.findViewById(R.id.fragment_search_word_flag_recycler_view);
         this.searchInput = rootView.findViewById(R.id.fragment_home_search_view);
         this.saveProgress = rootView.findViewById(R.id.fragment_search_word_save_progress);
         this.saveProgressImageView = rootView.findViewById(R.id.fragment_search_word_imageview_save_progress);
+        this.flagDecorateRecyclerView = rootView.findViewById(R.id.fragment_search_word_flag_decorate_recycler_view);
 
         this.backToTrace.setOnClickListener(this);
         this.analysisWord.setOnClickListener(this);
@@ -401,7 +450,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.addNewCategory.setOnClickListener(this);
         this.association.setOnClickListener(this);
         this.queryWord.setOnClickListener(this);
-        this.flag.setOnClickListener(this);
+        this.flagLinearLayout.setOnClickListener(this);
         this.getAnswer.setOnClickListener(this);
         this.saveProgress.setOnClickListener(this);
     }

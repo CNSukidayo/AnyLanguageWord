@@ -190,15 +190,27 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true">
 
-                            <RelativeLayout
+                            <androidx.constraintlayout.widget.ConstraintLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content">
 
                                 <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/fragment_search_word_flag_decorate_recycler_view"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="0dp"
+                                    android:paddingEnd="2dp"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <androidx.recyclerview.widget.RecyclerView
                                     android:id="@+id/fragment_search_word_flag_recycler_view"
                                     android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content" />
-                            </RelativeLayout>
+                                    android:layout_height="wrap_content"
+                                    android:layout_toEndOf="@id/fragment_search_word_flag_decorate_recycler_view"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
                         </androidx.core.widget.NestedScrollView>
 
                     </RelativeLayout>

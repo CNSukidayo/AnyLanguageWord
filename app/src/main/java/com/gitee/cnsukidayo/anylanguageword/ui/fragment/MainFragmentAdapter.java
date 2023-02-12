@@ -105,6 +105,9 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
                 case R.id.fragment_main_drawer_i_start:
                     Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_navigation_i_start, null, StaticFactory.getSimpleNavOptions());
                     break;
+                case R.id.fragment_main_drawer_post:
+                    Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_navigation_post, null, StaticFactory.getSimpleNavOptions());
+                    break;
             }
         }
         return false;

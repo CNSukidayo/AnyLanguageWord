@@ -22,4 +22,6 @@
     <dimen name="markwon_heading_h5">14sp</dimen>
     <dimen name="markwon_heading_h6">12sp</dimen>
     <dimen name="markwon_between_heading_height">0dp</dimen>
+
+    <dimen name="app_layout_margin">12dp</dimen>
 </resources>

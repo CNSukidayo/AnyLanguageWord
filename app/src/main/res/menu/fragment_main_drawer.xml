@@ -9,5 +9,8 @@
         <item
             android:id="@+id/fragment_main_drawer_i_start"
             android:title="@string/i_start" />
+        <item
+            android:id="@+id/fragment_main_drawer_post"
+            android:title="Text文章" />
     </group>
 </menu>

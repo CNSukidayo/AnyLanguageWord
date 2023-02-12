@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_main_navigation_to_navigation_login"
             app:destination="@id/navigation_login" />
+        <action
+            android:id="@+id/action_main_navigation_to_navigation_post"
+            app:destination="@id/navigation_post" />
     </fragment>
     <fragment
         android:id="@+id/navigation_welcome"
@@ -107,10 +110,14 @@
     <fragment
         android:id="@+id/navigation_create_account"
         android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.CreateAccountFragment"
-        tools:layout="@layout/fragment_create_account" >
+        tools:layout="@layout/fragment_create_account">
         <action
             android:id="@+id/action_navigation_create_account_to_navigation_user_privacy_policy"
             app:destination="@id/navigation_user_privacy_policy" />
     </fragment>
+    <fragment
+        android:id="@+id/navigation_post"
+        android:name="com.gitee.cnsukidayo.anylanguageword.ui.fragment.PostFragment"
+        tools:layout="@layout/fragment_post" />
 
 </navigation>

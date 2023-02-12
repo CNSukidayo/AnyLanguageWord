@@ -149,5 +149,10 @@
     <string name="register">注册</string>
     <string name="login_account">登陆账号</string>
     <string name="fail_equal">未找到该单词</string>
+    <string name="add_watch">+关注</string>
+    <string name="send_some_comment">讲两句?</string>
+    <string name="comment">评论 12138</string>
+    <string name="popular_comment">热门评论</string>
+    <string name="order_by_popular">按热度</string>
 
 </resources>

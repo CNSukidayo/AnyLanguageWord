@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -46,6 +47,7 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagAreaRecyclerViewAdapt
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemOnClickListener;
+import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
@@ -63,7 +65,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
 
     private View rootView;
     private ImageButton backToTrace;
-    private ImageView clickFlag;
+    private ImageView clickFlag, saveProgressImageView;
     private AlertDialog loadingDialog = null;
     private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter;
@@ -115,6 +117,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     public void onClick(View v) {
+        Log.d("message", "click");
         switch (v.getId()) {
             case R.id.toolbar_back_to_trace:
                 Navigation.findNavController(getView()).popBackStack();
@@ -129,6 +132,17 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 showWord(testWord);
                 break;
             case R.id.fragment_search_word_click_flag:
+                if (flagAreaAdapter.isOpen()) {
+                    if (AnimationUtil.with().moveToViewEnd(flagAreaRecyclerView, 500)) {
+                        flagAreaAdapter.setOpened(!flagAreaAdapter.isOpen());
+                        flag.setBackgroundResource(R.drawable.flag_close);
+                    }
+                } else {
+                    if (AnimationUtil.with().endMoveToViewLocation(flagAreaRecyclerView, 500)) {
+                        flagAreaAdapter.setOpened(!flagAreaAdapter.isOpen());
+                        flag.setBackgroundResource(R.drawable.flag_open);
+                    }
+                }
                 flagAreaAdapter.setOpened(!flagAreaAdapter.isOpen());
                 break;
             case R.id.fragment_search_word_click_start:
@@ -249,6 +263,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             this.queryWord.setVisibility(View.GONE);
             this.getAnswer.setVisibility(View.GONE);
             this.flagAreaRecyclerView.setVisibility(View.GONE);
+            this.saveProgress.setVisibility(View.GONE);
         } else if ((userCreditStyleWrapper = bundle.getParcelable("userCreditStyleWrapper")) != null) {
             this.creditFormat = userCreditStyleWrapper.getUserCreditStyle().getCreditFormat();
             updateStatus();
@@ -328,9 +343,9 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             flagAreaAdapter.setOpened(false);
             this.getAnswer.setVisibility(View.GONE);
             this.clickFlag.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
-            this.saveProgress.setVisibility(View.GONE);
-            this.saveProgress.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
-            this.clickFlag.setClickable(false);
+            this.flag.setClickable(false);
+            this.saveProgressImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
+            this.saveProgress.setClickable(false);
             this.flagAreaRecyclerView.setVisibility(View.GONE);
         } else {
             associationImageView.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.theme_color, null)));
@@ -339,9 +354,9 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             queryWordTextView.setTextColor(getResources().getColor(R.color.dark_gray, null));
             this.getAnswer.setVisibility(View.VISIBLE);
             this.clickFlag.setForeground(null);
-            this.saveProgress.setVisibility(View.VISIBLE);
-            this.saveProgress.setForeground(null);
-            this.clickFlag.setClickable(false);
+            this.flag.setClickable(true);
+            this.saveProgressImageView.setForeground(null);
+            this.saveProgress.setClickable(true);
             this.flagAreaRecyclerView.setVisibility(View.VISIBLE);
         }
     }
@@ -378,6 +393,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.flagAreaRecyclerView = rootView.findViewById(R.id.fragment_search_word_flag_recycler_view);
         this.searchInput = rootView.findViewById(R.id.fragment_home_search_view);
         this.saveProgress = rootView.findViewById(R.id.fragment_search_word_save_progress);
+        this.saveProgressImageView = rootView.findViewById(R.id.fragment_search_word_imageview_save_progress);
 
         this.backToTrace.setOnClickListener(this);
         this.analysisWord.setOnClickListener(this);

@@ -271,8 +271,7 @@
                         android:background="@drawable/style_image_padding"
                         android:gravity="center"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/flag_close"
-                        app:tint="@color/dark_gray" />
+                        android:src="@drawable/flag_close" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -311,7 +310,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/start"
-                        android:textColor="@color/gray_black"
+                        android:textColor="@color/dark_gray"
                         android:textSize="14sp" />
 
 
@@ -393,6 +392,7 @@
 
 
                     <ImageView
+                        android:id="@+id/fragment_search_word_imageview_save_progress"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="center"
@@ -406,7 +406,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/save_progress"
-                        android:textColor="@color/gray_black"
+                        android:textColor="@color/dark_gray"
                         android:textSize="14sp" />
 
 
@@ -437,7 +437,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/analysis_word"
-                        android:textColor="@color/gray_black"
+                        android:textColor="@color/dark_gray"
                         android:textSize="14sp" />
 
 
@@ -518,7 +518,7 @@
         android:background="@color/white"
         android:clickable="true"
         android:fitsSystemWindows="false"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"

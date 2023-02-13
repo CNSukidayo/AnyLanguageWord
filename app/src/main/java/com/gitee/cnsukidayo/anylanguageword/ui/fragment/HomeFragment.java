@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HomeFragment extends Fragment implements View.OnClickListener,
-        SwipeRefreshLayout.OnRefreshListener, View.OnScrollChangeListener, NavigationItemSelectListener {
+        SwipeRefreshLayout.OnRefreshListener, NestedScrollView.OnScrollChangeListener, NavigationItemSelectListener {
 
     private View rootView;
     private ImageFilterView popDrawerLayoutButton;
@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
 
     @SuppressLint("RestrictedApi")
     @Override
-    public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         // 解决上划冲突
         if (!downRefreshLayout.isRefreshing()) {
             if (scrollY - oldScrollY > 0) {

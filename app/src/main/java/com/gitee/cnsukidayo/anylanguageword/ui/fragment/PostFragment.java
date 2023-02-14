@@ -15,22 +15,18 @@ import android.widget.TextView;
 
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
-import com.gitee.cnsukidayo.anylanguageword.entity.PostCover;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.CommentRecyclerViewAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.Doc_Fragment;
 import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.noties.markwon.Markwon;
@@ -54,8 +50,9 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     private NestedScrollView nestedScrollView;
     private final int[] locationOnScreen = new int[2];
     private volatile boolean isLoadMore;
-    private RecyclerView commentRecyclerView;
+    //    private RecyclerView commentRecyclerView;
     private CommentRecyclerViewAdapter commentAdapter;
+    private Doc_Fragment baseFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +75,8 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     }
 
     private void showMarkDown() {
-        this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        this.commentRecyclerView.setNestedScrollingEnabled(false);
         StaticFactory.getExecutorService().submit(() -> {
             try {
                 markdownOrigin = FileUtils.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
@@ -97,8 +95,12 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
             }
             updateUIHandler.post(() -> {
                 markDownTextView.setText(spanned);
-                commentRecyclerView.setAdapter(commentAdapter);
+//                commentRecyclerView.setAdapter(commentAdapter);
                 loadingBar.setVisibility(View.GONE);
+                this.baseFragment = new Doc_Fragment();
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.replace(R.id.Fl_Layout, baseFragment);
+                transaction.commit();
             });
         });
     }
@@ -141,11 +143,18 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
             StaticFactory.getExecutorService().submit(() -> {
                 isLoadMore = true;
                 // 先加载好所有的数据,然后再统一更新UI
-                List<PostCover> list = new ArrayList<>(6);
+                /*
+                List<Comment> list = new ArrayList<>(6);
                 for (int i = 0; i < 6; i++) {
-                    PostCover postCover = BeanTest.createPostCover();
-                    list.add(postCover);
+                    Comment comment = BeanTest.createComment(getContext());
+                    list.add(comment);
                 }
+                for (Comment comment : list) {
+                    commentAdapter.addItem(comment);
+                }
+
+                 */
+                baseFragment.add();
                 isLoadMore = false;
             });
         }
@@ -160,7 +169,7 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
         this.jumpComment = rootView.findViewById(R.id.fragment_post_jump_comment);
         this.commentOrderLayout = rootView.findViewById(R.id.fragment_post_comment_order_layout);
         this.nestedScrollView = rootView.findViewById(R.id.fragment_post_nested_scroll);
-        this.commentRecyclerView = rootView.findViewById(R.id.fragment_post_comment_recycler_view);
+//        this.commentRecyclerView = rootView.findViewById(R.id.fragment_post_comment_recycler_view);
 
         this.jumpComment.setOnClickListener(this);
         this.appBarLayout.addOnOffsetChangedListener(this);

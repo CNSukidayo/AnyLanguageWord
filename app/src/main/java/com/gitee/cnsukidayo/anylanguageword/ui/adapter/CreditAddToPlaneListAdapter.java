@@ -17,8 +17,9 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemO
 
 public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddToPlaneListAdapter.RecyclerViewHolder> {
 
-    private Context context;
+    private final Context context;
     private RecycleViewItemOnClickListener itemOnClickListener;
+    private final boolean[] status = new boolean[30];
 
     public CreditAddToPlaneListAdapter(Context context) {
         this.context = context;
@@ -33,14 +34,13 @@ public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddT
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        if (status[position]) {
+            holder.addToPlane.setImageResource(R.drawable.add_to_plane);
+        } else {
+            holder.addToPlane.setImageDrawable(null);
+        }
         holder.divideTextView.setText(context.getResources().getString(R.string.divide) + position);
         holder.position = position;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        // 解决View复用错乱的问题
-        return position;
     }
 
     @Override
@@ -72,9 +72,9 @@ public class CreditAddToPlaneListAdapter extends RecyclerView.Adapter<CreditAddT
 
         @Override
         public void onClick(View v) {
-            isSelect = !isSelect;
-            if (isSelect) {
-                this.addToPlane.setImageDrawable(itemView.getResources().getDrawable(R.drawable.add_to_plane, null));
+            status[getAdapterPosition()] = !status[getAdapterPosition()];
+            if (status[getAdapterPosition()]) {
+                this.addToPlane.setImageResource(R.drawable.add_to_plane);
             } else {
                 this.addToPlane.setImageDrawable(null);
             }

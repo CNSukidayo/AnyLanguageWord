@@ -15,9 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
-import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -31,8 +31,6 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
     public CommentRecyclerViewAdapter(Context context) {
         this.context = context;
         updateUIHandler = new Handler(context.getMainLooper());
-        allComments.add(BeanTest.createComment(context));
-        allComments.add(BeanTest.createComment(context));
     }
 
     @NonNull
@@ -49,14 +47,16 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
         holder.level.setText(String.valueOf(comment.getLevel()));
         holder.comment.setText(comment.getCommentContext());
         holder.praise.setText(String.valueOf(comment.getPraise()));
-        if (position < allComments.size()) {
-//            holder.updateStatus();
+        if (!holder.firstBind) {
+            holder.firstBind = true;
+        } else {
+            holder.updateStatus();
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position;
+        return 0;
     }
 
     @Override
@@ -75,6 +75,12 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
 
     }
 
+    @Override
+    public void addAll(Collection<Comment> comments) {
+        for (Comment comment : comments) {
+            addItem(comment);
+        }
+    }
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements Runnable, View.OnClickListener {
         private View itemView;
@@ -83,6 +89,7 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
         private int originLines, maxLines;
         // 展开的状态,一开始是false.也就是说一开始是折叠的状态
         private boolean openStatus = false;
+        private boolean firstBind = false;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);

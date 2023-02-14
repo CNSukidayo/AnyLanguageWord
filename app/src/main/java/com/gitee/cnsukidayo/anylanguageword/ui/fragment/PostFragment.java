@@ -15,18 +15,22 @@ import android.widget.TextView;
 
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
+import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.CommentRecyclerViewAdapter;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.Doc_Fragment;
 import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.noties.markwon.Markwon;
@@ -50,9 +54,8 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     private NestedScrollView nestedScrollView;
     private final int[] locationOnScreen = new int[2];
     private volatile boolean isLoadMore;
-    //    private RecyclerView commentRecyclerView;
+    private RecyclerView commentRecyclerView;
     private CommentRecyclerViewAdapter commentAdapter;
-    private Doc_Fragment baseFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,8 +78,7 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     }
 
     private void showMarkDown() {
-//        this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//        this.commentRecyclerView.setNestedScrollingEnabled(false);
+        this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         StaticFactory.getExecutorService().submit(() -> {
             try {
                 markdownOrigin = FileUtils.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
@@ -95,12 +97,8 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
             }
             updateUIHandler.post(() -> {
                 markDownTextView.setText(spanned);
-//                commentRecyclerView.setAdapter(commentAdapter);
+                commentRecyclerView.setAdapter(commentAdapter);
                 loadingBar.setVisibility(View.GONE);
-                this.baseFragment = new Doc_Fragment();
-                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                transaction.replace(R.id.Fl_Layout, baseFragment);
-                transaction.commit();
             });
         });
     }
@@ -121,6 +119,7 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
                     nestedScrollView.fling(distance);
                     nestedScrollView.smoothScrollBy(0, distance);
                 }
+                commentAdapter.addItem(BeanTest.createComment(getContext()));
                 break;
         }
     }
@@ -135,6 +134,8 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
         }
     }
 
+    int count = 0;
+
     @SuppressLint("RestrictedApi")
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
@@ -143,18 +144,16 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
             StaticFactory.getExecutorService().submit(() -> {
                 isLoadMore = true;
                 // 先加载好所有的数据,然后再统一更新UI
-                /*
                 List<Comment> list = new ArrayList<>(6);
                 for (int i = 0; i < 6; i++) {
                     Comment comment = BeanTest.createComment(getContext());
                     list.add(comment);
                 }
-                for (Comment comment : list) {
-                    commentAdapter.addItem(comment);
+                count += 10;
+                if (count <= 100) {
+                    updateUIHandler.post(() -> commentAdapter.addAll(list));
                 }
 
-                 */
-                baseFragment.add();
                 isLoadMore = false;
             });
         }
@@ -169,7 +168,7 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
         this.jumpComment = rootView.findViewById(R.id.fragment_post_jump_comment);
         this.commentOrderLayout = rootView.findViewById(R.id.fragment_post_comment_order_layout);
         this.nestedScrollView = rootView.findViewById(R.id.fragment_post_nested_scroll);
-//        this.commentRecyclerView = rootView.findViewById(R.id.fragment_post_comment_recycler_view);
+        this.commentRecyclerView = rootView.findViewById(R.id.fragment_post_comment_recycler_view);
 
         this.jumpComment.setOnClickListener(this);
         this.appBarLayout.addOnOffsetChangedListener(this);

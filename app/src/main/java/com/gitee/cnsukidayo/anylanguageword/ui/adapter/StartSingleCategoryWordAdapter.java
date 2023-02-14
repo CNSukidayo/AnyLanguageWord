@@ -131,6 +131,10 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
 
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return 0;
+    }
 
     protected class RecyclerViewHolder extends RecyclerView.ViewHolder implements StateChangedListener, View.OnTouchListener, View.OnClickListener {
         public View itemView, scroller, separator;

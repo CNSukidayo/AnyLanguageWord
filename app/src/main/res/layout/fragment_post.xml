@@ -200,148 +200,18 @@
                 </androidx.appcompat.widget.Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
-
-
-        <com.gitee.cnsukidayo.anylanguageword.ui.adapter.customview.NestedScrollRecyclerView
-            android:id="@+id/fragment_post_nested_scroll"
+        <!--拒绝使用嵌套,直接使用RecyclerView就可以了-->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:scrollbars="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragment_post_comment_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/fragment_post_content"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        style="@style/system_markdown_style"
-                        android:layout_width="match_parent">
-
-                        <TextView
-                            android:id="@+id/fragment_post_markdown_context"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="15dp"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="114514万阅读"
-                                android:textColor="@color/dark_gray" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="10dp"
-                                android:text="cv170001"
-                                android:textColor="@color/dark_gray" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="10dp"
-                            android:background="@color/gray" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/app_layout_margin"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginBottom="5dp"
-                            android:text="@string/comment"
-                            android:textColor="@color/theme_color"
-                            android:textSize="18sp" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/gray" />
-
-                        <RelativeLayout
-                            android:id="@+id/fragment_post_comment_order_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/app_layout_margin"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginEnd="@dimen/app_layout_margin">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_centerVertical="true"
-                                android:text="@string/popular_comment"
-                                android:textColor="@color/black"
-                                android:textSize="16sp" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true">
-
-                                <ImageView
-                                    android:layout_width="30dp"
-                                    android:layout_height="match_parent"
-                                    android:layout_gravity="center"
-                                    android:paddingTop="3dp"
-                                    android:paddingBottom="3dp"
-                                    android:src="@drawable/ic_order" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="@string/order_by_popular"
-                                    android:textColor="@color/dark_gray"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
-                        </RelativeLayout>
-
-                    </LinearLayout>
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:id="@+id/fragment_post_comment_relative_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/fragment_post_comment_recycler_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_below="@id/fragment_post_comment_recycler_view"
-                        android:background="@android:color/transparent" />
-                </RelativeLayout>
-            </LinearLayout>
-        </com.gitee.cnsukidayo.anylanguageword.ui.adapter.customview.NestedScrollRecyclerView>
+                android:scrollbars="vertical" />
+        </RelativeLayout>
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

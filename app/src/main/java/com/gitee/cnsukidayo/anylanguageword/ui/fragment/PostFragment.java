@@ -1,9 +1,9 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +11,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,10 +37,9 @@ import io.noties.markwon.Markwon;
  * @author sukidayo
  * @date 2023/2/12 15:19:39
  */
-public class PostFragment extends Fragment implements View.OnClickListener, AppBarLayout.OnOffsetChangedListener, NestedScrollView.OnScrollChangeListener {
+public class PostFragment extends Fragment implements View.OnClickListener, AppBarLayout.OnOffsetChangedListener, View.OnScrollChangeListener {
 
     private View rootView;
-    private TextView markDownTextView;
     private Handler updateUIHandler;
     private ProgressBar loadingBar;
     private ImageButton backToTrace;
@@ -51,7 +48,6 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     private RelativeLayout title;
     private LinearLayout jumpComment;
     private RelativeLayout commentOrderLayout;
-    private NestedScrollView nestedScrollView;
     private final int[] locationOnScreen = new int[2];
     private volatile boolean isLoadMore;
     private RecyclerView commentRecyclerView;
@@ -90,13 +86,13 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
             final Spanned spanned = markwon.toMarkdown(markdownOrigin);
             // 加载评论区
             this.commentAdapter = new CommentRecyclerViewAdapter(getContext());
+            commentAdapter.setMarkDownText(spanned);
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             updateUIHandler.post(() -> {
-                markDownTextView.setText(spanned);
                 commentRecyclerView.setAdapter(commentAdapter);
                 loadingBar.setVisibility(View.GONE);
             });
@@ -111,15 +107,15 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
                 break;
             case R.id.fragment_post_jump_comment:
                 appBarLayout.setExpanded(false, false);
+                this.commentOrderLayout = commentAdapter.getCommentOrderLayout();
                 commentOrderLayout.getLocationOnScreen(locationOnScreen);//测量某View相对于屏幕的距离
                 int dy = locationOnScreen[1];
-                nestedScrollView.getLocationOnScreen(locationOnScreen);
+                commentRecyclerView.getLocationOnScreen(locationOnScreen);
                 int distance = dy - locationOnScreen[1];
                 if (distance > 0) {
-                    nestedScrollView.fling(distance);
-                    nestedScrollView.smoothScrollBy(0, distance);
+                    commentRecyclerView.fling(0, distance);
+                    commentRecyclerView.smoothScrollBy(0, distance);
                 }
-                commentAdapter.addItem(BeanTest.createComment(getContext()));
                 break;
         }
     }
@@ -136,11 +132,16 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
 
     int count = 0;
 
-    @SuppressLint("RestrictedApi")
     @Override
-    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+    public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+        int offset = commentRecyclerView.computeVerticalScrollOffset();  //当前滑动条在range中的偏移量
+        int extent = commentRecyclerView.computeVerticalScrollExtent();// 计算滑动条的长度
+        int range = commentRecyclerView.computeVerticalScrollRange();//计算滑动条的总共滑动范围range；
+        Log.d("message-offset", String.valueOf(offset));
+        Log.d("message-range", String.valueOf(range - extent));
+        int percentage = (int) (100.0 * offset / (float) (range - extent));
         // 下滑加载更多,当滑动的距离+组件的高度-可滑动的范围<2000时加载新的数据(防止网络卡顿的预加载方案)
-        if (!isLoadMore && nestedScrollView.computeVerticalScrollRange() - (nestedScrollView.getScrollY() + nestedScrollView.getHeight()) < 500) {
+        if (!isLoadMore && percentage > 90) {
             StaticFactory.getExecutorService().submit(() -> {
                 isLoadMore = true;
                 // 先加载好所有的数据,然后再统一更新UI
@@ -156,24 +157,21 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
 
                 isLoadMore = false;
             });
+
         }
     }
 
     private void bindView() {
-        this.markDownTextView = rootView.findViewById(R.id.fragment_post_markdown_context);
         this.backToTrace = rootView.findViewById(R.id.toolbar_back_to_trace);
         this.loadingBar = rootView.findViewById(R.id.fragment_post_loading_bar);
         this.appBarLayout = rootView.findViewById(R.id.fragment_post_app_bar_layout);
         this.title = rootView.findViewById(R.id.fragment_post_title);
         this.jumpComment = rootView.findViewById(R.id.fragment_post_jump_comment);
-        this.commentOrderLayout = rootView.findViewById(R.id.fragment_post_comment_order_layout);
-        this.nestedScrollView = rootView.findViewById(R.id.fragment_post_nested_scroll);
         this.commentRecyclerView = rootView.findViewById(R.id.fragment_post_comment_recycler_view);
 
         this.jumpComment.setOnClickListener(this);
         this.appBarLayout.addOnOffsetChangedListener(this);
         this.backToTrace.setOnClickListener(this);
-        this.nestedScrollView.setOnScrollChangeListener(this);
+        this.commentRecyclerView.setOnScrollChangeListener(this);
     }
-
 }

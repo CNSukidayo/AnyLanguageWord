@@ -3,9 +3,12 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
+import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,53 +24,82 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecyclerViewAdapter.RecyclerViewHolder> implements RecyclerViewAdapterItemChange<Comment> {
+public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerViewAdapterItemChange<Comment> {
 
     private final Context context;
     private final List<Comment> allComments = new ArrayList<>(5);
     private final Handler updateUIHandler;
-    private Random random = new Random();
+    private final Random random = new Random();
+    private Spanned markDownText;
+    private RelativeLayout commentOrderLayout;
 
     public CommentRecyclerViewAdapter(Context context) {
         this.context = context;
         updateUIHandler = new Handler(context.getMainLooper());
     }
 
+    public void setMarkDownText(Spanned markDownText) {
+        this.markDownText = markDownText;
+    }
+
+    // 后期这里可以变为获取任意的一个Item
+    public RelativeLayout getCommentOrderLayout() {
+        return commentOrderLayout;
+    }
+
     @NonNull
     @Override
-    public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.comment_element, parent, false));
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == 0) {
+            return new CommentHeaderViewHolder(LayoutInflater.from(context).inflate(R.layout.comment_element_header, parent, false));
+        } else if (viewType == 2) {
+            return new TransparentViewHolder(LayoutInflater.from(context).inflate(R.layout.transparent, parent, false), 300);
+        }
+        return new CommentViewHolder(LayoutInflater.from(context).inflate(R.layout.comment_element, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Comment comment = allComments.get(position);
-        holder.commentAuthorFace.setImageResource(comment.getFace());
-        holder.name.setText(comment.getName());
-        holder.level.setText(String.valueOf(comment.getLevel()));
-        holder.comment.setText(comment.getCommentContext());
-        holder.praise.setText(String.valueOf(comment.getPraise()));
-        if (!holder.firstBind) {
-            holder.firstBind = true;
-        } else {
-            holder.updateStatus();
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        Log.d("message", String.valueOf(position));
+        if (holder instanceof CommentViewHolder) {
+            CommentViewHolder commentViewHolder = (CommentViewHolder) holder;
+            Comment comment = allComments.get(position-1);
+            commentViewHolder.commentAuthorFace.setImageResource(comment.getFace());
+            commentViewHolder.name.setText(comment.getName());
+            commentViewHolder.level.setText(String.valueOf(comment.getLevel()));
+            commentViewHolder.comment.setText(comment.getCommentContext());
+            commentViewHolder.praise.setText(String.valueOf(comment.getPraise()));
+            if (!commentViewHolder.firstBind) {
+                commentViewHolder.firstBind = true;
+            } else {
+                commentViewHolder.updateStatus();
+            }
+        } else if (holder instanceof CommentHeaderViewHolder) {
+            CommentHeaderViewHolder commentHeaderViewHolder = (CommentHeaderViewHolder) holder;
+            commentHeaderViewHolder.markDownTextView.setText(markDownText);
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return 0;
+        if (position == 0) {
+            return 0;
+        } else if (position == getItemCount() - 1) {
+            return 2;
+        } else {
+            return 1;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return allComments.size();
+        return allComments.size() + 2;
     }
 
     @Override
     public void addItem(Comment item) {
         allComments.add(item);
-        notifyItemInserted(allComments.size() - 1);
+        notifyItemInserted(allComments.size());
     }
 
     @Override
@@ -82,7 +114,7 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
         }
     }
 
-    public class RecyclerViewHolder extends RecyclerView.ViewHolder implements Runnable, View.OnClickListener {
+    public class CommentViewHolder extends RecyclerView.ViewHolder implements Runnable, View.OnClickListener {
         private View itemView;
         private ImageFilterView commentAuthorFace;
         private TextView name, level, date, comment, open, praise;
@@ -91,7 +123,7 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
         private boolean openStatus = false;
         private boolean firstBind = false;
 
-        public RecyclerViewHolder(@NonNull View itemView) {
+        public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             this.commentAuthorFace = itemView.findViewById(R.id.comment_element_face);
@@ -140,5 +172,14 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<CommentRecy
 
     }
 
+    public class CommentHeaderViewHolder extends RecyclerView.ViewHolder {
+        private final TextView markDownTextView;
+
+        public CommentHeaderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            this.markDownTextView = itemView.findViewById(R.id.fragment_post_markdown_context);
+            commentOrderLayout = itemView.findViewById(R.id.fragment_post_comment_order_layout);
+        }
+    }
 
 }

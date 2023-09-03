@@ -69,6 +69,7 @@
                             android:layout_centerVertical="true">
 
                             <TextView
+                                android:id="@+id/fragment_account_user_name"
                                 style="@style/settings_profile_hint_text_view"
                                 android:text="@string/user_name" />
 
@@ -90,6 +91,7 @@
                             android:layout_centerVertical="true">
 
                             <TextView
+                                android:id="@+id/fragment_account_describe_info"
                                 style="@style/settings_profile_hint_text_view"
                                 android:hint="@string/introduction_hint" />
 
@@ -110,6 +112,7 @@
                             android:layout_centerVertical="true">
 
                             <TextView
+                                android:id="@+id/fragment_account_sex"
                                 style="@style/settings_profile_hint_text_view"
                                 android:hint="@string/sex_hint" />
 
@@ -130,6 +133,7 @@
                             android:layout_centerVertical="true">
 
                             <TextView
+                                android:id="@+id/fragment_account_birthday"
                                 style="@style/settings_profile_hint_text_view"
                                 android:hint="@string/birthday_hint" />
 
@@ -150,6 +154,7 @@
                             android:layout_centerVertical="true">
 
                             <TextView
+                                android:id="@+id/fragment_account_university"
                                 style="@style/settings_profile_hint_text_view"
                                 android:hint="@string/school_hint" />
 
@@ -176,6 +181,7 @@
                             android:layout_marginEnd="20dp">
 
                             <TextView
+                                android:id="@+id/fragment_account_uuid"
                                 style="@style/settings_profile_hint_text_view"
                                 android:text="@string/user_name" />
 
@@ -195,10 +201,10 @@
                             android:layout_centerVertical="true">
 
                             <ImageView
-                                android:layout_marginEnd="5dp"
-                                android:src="@drawable/qrcode"
                                 android:layout_width="32dp"
-                                android:layout_height="32dp" />
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="5dp"
+                                android:src="@drawable/qrcode" />
 
                             <ImageView style="@style/settings_image_view" />
                         </LinearLayout>

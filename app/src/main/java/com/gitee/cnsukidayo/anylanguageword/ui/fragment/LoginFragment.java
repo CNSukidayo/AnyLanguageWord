@@ -8,12 +8,14 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -67,6 +69,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.fragment_login_create_account:
                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_login_to_navigation_create_account, null, StaticFactory.getSimpleNavOptions());
+                break;
+            case R.id.fragment_login_login:
+
+                Toast failEquals = Toast.makeText(getContext(), "登陆成功!", Toast.LENGTH_SHORT);
+                failEquals.setGravity(Gravity.CENTER, 0, 500);
+                failEquals.show();
                 break;
         }
     }

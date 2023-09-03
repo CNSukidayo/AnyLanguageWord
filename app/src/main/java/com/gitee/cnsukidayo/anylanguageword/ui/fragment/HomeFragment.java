@@ -192,7 +192,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                     if (tempPosition == 3) {
                         tempPosition = 0;
                     }
-                    imageRotationViewPager.setCurrentItem(tempPosition);
+                    final int finalTempPosition = tempPosition;
+                    updateUIHandler.post(() -> imageRotationViewPager.setCurrentItem(finalTempPosition));
                 }
                 userSlideImage = false;
             }

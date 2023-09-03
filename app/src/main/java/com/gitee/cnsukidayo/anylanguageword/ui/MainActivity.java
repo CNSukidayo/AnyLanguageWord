@@ -12,6 +12,7 @@ import androidx.navigation.Navigation;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
+import com.gitee.cnsukidayo.anylanguageword.context.interceptor.BadResponseToastInterceptor;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 import com.google.gson.Gson;
@@ -40,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
     // 用该handler来异步读取证书
     private Handler updateUIHandler = new Handler();
+
+    private final String ip = "192.168.137.1";
+    private final String port = "8201";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,11 +104,12 @@ public class MainActivity extends AppCompatActivity {
                 .hostnameVerifier(new OkHttpHostnameVerifier())
                 .sslSocketFactory(sslSocketFactoryCreate.getSslSocketFactory(), sslSocketFactoryCreate.getX509TrustManager())
                 .addInterceptor(new BadResponseOkHttpInterceptor(gson))
+                .addInterceptor(new BadResponseToastInterceptor(gson, this))
                 .addInterceptor(new TokenCheckOkHttpInterceptor(gson))
                 .build();
 
         RequestHandler requestHandler = new RequestHandler(okHttpClient, gson, null);
-        requestHandler.setBaseUrl("https://localhost:8201");
+        requestHandler.setBaseUrl("https://" + ip + ":" + port);
         RequestRegister.register(requestHandler);
     }
 

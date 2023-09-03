@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.github.cnsukidayo.wword.common.request.RequestRegister;
+
 public class HomeFragment extends Fragment implements View.OnClickListener,
         SwipeRefreshLayout.OnRefreshListener, NestedScrollView.OnScrollChangeListener, NavigationItemSelectListener {
 
@@ -198,6 +200,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                 userSlideImage = false;
             }
         });
+        // 更新用户的信息
+        if (RequestRegister.getAuthToken().getAccessToken() != null) {
+
+        } else {
+
+        }
     }
 
     private void bindView() {

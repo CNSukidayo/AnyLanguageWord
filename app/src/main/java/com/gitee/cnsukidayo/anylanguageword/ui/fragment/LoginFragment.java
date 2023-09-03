@@ -2,13 +2,13 @@ package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +24,11 @@ import androidx.navigation.Navigation;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 
+import io.github.cnsukidayo.wword.common.request.RequestRegister;
+import io.github.cnsukidayo.wword.common.request.implement.core.UserRequestUtil;
+import io.github.cnsukidayo.wword.model.params.LoginParam;
+import io.github.cnsukidayo.wword.model.token.AuthToken;
+
 /**
  * @author sukidayo
  * @date Friday, February 10, 2023
@@ -32,8 +37,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     private View rootView;
     private CheckBox readPolicy;
-    private TextView login, createAccount, title;
+    private TextView login, createAccount, title, accountInput, passwordInput;
     private ImageButton backToTrace;
+    private final Handler updateUIHandler = new Handler();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,10 +77,21 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_login_to_navigation_create_account, null, StaticFactory.getSimpleNavOptions());
                 break;
             case R.id.fragment_login_login:
-
-                Toast failEquals = Toast.makeText(getContext(), "登陆成功!", Toast.LENGTH_SHORT);
-                failEquals.setGravity(Gravity.CENTER, 0, 500);
-                failEquals.show();
+                // 发送登陆请求
+                StaticFactory.getExecutorService().execute(() -> {
+                    LoginParam loginParam = new LoginParam();
+                    loginParam.setAccount(accountInput.getText().toString());
+                    loginParam.setPassword(passwordInput.getText().toString());
+                    UserRequestUtil.login(loginParam).success(authTokenBaseResponse -> {
+                        AuthToken authToken = authTokenBaseResponse.getData();
+                        RequestRegister.setAuthToken(authToken);
+                        // 回到上一页
+                        updateUIHandler.post(() -> {
+                            Navigation.findNavController(getView()).popBackStack();
+                            Toast.makeText(getContext(), getContext().getResources().getString(R.string.login_success), Toast.LENGTH_SHORT).show();
+                        });
+                    }).execute();
+                });
                 break;
         }
     }
@@ -99,6 +116,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         spannableString.setSpan(clickableSpan, 7, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         readPolicy.setText(spannableString);
         readPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+        login.setClickable(false);
     }
 
     private void bindView() {
@@ -107,6 +125,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         this.createAccount = rootView.findViewById(R.id.fragment_login_create_account);
         this.backToTrace = rootView.findViewById(R.id.toolbar_back_to_trace);
         this.title = rootView.findViewById(R.id.toolbar_title);
+        this.accountInput = rootView.findViewById(R.id.fragment_login_account_input);
+        this.passwordInput = rootView.findViewById(R.id.fragment_login_password_input);
 
         this.readPolicy.setOnClickListener(this);
         this.login.setOnClickListener(this);

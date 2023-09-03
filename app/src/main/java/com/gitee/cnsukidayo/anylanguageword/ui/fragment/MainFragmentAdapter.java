@@ -1,11 +1,13 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,11 +19,9 @@ import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.entity.UserInfo;
 import com.gitee.cnsukidayo.anylanguageword.enums.UserLevel;
 import com.gitee.cnsukidayo.anylanguageword.enums.VIPLevel;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.BottomViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -30,6 +30,10 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
+
+import io.github.cnsukidayo.wword.common.request.RequestRegister;
+import io.github.cnsukidayo.wword.common.request.implement.core.UserRequestUtil;
+import io.github.cnsukidayo.wword.model.dto.UserProfileDTO;
 
 public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener, DrawerLayout.DrawerListener,
         NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
@@ -47,7 +51,8 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
     private DrawerLayout drawerLayout;
     private final Fragment homeFragment = new HomeFragment(), creditFragment = new CreditFragment(), hearingFragment = new HearingFragment(), analysisFragment = new AnalysisFragment();
     private BottomNavigationItemView bottomHome, bottomRecite, bottomHearing, bottomAnalysis;
-
+    private RelativeLayout userInfoArea;
+    private final Handler updateUIHandler = new Handler();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (rootView != null) {
+            initView();
             return rootView;
         }
         rootView = inflater.inflate(R.layout.fragment_main_adapter, container, false);
@@ -149,12 +155,21 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
 
     private void initView() {
         // 进入主页时加载用户个人信息
-        UserInfo userInfo = BeanTest.createUserInfo();
-        this.drawerUserFace.setImageResource(userInfo.getUserFacePathID());
-        this.userName.setText(userInfo.getUserName());
-        this.userLevel.setText(getResources().getString(UserLevel.values()[userInfo.getUserLevel() - 1].getLevelDescribe()));
-        this.userVipLevel.setText(getResources().getString(VIPLevel.values()[userInfo.getUserLevel() - 1].getVipDescribe()));
-        this.userMoney.setText(String.valueOf(userInfo.getMoney()));
+        if (RequestRegister.getAuthToken().getAccessToken() != null) {
+            userInfoArea.setVisibility(View.VISIBLE);
+            StaticFactory.getExecutorService().execute(() -> UserRequestUtil.getProfile()
+                    .success(data -> {
+                        UserProfileDTO userProfile = data.getData();
+                        updateUIHandler.post(() -> {
+                            userName.setText(userProfile.getNick());
+                            userLevel.setText(getResources().getString(UserLevel.values()[userProfile.getLevel() - 1].getLevelDescribe()));
+                            userVipLevel.setText(getResources().getString(VIPLevel.values()[userProfile.getLevel() - 1].getVipDescribe()));
+                        });
+                    })
+                    .execute());
+        } else {
+            userInfoArea.setVisibility(View.INVISIBLE);
+        }
     }
 
     /**
@@ -204,7 +219,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         this.bottomRecite = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_recite);
         this.bottomHearing = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_hearing);
         this.bottomAnalysis = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_analysis);
-
+        this.userInfoArea = headerLayout.findViewById(R.id.fragment_main_navigation_hear_user_info);
 
         ((HomeFragment) homeFragment).setPopDrawerListener(this::onClickUserFace);
         drawerLayout.addDrawerListener(this);

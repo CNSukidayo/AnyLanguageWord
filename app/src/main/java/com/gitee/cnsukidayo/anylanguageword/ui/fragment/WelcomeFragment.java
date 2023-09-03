@@ -79,6 +79,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_welcome_disagree:
+                // todo 应该调用finish方法
                 android.os.Process.killProcess(android.os.Process.myPid());
                 break;
             case R.id.fragment_welcome_accept:

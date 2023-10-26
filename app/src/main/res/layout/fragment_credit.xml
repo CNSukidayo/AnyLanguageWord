@@ -13,7 +13,7 @@
         android:layout_height="50dp"
         android:background="@android:color/white"
         android:theme="@style/ThemeOverlay.AppCompat.Light"
-        app:layout_constraintBottom_toTopOf="@id/fragment_credit_add_to_plane_view"
+        app:layout_constraintBottom_toTopOf="@id/fragment_credit_frame_layout"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,13 +34,31 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ProgressBar
-                android:visibility="invisible"
                 android:id="@+id/credit_fragment_loading_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:indeterminateTint="@color/theme_color"
-                app:layout_constraintEnd_toStartOf="@+id/fragment_credit_start_credit"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toStartOf="@+id/fragment_credit_switch"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/fragment_credit_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/fragment_home_face"
+                android:clickable="true"
+                android:foreground="@drawable/item_gray_select_radius_22dp"
+                app:cardCornerRadius="360dp"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toStartOf="@id/fragment_credit_start_credit"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    style="@style/radius_image_view_50"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/new_message" />
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/fragment_credit_start_credit"
@@ -58,15 +76,24 @@
     </com.google.android.material.appbar.AppBarLayout>
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/fragment_credit_add_to_plane_view"
+    <!--    <androidx.recyclerview.widget.RecyclerView-->
+    <!--        android:id="@+id/fragment_credit_add_to_plane_view"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_marginTop="5dp"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/fragment_credit_barlayout">-->
+
+    <!--    </androidx.recyclerview.widget.RecyclerView>-->
+
+    <FrameLayout
+        android:id="@+id/fragment_credit_frame_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_credit_barlayout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_credit_barlayout">
 
-    </androidx.recyclerview.widget.RecyclerView>
-
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

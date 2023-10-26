@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +42,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     private boolean isLoading;
     private UserCreditStyle userCreditStyle;
     private Handler updateUIHandler = new Handler();
+    private FragmentManager fragmentManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,12 +55,14 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         }
         rootView = inflater.inflate(R.layout.fragment_credit, container, false);
         // 初始化View
-        this.addToPlaneList = rootView.findViewById(R.id.fragment_credit_add_to_plane_view);
+//        this.addToPlaneList = rootView.findViewById(R.id.fragment_credit_add_to_plane_view);
         this.viewPageChangeNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_home_navigation_view);
         this.startLearning = rootView.findViewById(R.id.fragment_credit_start_credit);
         this.loadingBar = rootView.findViewById(R.id.credit_fragment_loading_bar);
+        // 设置fragment切换逻辑
+        initFrameLayout();
         // 设置RecyclerView
-        initRecyclerView();
+//        initRecyclerView();
         // 设置各种监听事件
         this.startLearning.setOnClickListener(this);
         return rootView;
@@ -78,7 +83,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
                         // 拷贝Bean
                         UserCreditStyleWrapper userCreditStyleWrapper = new UserCreditStyleWrapper(userCreditStyle);
                         Bundle bundle = new Bundle();
-                        bundle.putParcelable("userCreditStyleWrapper",userCreditStyleWrapper);
+                        bundle.putParcelable("userCreditStyleWrapper", userCreditStyleWrapper);
                         updateUIHandler.post(() -> {
                             if (userCreditStyle.isIgnore()) {
                                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, bundle,
@@ -98,6 +103,16 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     @Override
     public void onClickCurrentPage(@NonNull MenuItem item) {
         addToPlaneList.smoothScrollToPosition(RecyclerView.SCROLLBAR_POSITION_DEFAULT);
+    }
+
+    private void initFrameLayout() {
+        this.fragmentManager = getParentFragmentManager();
+        //开启事务，获得FragmentTransaction对象
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        //向容器内添加或替换碎片，默认情况下为LeftFragment
+        transaction.replace(R.id.fragment_credit_frame_layout, new LanguageClassFragment());
+        //提交事务
+        transaction.commit();
     }
 
     private void initRecyclerView() {

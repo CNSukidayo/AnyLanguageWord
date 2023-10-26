@@ -25,7 +25,8 @@ import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
-import io.github.cnsukidayo.wword.common.request.implement.core.UserRequestUtil;
+import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.interfaces.auth.UserRequest;
 import io.github.cnsukidayo.wword.model.params.LoginParam;
 import io.github.cnsukidayo.wword.model.token.AuthToken;
 
@@ -82,15 +83,19 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     LoginParam loginParam = new LoginParam();
                     loginParam.setAccount(accountInput.getText().toString());
                     loginParam.setPassword(passwordInput.getText().toString());
-                    UserRequestUtil.login(loginParam).success(authTokenBaseResponse -> {
-                        AuthToken authToken = authTokenBaseResponse.getData();
-                        RequestRegister.setAuthToken(authToken);
-                        // 回到上一页
-                        updateUIHandler.post(() -> {
-                            Navigation.findNavController(getView()).popBackStack();
-                            Toast.makeText(getContext(), getContext().getResources().getString(R.string.login_success), Toast.LENGTH_SHORT).show();
-                        });
-                    }).execute();
+                    UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();
+                    userRequest
+                            .login(loginParam)
+                            .success(authTokenBaseResponse -> {
+                                AuthToken authToken = authTokenBaseResponse.getData();
+                                RequestRegister.setAuthToken(authToken);
+                                // 回到上一页
+                                updateUIHandler.post(() -> {
+                                    Navigation.findNavController(getView()).popBackStack();
+                                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.login_success), Toast.LENGTH_SHORT).show();
+                                });
+                            })
+                            .execute();
                 });
                 break;
         }

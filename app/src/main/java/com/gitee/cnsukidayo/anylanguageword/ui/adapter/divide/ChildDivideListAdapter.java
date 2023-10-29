@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,6 +54,11 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
         // 首先得到子划分
         DivideDTO divideDTO = allDivideDTOList.get(position);
         holder.divideTextView.setText(divideDTO.getName());
+        if (divideIdSet.contains(divideDTO.getId())) {
+            holder.childDivideButton.setImageResource(R.drawable.add_to_plane);
+        } else {
+            holder.childDivideButton.setImageDrawable(null);
+        }
     }
 
     @Override
@@ -76,31 +82,40 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
     }
 
     @Override
-    public void addAll(Collection<DivideDTO> divideDTOS) {
-        for (DivideDTO divideDTO : divideDTOS) {
-            addItem(divideDTO);
-        }
-    }
-
-    @Override
-    public void removeAll() {
-        int count = allDivideDTOList.size();
+    public void replaceAll(Collection<DivideDTO> divideDTOS) {
         allDivideDTOList.clear();
-        notifyItemRangeRemoved(0, count);
+        allDivideDTOList.addAll(divideDTOS);
+        notifyItemRangeChanged(0, divideDTOS.size());
     }
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private TextView divideTextView;
+        private ImageButton childDivideButton;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             this.divideTextView = itemView.findViewById(R.id.credit_fragment_child_divide_textview);
+            this.childDivideButton = itemView.findViewById(R.id.credit_fragment_child_divide_image_button);
+
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
+            int position = getAdapterPosition();
+            DivideDTO divideDTO = allDivideDTOList.get(position);
+            if (divideIdSet.contains(divideDTO.getId())) {
+                divideIdSet.remove(divideDTO.getId());
+            } else {
+                divideIdSet.add(divideDTO.getId());
+            }
+            if (divideIdSet.contains(divideDTO.getId())) {
+                childDivideButton.setImageResource(R.drawable.add_to_plane);
+            } else {
+                childDivideButton.setImageDrawable(null);
+            }
         }
     }
 

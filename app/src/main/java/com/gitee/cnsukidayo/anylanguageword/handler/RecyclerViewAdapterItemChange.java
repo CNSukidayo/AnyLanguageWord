@@ -23,7 +23,7 @@ public interface RecyclerViewAdapterItemChange<T> {
 
     }
 
-    default void removeAll() {
+    default void replaceAll(Collection<T> tCollection) {
 
     }
 

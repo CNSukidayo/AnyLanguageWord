@@ -118,7 +118,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
      * 语种
      */
     private void languageClassRecyclerView() {
-        this.fragmentManager = getParentFragmentManager();
+        this.fragmentManager = getChildFragmentManager();
         // 开启事务，获得FragmentTransaction对象
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         // 向容器内添加或替换碎片,默认情况下为LanguageClassFragment

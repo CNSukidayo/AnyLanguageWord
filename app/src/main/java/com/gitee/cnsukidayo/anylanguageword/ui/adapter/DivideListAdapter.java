@@ -57,11 +57,15 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
         // 首先得到position对应的父划分
         DivideDTO divideDTO = allDivideDTOList.get(position);
         if (divideIdSet.contains(divideDTO.getId())) {
-            holder.addToPlane.setImageResource(R.drawable.add_to_plane);
+            holder.addToPlane.setRotation(180);
+            holder.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
+            holder.childDivideListRecyclerView.setVisibility(View.VISIBLE);
         } else {
-            holder.addToPlane.setImageDrawable(null);
+            holder.addToPlane.setRotation(270);
+            holder.childDivideListRecyclerView.setVisibility(View.GONE);
         }
         holder.divideTextView.setText(divideDTO.getName());
+
     }
 
     @Override
@@ -110,13 +114,15 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             this.itemView = itemView;
             this.divideTextView = itemView.findViewById(R.id.credit_fragment_divide_textview);
             this.addToPlane = itemView.findViewById(R.id.credit_fragment_divide_image_button);
-            this.relativeLayout = itemView.findViewById(R.id.credit_fragment_divide_item_layout);
+            this.relativeLayout = itemView.findViewById(R.id.parent_divide_relative_layout);
             this.childDivideListRecyclerView = itemView.findViewById(R.id.child_divide_recycler_view);
 
             this.childDivideListRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             this.childDivideListAdapter = new ChildDivideListAdapter(context);
             this.childDivideListRecyclerView.setAdapter(childDivideListAdapter);
+            this.childDivideListRecyclerView.setVisibility(View.GONE);
             this.childDivideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
+
             this.relativeLayout.setOnClickListener(this);
         }
 
@@ -130,13 +136,12 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
                 divideIdSet.add(divideDTO.getId());
             }
             if (divideIdSet.contains(divideDTO.getId())) {
-                this.addToPlane.setImageResource(R.drawable.add_to_plane);
-                this.childDivideListAdapter.removeAll();
+                addToPlane.setRotation(180);
                 // 得到当前父划分下的所有子划分
-                this.childDivideListAdapter.addAll(allDivideDTOList.get(getAdapterPosition()).getChildDivideDTO());
+                this.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
                 this.childDivideListRecyclerView.setVisibility(View.VISIBLE);
             } else {
-                this.addToPlane.setImageDrawable(null);
+                addToPlane.setRotation(270);
                 this.childDivideListRecyclerView.setVisibility(View.GONE);
             }
             // 父划分被点击不需要回调

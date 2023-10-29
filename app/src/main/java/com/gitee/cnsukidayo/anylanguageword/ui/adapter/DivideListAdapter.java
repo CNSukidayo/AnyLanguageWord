@@ -10,10 +10,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.divide.ChildDivideListAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 
 import java.util.ArrayList;
@@ -60,7 +62,6 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             holder.addToPlane.setImageDrawable(null);
         }
         holder.divideTextView.setText(divideDTO.getName());
-        holder.position = position;
     }
 
     @Override
@@ -95,15 +96,27 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
         private TextView divideTextView;
         private ImageButton addToPlane;
         private RelativeLayout relativeLayout;
-        private boolean isSelect = false;
-        private int position;
+        /**
+         * 子划分的RecyclerView
+         */
+        private RecyclerView childDivideListRecyclerView;
+        /**
+         * 子划分的adapter
+         */
+        private ChildDivideListAdapter childDivideListAdapter;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             this.divideTextView = itemView.findViewById(R.id.credit_fragment_divide_textview);
-            this.addToPlane = itemView.findViewById(R.id.add_to_plane_image_button);
+            this.addToPlane = itemView.findViewById(R.id.credit_fragment_divide_image_button);
             this.relativeLayout = itemView.findViewById(R.id.credit_fragment_divide_item_layout);
+            this.childDivideListRecyclerView = itemView.findViewById(R.id.child_divide_recycler_view);
+
+            this.childDivideListRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+            this.childDivideListAdapter = new ChildDivideListAdapter(context);
+            this.childDivideListRecyclerView.setAdapter(childDivideListAdapter);
+            this.childDivideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
             this.relativeLayout.setOnClickListener(this);
         }
 
@@ -118,8 +131,13 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             }
             if (divideIdSet.contains(divideDTO.getId())) {
                 this.addToPlane.setImageResource(R.drawable.add_to_plane);
+                this.childDivideListAdapter.removeAll();
+                // 得到当前父划分下的所有子划分
+                this.childDivideListAdapter.addAll(allDivideDTOList.get(getAdapterPosition()).getChildDivideDTO());
+                this.childDivideListRecyclerView.setVisibility(View.VISIBLE);
             } else {
                 this.addToPlane.setImageDrawable(null);
+                this.childDivideListRecyclerView.setVisibility(View.GONE);
             }
             // 父划分被点击不需要回调
         }

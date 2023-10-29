@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/credit_fragment_divide_item_layout"
+    android:id="@+id/credit_fragment_child_divide_element"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:clickable="true"
-    android:foreground="@drawable/item_gray_select"
-    android:paddingStart="10dp"
-    android:paddingEnd="8dp"
-    android:paddingBottom="0dp">
+    android:foreground="@drawable/item_gray_select">
 
     <TextView
-        android:id="@+id/credit_fragment_divide_textview"
+        android:id="@+id/credit_fragment_child_divide_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/credit_fragment_divide_image_button"
+        android:layout_alignBottom="@+id/credit_fragment_child_divide_image_button"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:gravity="center"
@@ -23,7 +20,7 @@
         android:textSize="22sp" />
 
     <ImageButton
-        android:id="@+id/credit_fragment_divide_image_button"
+        android:id="@+id/credit_fragment_child_divide_image_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"
@@ -33,19 +30,5 @@
         android:paddingEnd="5dp"
         android:paddingBottom="5dp"
         android:scaleType="fitCenter" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/credit_fragment_divide_image_button"
-        android:visibility="visible">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/child_divide_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginEnd="7dp" />
-    </RelativeLayout>
 
 </RelativeLayout>

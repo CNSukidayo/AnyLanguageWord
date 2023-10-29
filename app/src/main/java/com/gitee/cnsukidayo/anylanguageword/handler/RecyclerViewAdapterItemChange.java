@@ -23,4 +23,8 @@ public interface RecyclerViewAdapterItemChange<T> {
 
     }
 
+    default void removeAll() {
+
+    }
+
 }

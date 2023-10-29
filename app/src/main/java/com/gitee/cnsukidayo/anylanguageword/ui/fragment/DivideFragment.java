@@ -99,7 +99,6 @@ public class DivideFragment extends Fragment {
         this.divideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
     }
 
-
     private void requestData() {
         // 查询当前用户的所有划分
         UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();

@@ -19,22 +19,42 @@ import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
+import com.gitee.cnsukidayo.anylanguageword.context.interceptor.BadResponseToastInterceptor;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.enums.UserLevel;
 import com.gitee.cnsukidayo.anylanguageword.enums.VIPLevel;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.BottomViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import io.github.cnsukidayo.wword.common.request.BadResponseOkHttpInterceptor;
+import io.github.cnsukidayo.wword.common.request.OkHttpHostnameVerifier;
+import io.github.cnsukidayo.wword.common.request.RequestHandler;
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
+import io.github.cnsukidayo.wword.common.request.SSLSocketFactoryCreate;
+import io.github.cnsukidayo.wword.common.request.TokenCheckOkHttpInterceptor;
 import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
 import io.github.cnsukidayo.wword.common.request.interfaces.auth.UserRequest;
+import io.github.cnsukidayo.wword.common.request.type.deser.GLocalDateDeSerializer;
+import io.github.cnsukidayo.wword.common.request.type.deser.GLocalDateTimeDeSerializer;
+import io.github.cnsukidayo.wword.common.request.type.ser.GLocalDateSerializer;
+import io.github.cnsukidayo.wword.common.request.type.ser.GLocalDateTimeSerializer;
 import io.github.cnsukidayo.wword.model.dto.UserProfileDTO;
+import okhttp3.OkHttpClient;
 
 public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener, DrawerLayout.DrawerListener,
         NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
@@ -55,6 +75,14 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
     private RelativeLayout userInfoArea;
     private final Handler updateUIHandler = new Handler();
 
+    /**
+     * 用户设置
+     */
+    private UserSettings userSettings;
+
+    private final String ip = "192.168.31.183";
+    private final String port = "8200";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,8 +95,9 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
             return rootView;
         }
         rootView = inflater.inflate(R.layout.fragment_main_adapter, container, false);
+        // 注册HTTP请求工具,异步执行
         bindView();
-        initView();
+        updateUIHandler.post(this::initOKHttp);
         initViewPage();
         return rootView;
     }
@@ -176,6 +205,49 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         } else {
             userInfoArea.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void initOKHttp() {
+        InputStream inputStream = null;
+        try {
+            inputStream = this.getClass().getClassLoader().getResource("cert/publicKey.cer").openStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        SSLSocketFactoryCreate sslSocketFactoryCreate = SSLSocketFactoryCreate.newInstance(inputStream);
+        Gson gson = new GsonBuilder()
+                //LocalDateTime序列化适配器
+                .registerTypeAdapter(LocalDateTime.class, new GLocalDateTimeSerializer())
+                //LocalDate序列化适配器
+                .registerTypeAdapter(LocalDate.class, new GLocalDateSerializer())
+                //LocalDateTime反序列化适配器
+                .registerTypeAdapter(LocalDateTime.class, new GLocalDateTimeDeSerializer())
+                //LocalDate反序列化适配器
+                .registerTypeAdapter(LocalDate.class, new GLocalDateDeSerializer())
+                .create();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .hostnameVerifier(new OkHttpHostnameVerifier())
+                .sslSocketFactory(sslSocketFactoryCreate.getSslSocketFactory(), sslSocketFactoryCreate.getX509TrustManager())
+                .addInterceptor(new BadResponseOkHttpInterceptor(gson))
+                .addInterceptor(new BadResponseToastInterceptor(gson, getContext()))
+                .addInterceptor(new TokenCheckOkHttpInterceptor(gson))
+                .build();
+
+        RequestHandler requestHandler = new RequestHandler(okHttpClient, gson, null);
+        requestHandler.setBaseUrl("https://" + ip + ":" + port);
+        RequestRegister.register(requestHandler);
+        // 初始化读取用户token
+        try {
+            userSettings = JsonUtils.readJson(UserInfoPath.USER_SETTINGS.getPath(), UserSettings.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (userSettings.getAuthToken().getAccessToken() != null) {
+            RequestRegister.setAuthToken(userSettings.getAuthToken());
+            initView();
+        }
+
     }
 
     /**

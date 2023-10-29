@@ -22,7 +22,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
+
+import java.io.IOException;
 
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
 import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
@@ -89,6 +94,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                             .success(authTokenBaseResponse -> {
                                 AuthToken authToken = authTokenBaseResponse.getData();
                                 RequestRegister.setAuthToken(authToken);
+                                try {
+                                    // 将token保存到本地
+                                    UserSettings userSettings = JsonUtils.readJson(UserInfoPath.USER_SETTINGS.getPath(), UserSettings.class);
+                                    userSettings.setAuthToken(authToken);
+                                    JsonUtils.writeJson(UserInfoPath.USER_SETTINGS.getPath(), userSettings);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                                 // 回到上一页
                                 updateUIHandler.post(() -> {
                                     Navigation.findNavController(getView()).popBackStack();

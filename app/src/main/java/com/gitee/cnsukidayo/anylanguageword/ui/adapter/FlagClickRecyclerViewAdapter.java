@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemOnClickListener;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class FlagClickRecyclerViewAdapter extends RecyclerView.Adapter<FlagClick
     // 保存所有的旗帜
     private final List<RecyclerViewHolder> allFlags = new ArrayList<>(FlagColor.values().length);
     private volatile boolean open = true;
-    private RecycleViewItemOnClickListener recycleViewItemOnClickListener;
+    private RecycleViewItemClickCallBack<FlagColor> recycleViewItemClickCallBack;
 
     public FlagClickRecyclerViewAdapter(Context context) {
         this.context = context;
@@ -54,8 +54,8 @@ public class FlagClickRecyclerViewAdapter extends RecyclerView.Adapter<FlagClick
         return FlagColor.values().length;
     }
 
-    public void setRecycleViewItemOnClickListener(RecycleViewItemOnClickListener recycleViewItemOnClickListener) {
-        this.recycleViewItemOnClickListener = recycleViewItemOnClickListener;
+    public void setRecycleViewItemOnClickListener(RecycleViewItemClickCallBack<FlagColor> recycleViewItemClickCallBack) {
+        this.recycleViewItemClickCallBack = recycleViewItemClickCallBack;
     }
 
     /**
@@ -85,8 +85,8 @@ public class FlagClickRecyclerViewAdapter extends RecyclerView.Adapter<FlagClick
         @Override
         public void onClick(View v) {
             // 负责传递消息给上一层
-            if (recycleViewItemOnClickListener != null) {
-                recycleViewItemOnClickListener.recycleViewOnClick(getAdapterPosition());
+            if (recycleViewItemClickCallBack != null) {
+                recycleViewItemClickCallBack.viewClickCallBack(FlagColor.values()[getAdapterPosition()]);
             }
         }
     }

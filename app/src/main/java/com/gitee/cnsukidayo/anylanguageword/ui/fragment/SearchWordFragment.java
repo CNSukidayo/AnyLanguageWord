@@ -48,7 +48,7 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagClickRecyclerViewAdap
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagDecorateRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemOnClickListener;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
 import com.google.gson.reflect.TypeToken;
@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  * @author sukidayo
  * @date Thursday, February 09, 2023
  */
-public class SearchWordFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback, RecycleViewItemOnClickListener {
+public class SearchWordFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback, RecycleViewItemClickCallBack<FlagColor> {
 
     private View rootView;
     private ImageButton backToTrace;
@@ -181,22 +181,21 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     private List<FlagColor> flagColorsList = new ArrayList<>(FlagColor.values().length);
 
     @Override
-    public void recycleViewOnClick(int position) {
+    public void viewClickCallBack(FlagColor flagColor) {
         // 点击旗帜的回调事件
-        if (position == FlagColor.values().length - 1) {
+        if (flagColor == FlagColor.BROWN) {
             return;
         }
         boolean flag = true;
-        FlagColor value = FlagColor.values()[position];
         for (int i = 0; i < flagColorsList.size(); i++) {
-            if (flagColorsList.get(i) == value) {
+            if (flagColorsList.get(i) == flagColor) {
                 flagColorsList.remove(i);
                 flag = false;
                 break;
             }
         }
         if (flag) {
-            flagColorsList.add(FlagColor.values()[position]);
+            flagColorsList.add(flagColor);
         }
         flagDecorateAdapter.setFlagStatus(flagColorsList);
     }
@@ -403,7 +402,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 for (int i = 0; i < flagDecorateRecyclerView.getChildCount(); i++) {
                     LinearLayout linearLayout = (LinearLayout) flagDecorateRecyclerView.getChildAt(i);
                     linearLayout.getChildAt(0).setVisibility(View.VISIBLE);
-                    ((RecyclerView.LayoutParams) linearLayout.getLayoutParams()).setMargins(0,DPUtils.dp2px(10), 0, DPUtils.dp2px(10));
+                    ((RecyclerView.LayoutParams) linearLayout.getLayoutParams()).setMargins(0, DPUtils.dp2px(10), 0, DPUtils.dp2px(10));
                 }
             }
         }
@@ -454,8 +453,8 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.getAnswer.setOnClickListener(this);
         this.saveProgress.setOnClickListener(this);
     }
-
     // ----下面是一些用不到的方法----
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return false;

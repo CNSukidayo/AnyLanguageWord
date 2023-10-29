@@ -32,7 +32,8 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.ArrayList;
 
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
-import io.github.cnsukidayo.wword.common.request.implement.core.UserRequestUtil;
+import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.interfaces.auth.UserRequest;
 import io.github.cnsukidayo.wword.model.dto.UserProfileDTO;
 
 public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener, DrawerLayout.DrawerListener,
@@ -157,16 +158,21 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         // 进入主页时加载用户个人信息
         if (RequestRegister.getAuthToken().getAccessToken() != null) {
             userInfoArea.setVisibility(View.VISIBLE);
-            StaticFactory.getExecutorService().execute(() -> UserRequestUtil.getProfile()
-                    .success(data -> {
-                        UserProfileDTO userProfile = data.getData();
-                        updateUIHandler.post(() -> {
-                            userName.setText(userProfile.getNick());
-                            userLevel.setText(getResources().getString(UserLevel.values()[userProfile.getLevel() - 1].getLevelDescribe()));
-                            userVipLevel.setText(getResources().getString(VIPLevel.values()[userProfile.getLevel() - 1].getVipDescribe()));
-                        });
-                    })
-                    .execute());
+            StaticFactory
+                    .getExecutorService()
+                    .execute(() -> {
+                        UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();
+                        userRequest.getProfile()
+                                .success(data -> {
+                                    UserProfileDTO userProfile = data.getData();
+                                    updateUIHandler.post(() -> {
+                                        userName.setText(userProfile.getNick());
+                                        userLevel.setText(getResources().getString(UserLevel.values()[userProfile.getLevel() - 1].getLevelDescribe()));
+                                        userVipLevel.setText(getResources().getString(VIPLevel.values()[userProfile.getLevel() - 1].getVipDescribe()));
+                                    });
+                                })
+                                .execute();
+                    });
         } else {
             userInfoArea.setVisibility(View.INVISIBLE);
         }

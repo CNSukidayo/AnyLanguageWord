@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
     // 用该handler来异步读取证书
     private Handler updateUIHandler = new Handler();
 
-    private final String ip = "192.168.137.1";
-    private final String port = "8201";
+    private final String ip = "192.168.31.183";
+    private final String port = "8200";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

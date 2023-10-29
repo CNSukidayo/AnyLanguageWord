@@ -15,7 +15,8 @@ import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
-import io.github.cnsukidayo.wword.common.request.implement.core.UserRequestUtil;
+import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.interfaces.auth.UserRequest;
 import io.github.cnsukidayo.wword.model.dto.UserProfileDTO;
 
 /**
@@ -72,19 +73,26 @@ public class AccountProfileFragment extends Fragment implements View.OnClickList
 
     private void initView() {
         if (RequestRegister.getAuthToken().getAccessToken() != null) {
-            StaticFactory.getExecutorService().execute(() -> UserRequestUtil.getProfile()
-                    .success(data -> {
-                        UserProfileDTO userProfile = data.getData();
-                        updateUIHandler.post(() -> {
-                            userName.setText(userProfile.getNick());
-                            describeInfo.setText(userProfile.getDescribeInfo());
-                            sex.setText(userProfile.getSex().toString());
-                            birthday.setText(userProfile.getBirthday().toString());
-                            university.setText(userProfile.getUniversity());
-                            uuid.setText(String.valueOf(userProfile.getUuid()));
-                        });
-                    })
-                    .execute());
+            StaticFactory
+                    .getExecutorService()
+                    .execute(() -> {
+                        // 获取用户个人信息
+                        UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();
+                        userRequest
+                                .getProfile()
+                                .success(data -> {
+                                    UserProfileDTO userProfile = data.getData();
+                                    updateUIHandler.post(() -> {
+                                        userName.setText(userProfile.getNick());
+                                        describeInfo.setText(userProfile.getDescribeInfo());
+                                        sex.setText(userProfile.getSex().toString());
+                                        birthday.setText(userProfile.getBirthday().toString());
+                                        university.setText(userProfile.getUniversity());
+                                        uuid.setText(String.valueOf(userProfile.getUuid()));
+                                    });
+                                })
+                                .execute();
+                    });
         }
     }
 

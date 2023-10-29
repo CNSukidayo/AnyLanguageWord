@@ -5,7 +5,7 @@
     android:background="@color/white"
     android:paddingStart="10dp"
     android:paddingEnd="8dp"
-    android:id="@+id/credit_fragment_add_to_plane_item_layout"
+    android:id="@+id/credit_fragment_divide_item_layout"
     android:clickable="true"
     android:foreground="@drawable/item_gray_select"
     android:paddingBottom="10dp">

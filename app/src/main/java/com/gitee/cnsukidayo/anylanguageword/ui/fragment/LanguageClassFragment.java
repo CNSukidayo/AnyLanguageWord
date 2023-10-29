@@ -1,6 +1,7 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,16 +11,27 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.LanguageClassAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 
+import java.util.List;
+
+import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
 import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
 
+/**
+ * 语种类fragment
+ */
 public class LanguageClassFragment extends Fragment {
 
     private View rootView;
-    private RecyclerView divideListRecyclerView;
-    private GridLayoutManager divideListLayoutManager;
+    private RecyclerView languageClassRecyclerView;
+    private GridLayoutManager languageClassLayoutManager;
     private LanguageClassAdapter languageClassAdapter;
+    private final Handler updateUIHandler = new Handler();
+    private RecycleViewItemClickCallBack<LanguageClassDTO> recycleViewItemClickCallBack;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,31 +44,46 @@ public class LanguageClassFragment extends Fragment {
         if (rootView != null) {
             return rootView;
         }
-        rootView = inflater.inflate(R.layout.fragment_language_class, container, false);
+        rootView = inflater.inflate(R.layout.fragment_single_recycle_view, container, false);
         bindView();
         initView();
         requestData();
         return rootView;
     }
 
+    /**
+     * 设置点击了某个语种后的回调事件,需要传递LanguageClassDTO对象
+     *
+     * @param recycleViewItemClickCallBack 参数不为null
+     */
+    public void setRecycleViewItemClickCallBack(RecycleViewItemClickCallBack<LanguageClassDTO> recycleViewItemClickCallBack) {
+        this.recycleViewItemClickCallBack = recycleViewItemClickCallBack;
+    }
+
+
     private void bindView() {
-        divideListRecyclerView = rootView.findViewById(R.id.fragment_divide_word_list_recycler_view);
+        languageClassRecyclerView = rootView.findViewById(R.id.single_recycler_view);
     }
 
     private void initView() {
-        this.divideListLayoutManager = new GridLayoutManager(getContext(), 3);
-        this.divideListRecyclerView.setLayoutManager(divideListLayoutManager);
+        this.languageClassLayoutManager = new GridLayoutManager(getContext(), 3);
+        this.languageClassRecyclerView.setLayoutManager(languageClassLayoutManager);
         this.languageClassAdapter = new LanguageClassAdapter(getContext());
 
-        this.divideListRecyclerView.setAdapter(languageClassAdapter);
+        this.languageClassRecyclerView.setAdapter(languageClassAdapter);
+        this.languageClassAdapter.setRecycleViewItemClickCallBack(recycleViewItemClickCallBack);
     }
 
     /**
-     * 请求数据
+     * 请求数据,显示当前所有语种
      */
     private void requestData() {
-        LanguageClassDTO languageClassDTO = new LanguageClassDTO();
-        languageClassDTO.setLanguage("中文");
-        languageClassAdapter.addItem(languageClassDTO);
+        DivideRequest divideRequest = CoreServiceRequestFactory.getInstance().divideRequest();
+        StaticFactory.getExecutorService().execute(() -> divideRequest.listLanguage()
+                .success(data -> {
+                    List<LanguageClassDTO> languageClassList = data.getData();
+                    updateUIHandler.post(() -> languageClassAdapter.addAll(languageClassList));
+                })
+                .execute());
     }
 }

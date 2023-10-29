@@ -11,9 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemOnClickListener;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
@@ -21,9 +22,15 @@ import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
 public class LanguageClassAdapter extends RecyclerView.Adapter<LanguageClassAdapter.RecyclerViewHolder> implements RecyclerViewAdapterItemChange<LanguageClassDTO> {
 
     private Context context;
-    private RecycleViewItemOnClickListener recycleViewItemOnClickListener;
-    // 保留所有的语种
+    /**
+     * 保留所有的语种
+     */
     private final List<LanguageClassDTO> allLanguageClassList = new ArrayList<>();
+
+    /**
+     * 点击语种后的回调事件
+     */
+    private RecycleViewItemClickCallBack<LanguageClassDTO> recycleViewItemClickCallBack;
 
     public LanguageClassAdapter(Context context) {
         this.context = context;
@@ -51,10 +58,6 @@ public class LanguageClassAdapter extends RecyclerView.Adapter<LanguageClassAdap
         return allLanguageClassList.size();
     }
 
-    public void setRecycleViewItemOnClickListener(RecycleViewItemOnClickListener recycleViewItemOnClickListener) {
-        this.recycleViewItemOnClickListener = recycleViewItemOnClickListener;
-    }
-
     @Override
     public void addItem(LanguageClassDTO item) {
         allLanguageClassList.add(item);
@@ -68,6 +71,18 @@ public class LanguageClassAdapter extends RecyclerView.Adapter<LanguageClassAdap
         }
     }
 
+    @Override
+    public void addAll(Collection<LanguageClassDTO> languageClassDTOS) {
+        // todo 重复请求会造成数据不一致
+        for (LanguageClassDTO languageClass : languageClassDTOS) {
+            addItem(languageClass);
+        }
+    }
+
+    public void setRecycleViewItemClickCallBack(RecycleViewItemClickCallBack<LanguageClassDTO> recycleViewItemClickCallBack) {
+        this.recycleViewItemClickCallBack = recycleViewItemClickCallBack;
+    }
+
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private TextView languageClass;
@@ -76,13 +91,17 @@ public class LanguageClassAdapter extends RecyclerView.Adapter<LanguageClassAdap
             super(itemView);
             this.itemView = itemView;
             this.languageClass = itemView.findViewById(R.id.language_class_element_language_text);
+
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            // 负责传递消息给上一层
-            if (recycleViewItemOnClickListener != null) {
-                recycleViewItemOnClickListener.recycleViewOnClick(getAdapterPosition());
+            // 负责传递消息给上一层,表明当前点击了某个语种
+            if (recycleViewItemClickCallBack != null) {
+                int position = getAdapterPosition();
+                LanguageClassDTO languageClassDTO = allLanguageClassList.get(position);
+                recycleViewItemClickCallBack.viewClickCallBack(languageClassDTO);
             }
         }
     }

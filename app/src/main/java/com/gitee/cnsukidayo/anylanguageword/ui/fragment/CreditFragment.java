@@ -14,8 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
@@ -23,26 +21,38 @@ import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
 import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.CreditAddToPlaneListAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
 
 public class CreditFragment extends Fragment implements View.OnClickListener, NavigationItemSelectListener {
 
     private View rootView;
-    private RecyclerView addToPlaneList;
     private BottomNavigationView viewPageChangeNavigationView;
-    private int count;
     private TextView startLearning;
     private ProgressBar loadingBar;
     private boolean isLoading;
     private UserCreditStyle userCreditStyle;
     private Handler updateUIHandler = new Handler();
     private FragmentManager fragmentManager;
+
+    /**
+     * 语种的fragment
+     */
+    private LanguageClassFragment languageClassFragment;
+
+    /**
+     * 单词划分的fragment
+     */
+    private DivideFragment divideFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,10 +69,8 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         this.viewPageChangeNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_home_navigation_view);
         this.startLearning = rootView.findViewById(R.id.fragment_credit_start_credit);
         this.loadingBar = rootView.findViewById(R.id.credit_fragment_loading_bar);
-        // 设置fragment切换逻辑
-        initFrameLayout();
-        // 设置RecyclerView
-//        initRecyclerView();
+        // 设置fragment切换逻辑 语种与划分之间的切换显示
+        languageClassRecyclerView();
         // 设置各种监听事件
         this.startLearning.setOnClickListener(this);
         return rootView;
@@ -102,39 +110,56 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
 
     @Override
     public void onClickCurrentPage(@NonNull MenuItem item) {
-        addToPlaneList.smoothScrollToPosition(RecyclerView.SCROLLBAR_POSITION_DEFAULT);
+        // todo 添加滑动到顶部的方法
+//        addToPlaneList.smoothScrollToPosition(RecyclerView.SCROLLBAR_POSITION_DEFAULT);
     }
 
-    private void initFrameLayout() {
+    /**
+     * 语种
+     */
+    private void languageClassRecyclerView() {
         this.fragmentManager = getParentFragmentManager();
-        //开启事务，获得FragmentTransaction对象
+        // 开启事务，获得FragmentTransaction对象
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        //向容器内添加或替换碎片，默认情况下为LeftFragment
-        transaction.replace(R.id.fragment_credit_frame_layout, new LanguageClassFragment());
-        //提交事务
+        // 向容器内添加或替换碎片,默认情况下为LanguageClassFragment
+        // 点击语种后发送请求,调用divideRecyclerViewLanguageClassFragment
+        languageClassFragment = Optional.ofNullable(languageClassFragment).orElse(new LanguageClassFragment());
+        transaction.replace(R.id.fragment_credit_frame_layout, languageClassFragment);
+        // 设置点击了某个语种后的回调事件
+        languageClassFragment.setRecycleViewItemClickCallBack(this::divideRecyclerView);
+        // 提交事务
         transaction.commit();
     }
 
-    private void initRecyclerView() {
-        this.addToPlaneList.setLayoutManager(new LinearLayoutManager(getContext()));
-        CreditAddToPlaneListAdapter addToPlaneListAdapter = new CreditAddToPlaneListAdapter(getContext());
-        boolean[] choose = new boolean[30];
-        addToPlaneListAdapter.setItemOnClickListener(position -> {
-            choose[position] = !choose[position];
-            if (choose[position]) {
-                count++;
+
+    /**
+     * 单词划分的recycleView
+     *
+     * @param languageClassDTO 展示哪个语种
+     */
+    private void divideRecyclerView(LanguageClassDTO languageClassDTO) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        divideFragment = Optional.ofNullable(divideFragment).orElse(new DivideFragment());
+        transaction.replace(R.id.fragment_credit_frame_layout, divideFragment);
+        divideFragment.setLanguageClassDTO(languageClassDTO);
+        // 记录划分ID
+        Set<Long> divideIdSet = new HashSet<>();
+        // 设置点击某个子划分后的回调事件
+        divideFragment.setRecycleViewItemOnClickListener(divideDTO -> {
+            if (divideIdSet.contains(divideDTO.getId())) {
+                divideIdSet.remove(divideDTO.getId());
             } else {
-                count--;
+                divideIdSet.add(divideDTO.getId());
             }
-            if (count < 1) {
+            if (divideIdSet.size() < 1) {
                 viewPageChangeNavigationView.removeBadge(R.id.fragment_main_bottom_recite);
             } else {
-                viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setNumber(count);
+                viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setNumber(divideIdSet.size());
                 viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setBadgeGravity(BadgeDrawable.TOP_END);
                 viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setMaxCharacterCount(3);
             }
         });
-        this.addToPlaneList.setAdapter(addToPlaneListAdapter);
-
+        // 提交事务
+        transaction.commit();
     }
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:roundiv="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/credit_fragment_add_to_plane_item_layout"
+    android:id="@+id/credit_fragment_divide_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/background_solid_radius_6dp"

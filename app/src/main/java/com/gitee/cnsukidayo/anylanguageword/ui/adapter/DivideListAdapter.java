@@ -34,7 +34,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
     /**
      * 记录被点击的划分id
      */
-    private final Set<Long> divideIdSet = new HashSet<>();
+    private final Set<DivideDTO> divideIdSet = new HashSet<>();
 
     /**
      * 设置点击子划分的回调事件
@@ -56,7 +56,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // 首先得到position对应的父划分
         DivideDTO divideDTO = allDivideDTOList.get(position);
-        if (divideIdSet.contains(divideDTO.getId())) {
+        if (divideIdSet.contains(divideDTO)) {
             holder.addToPlane.setRotation(180);
             holder.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
             holder.childDivideListRecyclerView.setVisibility(View.VISIBLE);
@@ -65,6 +65,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             holder.childDivideListRecyclerView.setVisibility(View.GONE);
         }
         holder.divideTextView.setText(divideDTO.getName());
+        holder.elementCount.setText(String.valueOf(divideDTO.getElementCount()));
 
     }
 
@@ -98,6 +99,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private TextView divideTextView;
+        private TextView elementCount;
         private ImageButton addToPlane;
         private RelativeLayout relativeLayout;
         /**
@@ -116,6 +118,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             this.addToPlane = itemView.findViewById(R.id.credit_fragment_divide_image_button);
             this.relativeLayout = itemView.findViewById(R.id.parent_divide_relative_layout);
             this.childDivideListRecyclerView = itemView.findViewById(R.id.child_divide_recycler_view);
+            this.elementCount = itemView.findViewById(R.id.credit_fragment_divide_element_count);
 
             this.childDivideListRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             this.childDivideListAdapter = new ChildDivideListAdapter(context);
@@ -130,12 +133,12 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
         public void onClick(View v) {
             int position = getAdapterPosition();
             DivideDTO divideDTO = allDivideDTOList.get(position);
-            if (divideIdSet.contains(divideDTO.getId())) {
-                divideIdSet.remove(divideDTO.getId());
+            if (divideIdSet.contains(divideDTO)) {
+                divideIdSet.remove(divideDTO);
             } else {
-                divideIdSet.add(divideDTO.getId());
+                divideIdSet.add(divideDTO);
             }
-            if (divideIdSet.contains(divideDTO.getId())) {
+            if (divideIdSet.contains(divideDTO)) {
                 addToPlane.setRotation(180);
                 // 得到当前父划分下的所有子划分
                 this.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());

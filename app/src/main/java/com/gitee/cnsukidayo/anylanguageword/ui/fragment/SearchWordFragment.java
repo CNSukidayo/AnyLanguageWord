@@ -275,7 +275,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             this.flagAreaRecyclerView.setVisibility(View.GONE);
             this.flagDecorateRecyclerView.setVisibility(View.GONE);
             this.saveProgress.setVisibility(View.GONE);
-        } else if ((userCreditStyleWrapper = bundle.getParcelable("userCreditStyleWrapper")) != null) {
+        } else if ((userCreditStyleWrapper = bundle.getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER)) != null) {
             this.creditFormat = userCreditStyleWrapper.getUserCreditStyle().getCreditFormat();
             updateStatus();
         }

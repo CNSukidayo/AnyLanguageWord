@@ -1,6 +1,7 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
@@ -56,10 +58,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
@@ -124,7 +130,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         // 读取状态
-        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable("userCreditStyleWrapper");
+        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER);
         this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
@@ -599,6 +605,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     /**
      * 读取所有单词信息,读取完毕之后更新UI
      */
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void readAllWord() {
         StaticFactory.getExecutorService().submit(() -> {
             // todo 这里正确的做法应该是将代表用户当前所选择的所有待加载的单词列表丢入WordMessageHandlerImpl实现类中,这里暂且先这么做.
@@ -613,21 +620,23 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     e.printStackTrace();
                 }
             }
-            // 根据自定义风格背诵
+            List<DivideWordDTO> divideWordDTOList = new ArrayList<>();
+
+            // 根据自定义风格背诵,获取当前要加载的所有单词
             Bundle bundle = getArguments();
             if (bundle != null) {
-                UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable("userCreditStyleWrapper");
-                if (userCreditStyleWrapper != null) {
-                    this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
-                    // TODO 这个地方可以用责任链设计模式,暂且先这么写
-                    if (userCreditStyle.getCreditOrder() == CreditOrder.DISORDER) {
-                        Collections.shuffle(wordList);
-                    } else if (userCreditStyle.getCreditOrder() == CreditOrder.LEXICOGRAPHIC) {
-                        wordList.sort((o1, o2) -> o1.getWordOrigin().compareTo(o2.getWordOrigin()));
-                    }
-                    if (userCreditStyle.getCreditFilter() == CreditFilter.PHRASE) {
-                        wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
-                    }
+                // 如果获取为null则整个逻辑都不对了
+                UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER);
+                this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
+                HashSet<?> divideIdList = bundle.getSerializable(CreditFragment.CHILD_DIVIDE_SET, HashSet.class);
+                // TODO 这个地方可以用责任链设计模式,暂且先这么写
+                if (userCreditStyle.getCreditOrder() == CreditOrder.DISORDER) {
+                    Collections.shuffle(wordList);
+                } else if (userCreditStyle.getCreditOrder() == CreditOrder.LEXICOGRAPHIC) {
+                    wordList.sort((o1, o2) -> o1.getWordOrigin().compareTo(o2.getWordOrigin()));
+                }
+                if (userCreditStyle.getCreditFilter() == CreditFilter.PHRASE) {
+                    wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
                 }
             }
             this.wordFunctionHandler = new WordFunctionHandlerImpl(wordList);

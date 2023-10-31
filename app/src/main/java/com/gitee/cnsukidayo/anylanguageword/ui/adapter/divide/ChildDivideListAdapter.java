@@ -31,7 +31,7 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
     /**
      * 记录被点击的划分id
      */
-    private final Set<Long> divideIdSet = new HashSet<>();
+    private final Set<DivideDTO> divideIdSet = new HashSet<>();
 
     /**
      * 设置点击子划分的回调事件
@@ -54,11 +54,12 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
         // 首先得到子划分
         DivideDTO divideDTO = allDivideDTOList.get(position);
         holder.divideTextView.setText(divideDTO.getName());
-        if (divideIdSet.contains(divideDTO.getId())) {
+        if (divideIdSet.contains(divideDTO)) {
             holder.childDivideButton.setImageResource(R.drawable.add_to_plane);
         } else {
             holder.childDivideButton.setImageDrawable(null);
         }
+        holder.elementCount.setText(String.valueOf(divideDTO.getElementCount()));
     }
 
     @Override
@@ -91,6 +92,7 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private TextView divideTextView;
+        private TextView elementCount;
         private ImageButton childDivideButton;
 
         public RecyclerViewHolder(@NonNull View itemView) {
@@ -98,6 +100,7 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
             this.itemView = itemView;
             this.divideTextView = itemView.findViewById(R.id.credit_fragment_child_divide_textview);
             this.childDivideButton = itemView.findViewById(R.id.credit_fragment_child_divide_image_button);
+            this.elementCount = itemView.findViewById(R.id.credit_fragment_child_divide_element_count);
 
             itemView.setOnClickListener(this);
         }
@@ -106,16 +109,17 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
         public void onClick(View v) {
             int position = getAdapterPosition();
             DivideDTO divideDTO = allDivideDTOList.get(position);
-            if (divideIdSet.contains(divideDTO.getId())) {
-                divideIdSet.remove(divideDTO.getId());
+            if (divideIdSet.contains(divideDTO)) {
+                divideIdSet.remove(divideDTO);
             } else {
-                divideIdSet.add(divideDTO.getId());
+                divideIdSet.add(divideDTO);
             }
-            if (divideIdSet.contains(divideDTO.getId())) {
+            if (divideIdSet.contains(divideDTO)) {
                 childDivideButton.setImageResource(R.drawable.add_to_plane);
             } else {
                 childDivideButton.setImageDrawable(null);
             }
+            recycleViewItemOnClickListener.viewClickCallBack(divideDTO);
         }
     }
 

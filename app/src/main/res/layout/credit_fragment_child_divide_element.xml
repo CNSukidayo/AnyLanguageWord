@@ -21,18 +21,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/credit_fragment_child_divide_image_button"
-        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:layout_marginStart="-3dp"
         android:layout_toEndOf="@id/credit_fragment_child_divide_point"
         android:gravity="center"
         android:text="@string/divide"
         android:textColor="@color/black"
-        android:textSize="22sp" />
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/credit_fragment_child_divide_element_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@id/credit_fragment_child_divide_image_button"
+        android:gravity="center"
+        android:text="@string/divide_element_count"
+        android:textColor="@color/blue"
+        android:textSize="16sp" />
 
     <ImageButton
         android:id="@+id/credit_fragment_child_divide_image_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_alignParentEnd="true"
         android:background="@color/gray"
         android:clickable="false"

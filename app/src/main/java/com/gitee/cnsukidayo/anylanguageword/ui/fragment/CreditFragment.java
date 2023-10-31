@@ -29,8 +29,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
+import io.github.cnsukidayo.wword.model.dto.DivideDTO;
 import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
 
 public class CreditFragment extends Fragment implements View.OnClickListener, NavigationItemSelectListener {
@@ -53,6 +53,25 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
      * 单词划分的fragment
      */
     private DivideFragment divideFragment;
+
+    /**
+     * 记录划分ID
+     */
+    private final HashSet<DivideDTO> divideSet = new HashSet<>();
+
+    /**
+     * 用户背诵风格
+     */
+    public static final String USER_CREDIT_STYLE_WRAPPER = "USER_CREDIT_STYLE_WRAPPER";
+    /**
+     * 所有子划分
+     */
+    public static final String CHILD_DIVIDE_SET = "CHILD_DIVIDE_SET";
+    /**
+     * 选中的单词数量
+     */
+    public static final String SELECT_WORD_COUNT = "SELECT_WORD_COUNT";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +110,15 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
                         // 拷贝Bean
                         UserCreditStyleWrapper userCreditStyleWrapper = new UserCreditStyleWrapper(userCreditStyle);
                         Bundle bundle = new Bundle();
-                        bundle.putParcelable("userCreditStyleWrapper", userCreditStyleWrapper);
+                        bundle.putParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER, userCreditStyleWrapper);
+                        // 首先将id转为String类型的List
+                        bundle.putSerializable(CreditFragment.CHILD_DIVIDE_SET, divideSet);
+                        // 统计当前的选词量
+                        int selectWordCount = 0;
+                        for (DivideDTO divideDTO : divideSet) {
+                            selectWordCount += divideDTO.getElementCount();
+                        }
+                        bundle.putInt(CreditFragment.SELECT_WORD_COUNT, selectWordCount);
                         updateUIHandler.post(() -> {
                             if (userCreditStyle.isIgnore()) {
                                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, bundle,
@@ -142,19 +169,18 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         divideFragment = Optional.ofNullable(divideFragment).orElse(new DivideFragment());
         transaction.replace(R.id.fragment_credit_frame_layout, divideFragment);
         divideFragment.setLanguageClassDTO(languageClassDTO);
-        // 记录划分ID
-        Set<Long> divideIdSet = new HashSet<>();
+
         // 设置点击某个子划分后的回调事件
         divideFragment.setRecycleViewItemOnClickListener(divideDTO -> {
-            if (divideIdSet.contains(divideDTO.getId())) {
-                divideIdSet.remove(divideDTO.getId());
+            if (divideSet.contains(divideDTO)) {
+                divideSet.remove(divideDTO);
             } else {
-                divideIdSet.add(divideDTO.getId());
+                divideSet.add(divideDTO);
             }
-            if (divideIdSet.size() < 1) {
+            if (divideSet.size() < 1) {
                 viewPageChangeNavigationView.removeBadge(R.id.fragment_main_bottom_recite);
             } else {
-                viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setNumber(divideIdSet.size());
+                viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setNumber(divideSet.size());
                 viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setBadgeGravity(BadgeDrawable.TOP_END);
                 viewPageChangeNavigationView.getOrCreateBadge(R.id.fragment_main_bottom_recite).setMaxCharacterCount(3);
             }

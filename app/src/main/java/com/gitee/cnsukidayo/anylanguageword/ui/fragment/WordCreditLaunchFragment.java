@@ -41,7 +41,7 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
 
     private View rootView;
     private ImageButton backToTrace;
-    private TextView title, start, saveSettings, restoreDefault;
+    private TextView title, start, saveSettings, restoreDefault, selectWordCount;
     private AlertDialog loadingDialog = null;
     private UserCreditStyle userCreditStyle;
     private final Handler updateUIHandler = new Handler();
@@ -75,8 +75,7 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
                 break;
             case R.id.fragment_word_credit_launch_start:
                 Bundle bundle = new Bundle();
-                UserCreditStyleWrapper userCreditStyleWrapper = new UserCreditStyleWrapper(userCreditStyle);
-                bundle.putParcelable("userCreditStyleWrapper", userCreditStyleWrapper);
+                bundle.putAll(getArguments());
                 if (userCreditStyle.getCreditFormat() == CreditFormat.CLASSIC) {
                     Navigation.findNavController(getView()).navigate(R.id.action_navigation_word_credit_launch_to_navigation_word_credit, bundle, StaticFactory.getSimpleNavOptions());
                 } else {
@@ -115,13 +114,6 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
                 break;
         }
         updateCreditStyle(userCreditStyle);
-    }
-
-    private void initView() {
-        this.title.setText(R.string.style);
-        // 请求当前的单词数量
-        updateCreditStyle(userCreditStyle);
-        loadingDialog.dismiss();
     }
 
     private void updateCreditStyle(UserCreditStyle userCreditStyle) {
@@ -164,6 +156,7 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
         this.title = rootView.findViewById(R.id.toolbar_title);
         this.start = rootView.findViewById(R.id.fragment_word_credit_launch_start);
         this.saveSettings = rootView.findViewById(R.id.fragment_word_credit_launch_save_settings);
+        this.selectWordCount = rootView.findViewById(R.id.fragment_word_credit_launch_word_count);
         this.restoreDefault = rootView.findViewById(R.id.fragment_word_credit_launch_restore_default);
         this.ignore = rootView.findViewById(R.id.fragment_word_credit_launch_ignore);
         settingsLinearLayouts.add(rootView.findViewById(R.id.fragment_word_credit_launch_mode));
@@ -178,12 +171,21 @@ public class WordCreditLaunchFragment extends Fragment implements View.OnClickLi
                 settingsLinearLayouts.get(i).getChildAt(j).setOnClickListener(this);
             }
         }
-        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable("userCreditStyleWrapper");
+        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER);
         this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
         this.saveSettings.setOnClickListener(this);
         this.restoreDefault.setOnClickListener(this);
         this.backToTrace.setOnClickListener(this);
         this.start.setOnClickListener(this);
         this.ignore.setOnClickListener(this);
+    }
+
+    private void initView() {
+        this.title.setText(R.string.style);
+        // 设置选词量
+        int selectWordCount = getArguments().getInt(CreditFragment.SELECT_WORD_COUNT);
+        this.selectWordCount.setText(String.valueOf(selectWordCount));
+        updateCreditStyle(userCreditStyle);
+        loadingDialog.dismiss();
     }
 }

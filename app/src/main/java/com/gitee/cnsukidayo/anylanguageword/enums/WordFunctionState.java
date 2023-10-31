@@ -5,7 +5,9 @@ package com.gitee.cnsukidayo.anylanguageword.enums;
  * @date 2023/1/4 18:42
  */
 public enum WordFunctionState {
-    NONE(""), SHUFFLE("当前处于按色打乱模式,请先点击按色打乱按钮退出当前模式."), RANGE("当前处于区间重背模式,请先点击区间重背按钮退出当前模式.");
+    NONE(""),
+    SHUFFLE("当前处于按色打乱模式,请先点击按色打乱按钮退出当前模式."),
+    RANGE("当前处于区间重背模式,请先点击区间重背按钮退出当前模式.");
     private final String information;
 
     WordFunctionState(String information) {

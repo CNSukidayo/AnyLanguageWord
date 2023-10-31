@@ -1,9 +1,10 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
+import static java.util.Comparator.*;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -34,7 +35,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
 import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
@@ -52,20 +52,23 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCall
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
+import io.github.cnsukidayo.wword.model.dto.DivideDTO;
 import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
+import io.github.cnsukidayo.wword.model.support.BaseResponse;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
@@ -79,6 +82,13 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter, chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
+    /**
+     * 所有单词信息的List集合<br>
+     * Key:单词的id<br>
+     * Value:单词详细信息
+     */
+    private Map<Long, List<WordDTO>> allWordList;
+    private List<DivideWordDTO> allDivideWordList;
     /*
     以下是所有功能按钮的变量声明
      */
@@ -608,38 +618,40 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void readAllWord() {
         StaticFactory.getExecutorService().submit(() -> {
-            // todo 这里正确的做法应该是将代表用户当前所选择的所有待加载的单词列表丢入WordMessageHandlerImpl实现类中,这里暂且先这么做.
-            File wordFile = new File(AnyLanguageWordProperties.getExternalFilesDir(), Environment.DIRECTORY_DOCUMENTS + File.separator + "temp");
-            List<Word> wordList = null;
-            for (File singleWordList : wordFile.listFiles()) {
-                try {
-                    wordList = StaticFactory.getGson().fromJson(new BufferedReader(new FileReader(singleWordList)), new TypeToken<List<Word>>() {
-
-                    }.getType());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            List<DivideWordDTO> divideWordDTOList = new ArrayList<>();
-
             // 根据自定义风格背诵,获取当前要加载的所有单词
             Bundle bundle = getArguments();
             if (bundle != null) {
                 // 如果获取为null则整个逻辑都不对了
                 UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER);
                 this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
-                HashSet<?> divideIdList = bundle.getSerializable(CreditFragment.CHILD_DIVIDE_SET, HashSet.class);
+                HashSet<DivideDTO> divideList = bundle.getSerializable(CreditFragment.CHILD_DIVIDE_SET, HashSet.class);
+                // 获取所有划分的id
+                List<Long> divideIdList = new ArrayList<>();
+                for (DivideDTO divideDTO : divideList) {
+                    divideIdList.add(divideDTO.getId());
+                }
+                DivideRequest divideRequest = CoreServiceRequestFactory.getInstance().divideRequest();
+                // 获取子划分下所有单词的摘要信息
+                divideRequest.listDivideWord(divideIdList)
+                        .success(data -> allDivideWordList = data.getData()).execute();
+                // 根据划分的id一次性读取所有的单词详细信息
+                divideRequest.listWordByDivideId(divideIdList)
+                        .success(data -> allWordList = data.getData())
+                        .execute();
+                // 获取当前单词的结构
+                divideRequest.
                 // TODO 这个地方可以用责任链设计模式,暂且先这么写
                 if (userCreditStyle.getCreditOrder() == CreditOrder.DISORDER) {
-                    Collections.shuffle(wordList);
+                    Collections.shuffle(allDivideWordList);
                 } else if (userCreditStyle.getCreditOrder() == CreditOrder.LEXICOGRAPHIC) {
-                    wordList.sort((o1, o2) -> o1.getWordOrigin().compareTo(o2.getWordOrigin()));
+                    allDivideWordList.sort(Comparator.comparing(DivideWordDTO::getOrder));
                 }
                 if (userCreditStyle.getCreditFilter() == CreditFilter.PHRASE) {
-                    wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
+                    // todo 只背介词
+//                    wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
                 }
             }
-            this.wordFunctionHandler = new WordFunctionHandlerImpl(wordList);
+            this.wordFunctionHandler = new WordFunctionHandlerImpl(allDivideWordList, allWordList);
             if (userCreditStyle != null) {
                 this.wordFunctionHandler.setCurrentCreditState(userCreditStyle.getCreditState());
             }

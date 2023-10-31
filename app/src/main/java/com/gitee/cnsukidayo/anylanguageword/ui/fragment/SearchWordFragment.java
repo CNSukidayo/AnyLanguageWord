@@ -41,7 +41,7 @@ import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.AssociationModeHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
-import com.gitee.cnsukidayo.anylanguageword.handler.impl.ABSCategoryFunctionHandler;
+import com.gitee.cnsukidayo.anylanguageword.handler.impl.AbstractCategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.AssociationModeHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.FlagClickRecyclerViewAdapter;
@@ -82,7 +82,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     private TextView exampleSentenceAnswer, exampleSentenceHint, phraseAnswer, phraseHint, distinguishAnswer, distinguishHint, categorizeOriginAnswer, categorizeOriginHint;
     private TextView drawerPhraseHint, drawerPhraseAnswer, addNewCategory, getAnswer;
     private DrawerLayout startDrawer;
-    private final CategoryFunctionHandler categoryFunctionHandler = new ABSCategoryFunctionHandler() {
+    private final CategoryFunctionHandler categoryFunctionHandler = new AbstractCategoryFunctionHandler() {
         @Override
         public Word getCurrentWord() {
             return testWord;

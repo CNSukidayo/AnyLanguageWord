@@ -1,41 +1,43 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
-import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
+import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 
+import java.util.List;
 import java.util.Set;
+
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 public interface WordFunctionHandler extends CategoryFunctionHandler {
     /**
      * 根据单词在列表中的位序获取单词,该方法的返回值会受到Chameleon的改变而改变.
      *
      * @param order 单词在列表中的位序,注意order的顺序是从0开始的.
-     * @return 返回单词的引用
+     * @return 返回单词的引用(单词的信息是一个集合)
      */
-    Word getWordByOrder(int order);
+    List<WordDTO> getWordByOrder(int order);
 
     /**
      * 获取当前指针指向的单词
      *
      * @return 返回单词引用
      */
-    Word getCurrentWord();
+    List<WordDTO> getCurrentWord();
 
     /**
      * 跳转到上一个单词,调用该方法会将指针指向传入的索引位置
      *
      * @return 返回单词引用
      */
-    Word jumpPreviousWord();
+    List<WordDTO> jumpPreviousWord();
 
     /**
      * 跳转到下一个单词,调用该方法会将指针指向传入的索引位置
      *
      * @return 返回单词引用
      */
-    Word jumpNextWord();
+    List<WordDTO> jumpNextWord();
 
     /**
      * 设置当前指针指向的位序
@@ -50,7 +52,7 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @param jumpOrder 跳转的目标位序
      * @return 返回单词引用
      */
-    Word jumpToWord(int jumpOrder);
+    List<WordDTO> jumpToWord(int jumpOrder);
 
     /**
      * 得到当前指针指向的位序,currentOrder是对外显示的方法.
@@ -142,7 +144,6 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
     void shuffleRange(int start, int end);
 
     /**
-     *
      * @param creditState
      */
     void setCurrentCreditState(CreditState creditState);

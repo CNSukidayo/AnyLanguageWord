@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -37,12 +38,24 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
 
     private View rootView;
     private BottomNavigationView viewPageChangeNavigationView;
+    /**
+     * 开始学习的文本框
+     */
     private TextView startLearning;
     private ProgressBar loadingBar;
     private boolean isLoading;
     private UserCreditStyle userCreditStyle;
-    private Handler updateUIHandler = new Handler();
+    private final Handler updateUIHandler = new Handler();
     private FragmentManager fragmentManager;
+    /**
+     * backup按钮,作用是从选词界面切换到选语种界面
+     */
+    private ImageButton switchLanguageClass;
+
+    /**
+     * 标题栏,主要用于显示当前是选词还是选语种的标题提示
+     */
+    private TextView title;
 
     /**
      * 语种的fragment
@@ -55,7 +68,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     private DivideFragment divideFragment;
 
     /**
-     * 记录划分ID
+     * 记录当前选中的所有子划分
      */
     private final HashSet<DivideDTO> divideSet = new HashSet<>();
 
@@ -84,14 +97,8 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         }
         rootView = inflater.inflate(R.layout.fragment_credit, container, false);
         // 初始化View
-//        this.addToPlaneList = rootView.findViewById(R.id.fragment_credit_add_to_plane_view);
-        this.viewPageChangeNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_home_navigation_view);
-        this.startLearning = rootView.findViewById(R.id.fragment_credit_start_credit);
-        this.loadingBar = rootView.findViewById(R.id.credit_fragment_loading_bar);
-        // 设置fragment切换逻辑 语种与划分之间的切换显示
-        languageClassRecyclerView();
-        // 设置各种监听事件
-        this.startLearning.setOnClickListener(this);
+        bindView();
+        initView();
         return rootView;
     }
 
@@ -132,6 +139,9 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
                     });
                 }
                 break;
+            case R.id.fragment_credit_divide_backup:
+                languageClassRecyclerView();
+                break;
         }
     }
 
@@ -142,9 +152,17 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     }
 
     /**
-     * 语种
+     * 语种界面
      */
     private void languageClassRecyclerView() {
+        // 隐藏返回按钮
+        this.switchLanguageClass.setVisibility(View.GONE);
+        this.startLearning.setVisibility(View.GONE);
+        // 设置标题信息为选择语种
+        this.title.setText(R.string.select_language_class);
+        divideSet.clear();
+        viewPageChangeNavigationView.removeBadge(R.id.fragment_main_bottom_recite);
+
         this.fragmentManager = getChildFragmentManager();
         // 开启事务，获得FragmentTransaction对象
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -165,11 +183,15 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
      * @param languageClassDTO 展示哪个语种
      */
     private void divideRecyclerView(LanguageClassDTO languageClassDTO) {
+        // 显示返回按钮
+        this.switchLanguageClass.setVisibility(View.VISIBLE);
+        this.startLearning.setVisibility(View.VISIBLE);
+        // 设置标题信息为添加划分到列表
+        this.title.setText(R.string.add_to_plan);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        divideFragment = Optional.ofNullable(divideFragment).orElse(new DivideFragment());
+        divideFragment = new DivideFragment();
         transaction.replace(R.id.fragment_credit_frame_layout, divideFragment);
         divideFragment.setLanguageClassDTO(languageClassDTO);
-
         // 设置点击某个子划分后的回调事件
         divideFragment.setRecycleViewItemOnClickListener(divideDTO -> {
             if (divideSet.contains(divideDTO)) {
@@ -188,4 +210,21 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         // 提交事务
         transaction.commit();
     }
+
+    private void bindView() {
+        this.viewPageChangeNavigationView = ((MainActivity) rootView.getContext()).findViewById(R.id.fragment_home_navigation_view);
+        this.startLearning = rootView.findViewById(R.id.fragment_credit_start_credit);
+        this.loadingBar = rootView.findViewById(R.id.credit_fragment_loading_bar);
+        this.switchLanguageClass = rootView.findViewById(R.id.fragment_credit_divide_backup);
+        this.title = rootView.findViewById(R.id.fragment_credit_title);
+    }
+
+    private void initView() {
+        // 设置各种监听事件
+        this.startLearning.setOnClickListener(this);
+        // 设置fragment切换逻辑 语种与划分之间的切换显示
+        languageClassRecyclerView();
+        this.switchLanguageClass.setOnClickListener(this);
+    }
+
 }

@@ -14,7 +14,7 @@ import java.util.List;
  * @author cnsukidayo
  * @date 2023/2/9 16:26
  */
-public abstract class ABSCategoryFunctionHandler implements CategoryFunctionHandler {
+public abstract class AbstractCategoryFunctionHandler implements CategoryFunctionHandler {
 
     // 用于存储单词分类的列表
     private final List<WordCategory> wordCategoryList = new ArrayList<>();

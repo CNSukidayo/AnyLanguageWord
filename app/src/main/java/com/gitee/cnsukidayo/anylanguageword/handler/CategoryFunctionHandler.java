@@ -1,7 +1,10 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
+
+import java.util.List;
+
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
  * @author cnsukidayo
@@ -15,7 +18,7 @@ public interface CategoryFunctionHandler extends CategoryWordFunctionHandler {
      *
      * @return 返回当前正在背诵的单词引用
      */
-    Word getCurrentWord();
+    List<WordDTO> getCurrentWord();
 
     /**
      * 添加一个单词分类

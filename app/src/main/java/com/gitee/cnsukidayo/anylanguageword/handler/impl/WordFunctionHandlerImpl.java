@@ -1,6 +1,5 @@
 package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
@@ -12,41 +11,77 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
  * 明确一点,currentIndex是不能随意更改的,每逢currentIndex更改势必是由currentOrder的更改而更改的.<br>
  * 每个单词都是有棕色的,棕色是不可变的颜色,也就是说用户不可以取消单词的棕色标记.<br>
  * 变色龙的每一种状态都是可以进入的,不管当前单词列表中是否有该颜色对应的单词<br>
  */
-public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implements WordFunctionHandler, CategoryFunctionHandler {
-    private List<Word> allWordList;
+public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler implements WordFunctionHandler, CategoryFunctionHandler {
+    /**
+     * 单词的摘要信息
+     */
+    private List<DivideWordDTO> allDivideWordList;
+    /**
+     * 单词的标记信息,List中存放Set存放的是每一个单词的标记信息
+     */
     private final List<Set<FlagColor>> wordsFlagList;
+
+    /**
+     * 当前背诵的区间
+     */
     private int currentOrder = 0, currentIndex = 0;
+
+    /**
+     * 当前变色龙的颜色
+     */
     private FlagColor currentChameleon = FlagColor.GREEN;
     private int nowSelectChameleonSize = -0x3f3f3f;
-    // 默认的单词功能为空
+
+    /**
+     * 默认的单词功能为空
+     */
     private WordFunctionState wordFunctionState = WordFunctionState.NONE;
+
     // todo 当前的背诵风格功能
     private CreditState creditState = CreditState.ENGLISH_TRANSLATION_CHINESE;
-    // 这是一个临时的集合,它指向allWordList,用于保存由按色打乱、区间重背功能被重置的allWordList引用
-    private List<Word> dummyWordList;
-    // 现在正在背诵的区间
+
+    /**
+     * 这是一个临时的集合,它指向allWordList,用于保存由按色打乱、区间重背功能被重置的allWordList引用
+     */
+    private List<DivideWordDTO> dummyWordList;
+
+    /**
+     * 现在正在背诵的区间
+     */
     private int start = 0, end;
 
-    public WordFunctionHandlerImpl(List<Word> initWordList) {
-        this.allWordList = new ArrayList<>(initWordList.size());
-        this.allWordList.addAll(initWordList);
+    /**
+     * 字典
+     */
+    private final Map<Long, List<WordDTO>> dict;
+
+
+    public WordFunctionHandlerImpl(List<DivideWordDTO> initWordList,
+                                   Map<Long, List<WordDTO>> dict) {
+        this.allDivideWordList = new ArrayList<>(initWordList.size());
+        this.dict = dict;
+        this.allDivideWordList.addAll(initWordList);
         this.wordsFlagList = new ArrayList<>(initWordList.size());
-        for (int i = 0; i < allWordList.size(); i++) {
+        for (int i = 0; i < allDivideWordList.size(); i++) {
             wordsFlagList.add(new HashSet<>(List.of(FlagColor.GREEN, FlagColor.BROWN)));
         }
-        this.end = allWordList.size() - 1;
+        this.end = allDivideWordList.size() - 1;
     }
 
 
     @Override
-    public Word getWordByOrder(int order) {
+    public List<WordDTO> getWordByOrder(int order) {
         if (nowSelectChameleonSize == 0) {
             currentOrder = 0;
             currentIndex = 0;
@@ -59,21 +94,21 @@ public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implemen
             }
         }
         this.currentIndex = i - 1;
-        return allWordList.get(currentIndex);
+        return dict.get(currentIndex);
     }
 
     @Override
-    public Word getCurrentWord() {
+    public List<WordDTO> getCurrentWord() {
         if (nowSelectChameleonSize == 0) {
             currentOrder = 0;
             currentIndex = 0;
             return null;
         }
-        return allWordList.get(currentIndex);
+        return dict.get(currentIndex);
     }
 
     @Override
-    public Word jumpPreviousWord() {
+    public List<WordDTO> jumpPreviousWord() {
         if (currentOrder <= 0) {
             currentOrder = nowSelectChameleonSize;
         }
@@ -81,7 +116,7 @@ public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implemen
     }
 
     @Override
-    public Word jumpNextWord() {
+    public List<WordDTO> jumpNextWord() {
         if (currentOrder >= nowSelectChameleonSize - 1) {
             currentOrder = -1;
         }
@@ -94,7 +129,7 @@ public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implemen
     }
 
     @Override
-    public Word jumpToWord(int jumpOrder) {
+    public List<WordDTO> jumpToWord(int jumpOrder) {
         this.currentOrder = jumpOrder;
         return getWordByOrder(currentOrder);
     }
@@ -160,24 +195,24 @@ public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implemen
     @Override
     public void shuffle() {
         this.wordFunctionState = WordFunctionState.SHUFFLE;
-        this.dummyWordList = new ArrayList<>(allWordList.size());
+        this.dummyWordList = new ArrayList<>(allDivideWordList.size());
         for (int i = 0; i < wordsFlagList.size(); i++) {
             if (wordsFlagList.get(i).contains(currentChameleon)) {
-                dummyWordList.add(allWordList.get(i));
+                dummyWordList.add(allDivideWordList.get(i));
             }
         }
-        List<Word> temp = allWordList;
-        this.allWordList = this.dummyWordList;
+        List<DivideWordDTO> temp = allDivideWordList;
+        this.allDivideWordList = this.dummyWordList;
         this.dummyWordList = temp;
-        Collections.shuffle(allWordList);
+        Collections.shuffle(allDivideWordList);
     }
 
     @Override
     public void restoreWordList() {
         this.wordFunctionState = WordFunctionState.NONE;
-        this.allWordList = this.dummyWordList;
+        this.allDivideWordList = this.dummyWordList;
         this.start = 0;
-        this.end = allWordList.size() - 1;
+        this.end = allDivideWordList.size() - 1;
         setChameleon(currentChameleon);
     }
 
@@ -193,12 +228,12 @@ public class WordFunctionHandlerImpl extends ABSCategoryFunctionHandler implemen
         this.end = end;
         this.dummyWordList = new ArrayList<>(end - start + 1);
         for (int i = start; i <= end; i++) {
-            dummyWordList.add(allWordList.get(i));
+            dummyWordList.add(allDivideWordList.get(i));
         }
-        List<Word> temp = allWordList;
-        this.allWordList = this.dummyWordList;
+        List<DivideWordDTO> temp = allDivideWordList;
+        this.allDivideWordList = this.dummyWordList;
         this.dummyWordList = temp;
-        Collections.shuffle(allWordList);
+        Collections.shuffle(allDivideWordList);
         setChameleon(currentChameleon);
     }
 

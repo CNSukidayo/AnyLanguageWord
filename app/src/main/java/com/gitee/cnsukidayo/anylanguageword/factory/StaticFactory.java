@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.navigation.NavOptions;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.handler.HomeMessageStreamHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordMeaningConvertHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.HomeMessageStreamHandlerImpl;
@@ -13,9 +12,12 @@ import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordMeaningConvertHandl
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.plugin.GlobalMarkwonPlugin;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.html.CssInlineStyleParser;
 import io.noties.markwon.html.HtmlPlugin;
@@ -27,24 +29,24 @@ public class StaticFactory {
 
 
     private static final class GsonHolder {
-        static final Gson gson = new Gson();
+        static final Gson GSON = new Gson();
     }
 
     private static final class ExecutorServiceHolder {
-        // todo 需要修改
-        static final ExecutorService executorService = Executors.newCachedThreadPool();
+        // todo 需要修改,参照阿里巴巴开发规范手册
+        static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     }
 
     private static final class EmptyWordHolder {
-        static final Word emptyWord = new Word();
+        static final List<WordDTO> EMPTY_WORD = new ArrayList<>();
     }
 
     private static final class WordMeaningConvertHandlerHolder {
-        static final WordMeaningConvertHandler wordMeaningConvertHandler = new WordMeaningConvertHandlerImpl();
+        static final WordMeaningConvertHandler WORD_MEANING_CONVERT_HANDLER = new WordMeaningConvertHandlerImpl();
     }
 
     private static final class SimpleNavOptionsHolder {
-        static final NavOptions navOptions = new NavOptions.Builder()
+        static final NavOptions NAV_OPTIONS = new NavOptions.Builder()
                 .setEnterAnim(R.anim.slide_in_right)
                 .setExitAnim(R.anim.fade_out)
                 .setPopExitAnim(R.anim.slide_out_left)
@@ -52,11 +54,11 @@ public class StaticFactory {
     }
 
     private static final class HomeMessageStreamHandlerHolder {
-        static final HomeMessageStreamHandler homeMessageStreamHandler = new HomeMessageStreamHandlerImpl();
+        static final HomeMessageStreamHandler HOME_MESSAGE_STREAM_HANDLER = new HomeMessageStreamHandlerImpl();
     }
 
     private static final class CssInlineStyleParserHolder {
-        static final CssInlineStyleParser cssInlineStyleParser = CssInlineStyleParser.create();
+        static final CssInlineStyleParser CSS_INLINE_STYLE_PARSER = CssInlineStyleParser.create();
     }
 
     /**
@@ -65,7 +67,7 @@ public class StaticFactory {
      * @return 返回Gson实例
      */
     public static Gson getGson() {
-        return GsonHolder.gson;
+        return GsonHolder.GSON;
     }
 
     /**
@@ -74,7 +76,7 @@ public class StaticFactory {
      * @return 返回线程池
      */
     public static ExecutorService getExecutorService() {
-        return ExecutorServiceHolder.executorService;
+        return ExecutorServiceHolder.EXECUTOR_SERVICE;
     }
 
     /**
@@ -82,8 +84,8 @@ public class StaticFactory {
      *
      * @return 获取一个空单词
      */
-    public static Word getEmptyWord() {
-        return EmptyWordHolder.emptyWord;
+    public static List<WordDTO> getEmptyWord() {
+        return EmptyWordHolder.EMPTY_WORD;
     }
 
     /**
@@ -93,7 +95,7 @@ public class StaticFactory {
      * @return 返回@{@link WordMeaningConvertHandler}接口的实现类
      */
     public static WordMeaningConvertHandler getWordMeaningConvertHandler() {
-        return WordMeaningConvertHandlerHolder.wordMeaningConvertHandler;
+        return WordMeaningConvertHandlerHolder.WORD_MEANING_CONVERT_HANDLER;
     }
 
     /**
@@ -102,7 +104,7 @@ public class StaticFactory {
      * @return 返回封装动画参数的NavOptions实例
      */
     public static NavOptions getSimpleNavOptions() {
-        return SimpleNavOptionsHolder.navOptions;
+        return SimpleNavOptionsHolder.NAV_OPTIONS;
     }
 
     /**
@@ -112,7 +114,7 @@ public class StaticFactory {
      * @return 返回封装动画参数的NavOptions实例
      */
     public static HomeMessageStreamHandler getHomeMessageStreamHandler() {
-        return HomeMessageStreamHandlerHolder.homeMessageStreamHandler;
+        return HomeMessageStreamHandlerHolder.HOME_MESSAGE_STREAM_HANDLER;
     }
 
     /**
@@ -134,7 +136,7 @@ public class StaticFactory {
      * @return 返回单利的Css行内解析器对象
      */
     public static CssInlineStyleParser getCssInlineStyleParser() {
-        return CssInlineStyleParserHolder.cssInlineStyleParser;
+        return CssInlineStyleParserHolder.CSS_INLINE_STYLE_PARSER;
     }
 
 

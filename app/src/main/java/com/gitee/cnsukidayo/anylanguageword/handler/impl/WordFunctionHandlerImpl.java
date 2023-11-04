@@ -94,7 +94,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
             }
         }
         this.currentIndex = i - 1;
-        return dict.get(currentIndex);
+        return dict.get(allDivideWordList.get(currentIndex).getWordId());
     }
 
     @Override
@@ -104,7 +104,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
             currentIndex = 0;
             return null;
         }
-        return dict.get(currentIndex);
+        return dict.get(allDivideWordList.get(currentIndex).getWordId());
     }
 
     @Override

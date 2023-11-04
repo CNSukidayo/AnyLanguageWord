@@ -174,5 +174,8 @@
 
     <!--所有扣模板的,通用的内容存放在这下面-->
     <string name="template_title">title</string>
+    <string name="word_origin">[原]</string>
+    <string name="uk_phonetic">[英]</string>
+    <string name="default_value">default</string>
 
 </resources>

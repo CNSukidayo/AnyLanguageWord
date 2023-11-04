@@ -12,19 +12,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.KeyValueMap;
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
-import com.gitee.cnsukidayo.anylanguageword.enums.MeaningCategory;
+import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 
 import java.util.List;
 
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
+
 public class StartChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<StartChineseAnswerRecyclerViewAdapter.RecyclerViewHolder> {
 
     private Context context;
-    private final Word word;
-    private final List<KeyValueMap<MeaningCategory, String>> convertWord;
+    private final List<WordDTO> word;
+    private final List<KeyValueMap<EnglishStructure, String>> convertWord;
 
-    public StartChineseAnswerRecyclerViewAdapter(Context context, final Word finalWord) {
+    public StartChineseAnswerRecyclerViewAdapter(Context context, final List<WordDTO> finalWord) {
         this.context = context;
         this.word = finalWord;
         this.convertWord = StaticFactory.getWordMeaningConvertHandler().convertWordMeaning(finalWord);
@@ -38,7 +39,7 @@ public class StartChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.meaningCategoryHint.setText(context.getResources().getString(convertWord.get(position).getKey().getMapValue()));
+        holder.meaningCategoryHint.setText(Math.toIntExact(convertWord.get(position).getKey().getWordStructureId()));
         holder.meaningCategoryAnswer.setText(convertWord.get(position).getValue());
     }
 

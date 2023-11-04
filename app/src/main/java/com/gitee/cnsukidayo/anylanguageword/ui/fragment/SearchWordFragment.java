@@ -1,13 +1,10 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.GravityCompat;
@@ -61,6 +56,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
+
 /**
  * @author sukidayo
  * @date Thursday, February 09, 2023
@@ -84,8 +81,9 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     private DrawerLayout startDrawer;
     private final CategoryFunctionHandler categoryFunctionHandler = new AbstractCategoryFunctionHandler() {
         @Override
-        public Word getCurrentWord() {
-            return testWord;
+        public List<WordDTO> getCurrentWord() {
+            // todo 错误 查询单词的逻辑要推翻重做
+            return null;
         }
     };
     // 对于本类来说,如果当前的格式是经典模式,则代表当前展示的功能是查词功能,否则当前是联想模式,不包含查词的功能
@@ -118,7 +116,6 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         // 注意每次进入到该页面的时候都必须更新收藏夹信息,包括背诵界面也要更新
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     public void onClick(View v) {
         Log.d("message", "click");
@@ -133,7 +130,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 testWord.setV("动词");
                 testWord.setDistinguish("描述信息");
                 testWord.setPhrase("介词短语");
-                showWord(testWord);
+//                showWord(testWord);
                 break;
             case R.id.fragment_search_word_click_flag:
                 setFlagAreaStatus(!flagAreaAdapter.isOpen());
@@ -150,11 +147,14 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 updateStatus();
                 break;
             case R.id.fragment_search_word_get_answer:
+                /*
                 associationModeHandler.checkWord(searchInput.getQuery().toString()).ifPresentOrElse(this::showWord, () -> {
                     Toast failEquals = Toast.makeText(getContext(), getContext().getResources().getString(R.string.fail_equal), Toast.LENGTH_SHORT);
                     failEquals.setGravity(Gravity.CENTER, 0, 500);
                     failEquals.show();
                 });
+
+                 */
                 break;
             case R.id.fragment_search_word_start_add:
                 View addNewCategory = getLayoutInflater().inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
@@ -212,7 +212,8 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         return true;
     }
 
-    private void showWord(Word word) {
+    private void showWord(List<WordDTO> toBeShowWord) {
+        /*
         this.sourceWord.setText(word.getWordOrigin());
         this.sourceWordPhonetics.setText(word.getWordPhonetics());
         chineseAnswer.setVisibility(View.VISIBLE);
@@ -249,6 +250,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             drawerPhraseHint.setVisibility(View.GONE);
             drawerPhraseAnswer.setVisibility(View.GONE);
         }
+         */
     }
 
     private void initView() {

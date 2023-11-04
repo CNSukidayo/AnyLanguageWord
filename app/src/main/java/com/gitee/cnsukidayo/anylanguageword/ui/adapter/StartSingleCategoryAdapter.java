@@ -2,7 +2,6 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -188,7 +186,6 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
             return false;
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -234,7 +231,8 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
                     break;
                 case R.id.fragment_word_credit_start_add_word:
                     Optional.ofNullable(startFunctionHandler.getCurrentWord()).ifPresentOrElse(word -> {
-                        startSingleCategoryWordAdapter.addItem(word);
+                        // todo 错误
+                        startSingleCategoryWordAdapter.addItem(null);
                         title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
                         describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
                     }, () -> {

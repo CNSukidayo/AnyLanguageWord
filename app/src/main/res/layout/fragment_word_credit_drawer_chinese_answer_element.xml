@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/credit_fragment_divide_item_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -25,6 +25,7 @@
         android:layout_marginTop="3dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="4dp"
+        android:layout_toEndOf="@id/fragment_word_credit_meaning_category_hint"
         android:background="@drawable/fragment_word_credit_radius_answer"
         android:maxLines="1"
         android:paddingStart="5dp"
@@ -33,4 +34,4 @@
         android:textColor="@color/black"
         android:textSize="20sp" />
 
-</LinearLayout>
+</RelativeLayout>

@@ -11,22 +11,43 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.context.KeyValueMap;
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
-import com.gitee.cnsukidayo.anylanguageword.enums.MeaningCategory;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.handler.WordMeaningConvertHandler;
+import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<ChineseAnswerRecyclerViewAdapter.RecyclerViewHolder> {
 
-    private Context context;
-    // 用于存储所有所有的element
-    private List<RecyclerViewHolder> cacheElement = new ArrayList<>(MeaningCategory.values().length);
+    private final Context context;
     // 当前的RecyclerViewAdapter是可以复用的,根据不同的界面,组件有不同的样式
     private RecyclerViewState recyclerViewState = RecyclerViewState.MAIN;
+    /**
+     * 当前单词详细信息的map
+     */
+    private Map<Long, List<WordDTO>> currentWordMap = new HashMap<>();
+    /**
+     * key:组件的position<br>
+     * value:单词的结构id
+     */
+    private final Map<Integer, EnglishStructure> positionMap = new HashMap<>(13) {{
+        put(0, EnglishStructure.ADJ);
+        put(1, EnglishStructure.ADV);
+        put(2, EnglishStructure.V);
+        put(3, EnglishStructure.VI);
+        put(4, EnglishStructure.VT);
+        put(5, EnglishStructure.N);
+        put(6, EnglishStructure.CONJ);
+        put(7, EnglishStructure.PRON);
+        put(8, EnglishStructure.NUM);
+        put(9, EnglishStructure.ART);
+        put(10, EnglishStructure.PREP);
+        put(11, EnglishStructure.INT);
+        put(12, EnglishStructure.AUX);
+    }};
 
     public ChineseAnswerRecyclerViewAdapter(Context context) {
         this.context = context;
@@ -35,22 +56,11 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
     /**
      * 展示一个单词的中文意思,该方法只负责将组件展示出来.至于哪些组件要动态地隐藏,由调用者决定.
      *
-     * @param word 待展示的单词
+     * @param currentWordMap 待展示的单词
      */
-    public void showWordChineseMessage(Word word) {
-        // 根据单词的意思,定义哪些组件是要显示的
-        for (RecyclerViewHolder holder : cacheElement) {
-            holder.meaningCategoryAnswer.setVisibility(View.GONE);
-            holder.meaningCategoryHint.setVisibility(View.GONE);
-        }
-        WordMeaningConvertHandler wordMeaningConvertHandler = StaticFactory.getWordMeaningConvertHandler();
-        List<KeyValueMap<MeaningCategory, String>> meaningCategories = wordMeaningConvertHandler.convertWordMeaning(word);
-        for (KeyValueMap<MeaningCategory, String> meaningCategory : meaningCategories) {
-            RecyclerViewHolder holder = cacheElement.get(meaningCategory.getKey().ordinal());
-            holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
-            holder.meaningCategoryHint.setVisibility(View.VISIBLE);
-            holder.meaningCategoryAnswer.setText(meaningCategory.getValue());
-        }
+    public void showWordChineseMessage(Map<Long, List<WordDTO>> currentWordMap) {
+        this.currentWordMap = currentWordMap;
+        notifyItemRangeChanged(0, getItemCount());
     }
 
     public void setRecyclerViewState(RecyclerViewState recyclerViewState) {
@@ -69,28 +79,27 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (cacheElement.size() != MeaningCategory.values().length) {
-            holder.position = position;
-            holder.meaningCategoryHint.setText(context.getResources().getString(MeaningCategory.values()[position].getMapValue()));
-            cacheElement.add(holder);
+        // position对应wordStructureId
+        EnglishStructure englishStructure = Optional.ofNullable(positionMap.get(position)).orElse(EnglishStructure.DEFAULT);
+        holder.meaningCategoryHint.setText(context.getResources().getString(englishStructure.getHint()));
+        List<WordDTO> currentWordDTO = currentWordMap.get(englishStructure.getWordStructureId());
+        if (currentWordDTO != null &&
+                currentWordDTO.size() > 0) {
+            holder.meaningCategoryAnswer.setText(currentWordDTO.get(0).getValue());
+            holder.meaningCategoryHint.setVisibility(View.VISIBLE);
+            holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
         }
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
 
     @Override
     public int getItemCount() {
-        return MeaningCategory.values().length;
+        return 13;
     }
-
 
     public static class RecyclerViewHolder extends RecyclerView.ViewHolder {
         private View itemView;
         private final TextView meaningCategoryHint, meaningCategoryAnswer;
-        private int position;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);

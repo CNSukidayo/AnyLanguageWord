@@ -126,6 +126,8 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
                             selectWordCount += divideDTO.getElementCount();
                         }
                         bundle.putInt(CreditFragment.SELECT_WORD_COUNT, selectWordCount);
+                        // 设置当前的语种
+
                         updateUIHandler.post(() -> {
                             if (userCreditStyle.isIgnore()) {
                                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, bundle,

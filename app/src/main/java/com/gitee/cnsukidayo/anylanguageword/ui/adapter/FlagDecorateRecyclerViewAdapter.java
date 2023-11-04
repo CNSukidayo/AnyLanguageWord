@@ -17,7 +17,7 @@ import java.util.List;
 
 public class FlagDecorateRecyclerViewAdapter extends RecyclerView.Adapter<FlagDecorateRecyclerViewAdapter.RecyclerViewHolder> {
 
-    private Context context;
+    private final Context context;
     // 保存所有的旗帜
     private final List<RecyclerViewHolder> allFlags = new ArrayList<>(FlagColor.values().length);
 

@@ -1,13 +1,9 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
-import static java.util.Comparator.*;
-
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -23,9 +19,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -36,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditFilter;
@@ -44,6 +39,7 @@ import com.gitee.cnsukidayo.anylanguageword.enums.CreditOrder;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
+import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordFunctionHandlerImpl;
@@ -59,16 +55,17 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
 import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
+import io.github.cnsukidayo.wword.common.request.interfaces.core.WordStructureRequest;
 import io.github.cnsukidayo.wword.model.dto.DivideDTO;
 import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
-import io.github.cnsukidayo.wword.model.support.BaseResponse;
+import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
@@ -83,12 +80,20 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter, chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
     /**
-     * 所有单词信息的List集合<br>
+     * 获取的所有单词的摘要信息
+     */
+    private List<DivideWordDTO> allDivideWordList;
+    /**
+     * 所有单词信息详细信息<br>
      * Key:单词的id<br>
      * Value:单词详细信息
      */
     private Map<Long, List<WordDTO>> allWordList;
-    private List<DivideWordDTO> allDivideWordList;
+    /**
+     * 当前语种对应单词的结构信息
+     */
+    private List<WordStructureDTO> currentWordStructure;
+
     /*
     以下是所有功能按钮的变量声明
      */
@@ -102,7 +107,11 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
     private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
     private long exitLastTime = 0;
+    /**
+     * 用户的背词风格
+     */
     private UserCreditStyle userCreditStyle;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -140,7 +149,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         // 读取状态
-        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER);
+        UserCreditStyleWrapper userCreditStyleWrapper = getArguments().getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER, UserCreditStyleWrapper.class);
         this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
         // 读取所有单词信息,通过Bundle得到当前用户选中的单词分类,这里暂时以样本单词进行测试.
         readAllWord();
@@ -167,393 +176,360 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     }
 
 
-    @SuppressLint({"NonConstantResourceId", "UseCompatLoadingForDrawables"})
     @Override
     public void onClick(View v) {
         Toast toast = Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
-        PopupWindow changeModePopupWindow = null;
-        switch (v.getId()) {
-            case R.id.fragment_word_credit_pop_more_function:
-                if (moreFunctionOpen) {
-                    if (AnimationUtil.with().moveToViewBottom(moreFunctionHorizontalScrollView, 500)) {
-                        popMoreFunction.setImageResource(R.drawable.open_previous);
-                        moreFunctionOpen = !moreFunctionOpen;
-                    }
-                } else {
-                    if (AnimationUtil.with().bottomMoveToViewLocation(moreFunctionHorizontalScrollView, 500)) {
-                        popMoreFunction.setImageResource(R.drawable.open_after);
-                        moreFunctionOpen = !moreFunctionOpen;
-                    }
+        int clickViewId = v.getId();
+        if (clickViewId == R.id.fragment_word_credit_pop_more_function) {
+            if (moreFunctionOpen) {
+                if (AnimationUtil.with().moveToViewBottom(moreFunctionHorizontalScrollView, 500)) {
+                    popMoreFunction.setImageResource(R.drawable.open_previous);
+                    moreFunctionOpen = !moreFunctionOpen;
                 }
-                break;
-            case R.id.fragment_word_credit_next_word:
-                emptyUI();
-                creditWord(wordFunctionHandler.jumpNextWord());
-                break;
-            case R.id.fragment_word_credit_previous_word:
-                emptyUI();
-                creditWord(wordFunctionHandler.jumpPreviousWord());
-                break;
-            case R.id.fragment_word_container_get_answer:
-                visibleWordAllMessage(wordFunctionHandler.getCurrentWord());
-                break;
-            case R.id.fragment_word_credit_play_word:
-                creditWord(wordFunctionHandler.getCurrentWord());
-                break;
-            case R.id.fragment_word_credit_jump_next:
-                final EditText inputEditText = new EditText(getContext());
-                inputEditText.setInputType(InputType.TYPE_CLASS_DATETIME);
-                new AlertDialog.Builder(getContext()).setTitle("跳转单词").setMessage("输入要跳转到第几个单词,你应当输入1到" + wordFunctionHandler.size() + "之间的值.").setView(inputEditText).setCancelable(false).setPositiveButton("确定", (dialog, which) -> {
-                    String value = inputEditText.getText().toString();
-                    int i;
-                    try {
-                        i = Integer.parseInt(value);
-                        if (i < 0 || i > wordFunctionHandler.size()) {
-                            throw new NumberFormatException();
-                        }
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                        Toast exceptionToast = Toast.makeText(getContext(), "输入错误,请输入1~" + wordFunctionHandler.size() + "之间的值", Toast.LENGTH_LONG);
-                        exceptionToast.setGravity(Gravity.CENTER, 0, 500);
-                        exceptionToast.show();
-                        return;
-                    }
-                    creditWord(wordFunctionHandler.jumpToWord(i - 1));
-                }).setNegativeButton("取消", (dialog, which) -> {
-                }).show();
-                break;
-            case R.id.fragment_word_credit_click_flag:
-                if (openFlagChange) {
-                    if (AnimationUtil.with().moveToViewEnd(flagChangeArea, 500)) {
-                        closeFlagChangeAreaFlush();
-                        openFlagChange = !openFlagChange;
-                    }
-                } else {
-                    if (AnimationUtil.with().endMoveToViewLocation(flagChangeArea, 500)) {
-                        openFlagChangeAreaFlush();
-                        openFlagChange = !openFlagChange;
-                    }
+            } else {
+                if (AnimationUtil.with().bottomMoveToViewLocation(moreFunctionHorizontalScrollView, 500)) {
+                    popMoreFunction.setImageResource(R.drawable.open_after);
+                    moreFunctionOpen = !moreFunctionOpen;
                 }
-                break;
-            case R.id.fragment_word_credit_click_chameleon_mode:
-                // 如果当前处于按色打乱模式则无法使用变色龙功能,使用区间重背功能可以使用变色龙功能
-                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.SHUFFLE) {
-                    toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 500);
-                    toast.show();
-                    break;
-                }
-                // 不要管太多,当点击变色龙模式的时候就展开旗帜区域就可以了
-                if (!openFlagChange) {
-                    if (AnimationUtil.with().endMoveToViewLocation(flagChangeArea, 500)) {
-                        openFlagChangeAreaFlush();
-                        openFlagChange = !openFlagChange;
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_next_word) {
+            emptyUI();
+            creditWord(wordFunctionHandler.jumpNextWord());
+        } else if (clickViewId == R.id.fragment_word_credit_previous_word) {
+            emptyUI();
+            creditWord(wordFunctionHandler.jumpPreviousWord());
+        } else if (clickViewId == R.id.fragment_word_container_get_answer) {
+            visibleWordAllMessage(wordFunctionHandler.getCurrentWord());
+        } else if (clickViewId == R.id.fragment_word_credit_play_word) {
+            creditWord(wordFunctionHandler.getCurrentWord());
+        } else if (clickViewId == R.id.fragment_word_credit_jump_next) {
+            final EditText inputEditText = new EditText(getContext());
+            inputEditText.setInputType(InputType.TYPE_CLASS_DATETIME);
+            new AlertDialog.Builder(getContext()).setTitle("跳转单词").setMessage("输入要跳转到第几个单词,你应当输入1到" + wordFunctionHandler.size() + "之间的值.").setView(inputEditText).setCancelable(false).setPositiveButton("确定", (dialog, which) -> {
+                String value = inputEditText.getText().toString();
+                int i;
+                try {
+                    i = Integer.parseInt(value);
+                    if (i < 0 || i > wordFunctionHandler.size()) {
+                        throw new NumberFormatException();
                     }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    Toast exceptionToast = Toast.makeText(getContext(), "输入错误,请输入1~" + wordFunctionHandler.size() + "之间的值", Toast.LENGTH_LONG);
+                    exceptionToast.setGravity(Gravity.CENTER, 0, 500);
+                    exceptionToast.show();
+                    return;
                 }
-                toast.cancel();
-                toast = Toast.makeText(getContext(), R.string.please_click_flag_change_chameleon, Toast.LENGTH_LONG);
+                creditWord(wordFunctionHandler.jumpToWord(i - 1));
+            }).setNegativeButton("取消", (dialog, which) -> {
+            }).show();
+        } else if (clickViewId == R.id.fragment_word_credit_click_flag) {
+            if (openFlagChange) {
+                if (AnimationUtil.with().moveToViewEnd(flagChangeArea, 500)) {
+                    closeFlagChangeAreaFlush();
+                    openFlagChange = !openFlagChange;
+                }
+            } else {
+                if (AnimationUtil.with().endMoveToViewLocation(flagChangeArea, 500)) {
+                    openFlagChangeAreaFlush();
+                    openFlagChange = !openFlagChange;
+                }
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_click_chameleon_mode) {
+            // 如果当前处于按色打乱模式则无法使用变色龙功能,使用区间重背功能可以使用变色龙功能
+            if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.SHUFFLE) {
+                toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 500);
                 toast.show();
-                changingChameleon = true;
-                break;
-            case R.id.fragment_word_credit_click_shuffle:
-                // 如果当前不是普通状态和按色打乱状态,代表当前在执行别的状态,需要先锁定按色打乱的功能
-                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.RANGE) {
-                    toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 500);
-                    toast.show();
-                    break;
+                return;
+            }
+            // 不要管太多,当点击变色龙模式的时候就展开旗帜区域就可以了
+            if (!openFlagChange) {
+                if (AnimationUtil.with().endMoveToViewLocation(flagChangeArea, 500)) {
+                    openFlagChangeAreaFlush();
+                    openFlagChange = !openFlagChange;
                 }
-                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
-                    this.chameleonImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
-                    this.sectionImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
-                    this.shuffleImageView.getDrawable().setTint(getResources().getColor(wordFunctionHandler.getChameleon().getMapColorID(), null));
-                    wordFunctionHandler.shuffle();
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                } else {
-                    this.chameleonImageView.setForeground(null);
-                    this.sectionImageView.setForeground(null);
-                    this.shuffleImageView.getDrawable().setTintList(null);
-                    wordFunctionHandler.restoreWordList();
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                }
-                break;
-            case R.id.fragment_word_credit_click_section:
-                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.SHUFFLE) {
-                    toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 500);
-                    toast.show();
-                    break;
-                }
-                if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
-                    View rangeRandomWordInputView = getLayoutInflater().inflate(R.layout.fragment_word_credit_dialog_section, null);
-                    EditText minValue = rangeRandomWordInputView.findViewById(R.id.fragment_word_credit_dialog_section_min_value);
-                    EditText maxValue = rangeRandomWordInputView.findViewById(R.id.fragment_word_credit_dialog_section_max_value);
-                    new AlertDialog.Builder(getContext()).setTitle("区间随机:")
-                            .setMessage("选择要单独随机的区间:[1," + wordFunctionHandler.size() + "].注意这里是闭区间")
-                            .setView(rangeRandomWordInputView)
-                            .setCancelable(false)
-                            .setPositiveButton("确定", (dialog, which) -> {
-                                int minRange, maxRange;
-                                try {
-                                    minRange = Integer.parseInt(minValue.getText().toString()) - 1;
-                                    maxRange = Integer.parseInt(maxValue.getText().toString()) - 1;
-                                    if (minRange < 0 || maxRange > wordFunctionHandler.size() || minRange > maxRange) {
-                                        throw new IllegalArgumentException("输入参数不合法!");
-                                    }
-                                } catch (IllegalArgumentException e) {
-                                    Toast errorToast = Toast.makeText(getContext(), "输入错误,请输入1~" + wordFunctionHandler.size() + "之间的值", Toast.LENGTH_LONG);
-                                    errorToast.setGravity(Gravity.CENTER, 0, 500);
-                                    errorToast.show();
-                                    return;
-                                }
-                                // 确定执行区间随机时执行的内容
-                                wordFunctionHandler.shuffleRange(minRange, maxRange);
-                                creditWord(wordFunctionHandler.jumpToWord(0));
-                                this.shuffleImageView.setForeground(getResources().getDrawable(R.drawable.ic_prohibit_foreground, null));
-                                this.sectionImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
-                            })
-                            .setNegativeButton("取消", (dialog, which) -> {
-                            })
-                            .show();
-                } else {
-                    this.shuffleImageView.setForeground(null);
-                    this.sectionImageView.getDrawable().setTintList(null);
-                    this.wordFunctionHandler.restoreWordList();
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                }
-                break;
-            case R.id.toolbar_back_to_trace:
-                new AlertDialog.Builder(getContext())
-                        .setMessage("确认返回主页")
+            }
+            toast.cancel();
+            toast = Toast.makeText(getContext(), R.string.please_click_flag_change_chameleon, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 500);
+            toast.show();
+            changingChameleon = true;
+        } else if (clickViewId == R.id.fragment_word_credit_click_shuffle) {
+            // 如果当前不是普通状态和按色打乱状态,代表当前在执行别的状态,需要先锁定按色打乱的功能
+            if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.RANGE) {
+                toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 500);
+                toast.show();
+                return;
+            }
+            if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
+                this.chameleonImageView.setForeground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_prohibit_foreground, null));
+                this.sectionImageView.setForeground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_prohibit_foreground, null));
+                this.shuffleImageView.getDrawable().setTint(getResources().getColor(wordFunctionHandler.getChameleon().getMapColorID(), null));
+                wordFunctionHandler.shuffle();
+                creditWord(wordFunctionHandler.jumpToWord(0));
+            } else {
+                this.chameleonImageView.setForeground(null);
+                this.sectionImageView.setForeground(null);
+                this.shuffleImageView.getDrawable().setTintList(null);
+                wordFunctionHandler.restoreWordList();
+                creditWord(wordFunctionHandler.jumpToWord(0));
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_click_section) {
+            if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.SHUFFLE) {
+                toast = Toast.makeText(getContext(), wordFunctionHandler.getWordFunctionState().getInfo(), Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 500);
+                toast.show();
+                return;
+            }
+            if (wordFunctionHandler.getWordFunctionState() == WordFunctionState.NONE) {
+                View rangeRandomWordInputView = getLayoutInflater().inflate(R.layout.fragment_word_credit_dialog_section, null);
+                EditText minValue = rangeRandomWordInputView.findViewById(R.id.fragment_word_credit_dialog_section_min_value);
+                EditText maxValue = rangeRandomWordInputView.findViewById(R.id.fragment_word_credit_dialog_section_max_value);
+                new AlertDialog.Builder(getContext()).setTitle("区间随机:")
+                        .setMessage("选择要单独随机的区间:[1," + wordFunctionHandler.size() + "].注意这里是闭区间")
+                        .setView(rangeRandomWordInputView)
                         .setCancelable(false)
                         .setPositiveButton("确定", (dialog, which) -> {
-                            Navigation.findNavController(getView()).popBackStack();
-                        })
-                        .setNegativeButton("取消", (dialog, which) -> {
-
-                        })
-                        .show();
-                break;
-            case R.id.fragment_word_credit_click_start:
-                startDrawer.openDrawer(GravityCompat.END);
-                break;
-            case R.id.fragment_word_credit_start_add:
-                View addNewCategory = getLayoutInflater().inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
-                EditText categoryTile = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title);
-                EditText categoryDescribe = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe);
-                CheckBox titleDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title_default);
-                CheckBox describeDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe_default);
-                new AlertDialog.Builder(getContext())
-                        .setView(addNewCategory)
-                        .setCancelable(true)
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            WordCategory wordCategory = new WordCategory(categoryTile.getText().toString(),
-                                    categoryDescribe.getText().toString(), titleDefault.isChecked(), describeDefault.isChecked());
-                            startSingleCategoryAdapter.addItem(wordCategory);
+                            int minRange, maxRange;
+                            try {
+                                minRange = Integer.parseInt(minValue.getText().toString()) - 1;
+                                maxRange = Integer.parseInt(maxValue.getText().toString()) - 1;
+                                if (minRange < 0 || maxRange > wordFunctionHandler.size() || minRange > maxRange) {
+                                    throw new IllegalArgumentException("输入参数不合法!");
+                                }
+                            } catch (IllegalArgumentException e) {
+                                Toast errorToast = Toast.makeText(getContext(), "输入错误,请输入1~" + wordFunctionHandler.size() + "之间的值", Toast.LENGTH_LONG);
+                                errorToast.setGravity(Gravity.CENTER, 0, 500);
+                                errorToast.show();
+                                return;
+                            }
+                            // 确定执行区间随机时执行的内容
+                            wordFunctionHandler.shuffleRange(minRange, maxRange);
+                            creditWord(wordFunctionHandler.jumpToWord(0));
+                            this.shuffleImageView.setForeground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_prohibit_foreground, null));
+                            this.sectionImageView.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
                         })
                         .show();
-                break;
-            case R.id.fragment_word_credit_click_change_mode:
-                if (changeModePopupWindow == null) {
-                    changeModePopupWindow = new PopupWindow(popWindowChangeModeLayout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    changeModePopupWindow.setOutsideTouchable(true);
-                    changeModePopupWindow.setFocusable(true);
-                    changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
-                    changeModePopupWindow.setOnDismissListener(() -> ((ViewGroup) rootView.getParent()).removeView(popWindowChangeModeLayout));
-                }
-                // PopWindow展示在某个组件的上方,这里的changeMode代表要展示在那个组件上方,popWindowChangeModeLayout代表要展示哪个组件.
-                popWindowChangeModeLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                int[] location = new int[2];
-                changeMode.getLocationInSurface(location);
-                changeModePopupWindow.showAtLocation(changeMode, Gravity.NO_GRAVITY,
-                        (location[0] + changeMode.getWidth() / 2) - popWindowChangeModeLayout.getMeasuredWidth() / 2,
-                        location[1] - popWindowChangeModeLayout.getMeasuredHeight());
-                break;
-            case R.id.fragment_word_credit_search_word:
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_word_credit_to_navigation_search_word, null, StaticFactory.getSimpleNavOptions());
-                break;
-            case R.id.fragment_word_credit_pop_listening_write_mode:
-                wordFunctionHandler.setCurrentCreditState(CreditState.LISTENING);
-                updateChangeModePopWindowState();
-                break;
-            case R.id.fragment_word_credit_pop_english_translation_chinese:
-                wordFunctionHandler.setCurrentCreditState(CreditState.ENGLISH_TRANSLATION_CHINESE);
-                updateChangeModePopWindowState();
-                break;
-            case R.id.fragment_word_credit_pop_chinese_translation_english:
-                wordFunctionHandler.setCurrentCreditState(CreditState.CHINESE_TRANSLATION_ENGLISH);
-                updateChangeModePopWindowState();
-                break;
-            case R.id.fragment_word_credit_pop_only_credit:
-                wordFunctionHandler.setCurrentCreditState(CreditState.CREDIT);
-                updateChangeModePopWindowState();
-                break;
-            case R.id.fragment_word_credit_button_flag_green:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.GREEN);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.GREEN)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_green).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.GREEN)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_green).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_red:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.RED);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_red_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.RED)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_red).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.RED)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_red).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_orange:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.ORANGE);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_orange_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.ORANGE)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_orange).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.ORANGE)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_orange).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_yellow:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.YELLOW);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(R.color.holo_yellow_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+            } else {
+                this.shuffleImageView.setForeground(null);
+                this.sectionImageView.getDrawable().setTintList(null);
+                this.wordFunctionHandler.restoreWordList();
+                creditWord(wordFunctionHandler.jumpToWord(0));
+            }
+        } else if (clickViewId == R.id.toolbar_back_to_trace) {
+            new AlertDialog.Builder(getContext())
+                    .setMessage("确认返回主页")
+                    .setCancelable(false)
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        Navigation.findNavController(getView()).popBackStack();
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> {
 
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.YELLOW)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_yellow).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.YELLOW)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_yellow).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_blue:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.BLUE);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_blue_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                    })
+                    .show();
+        } else if (clickViewId == R.id.fragment_word_credit_click_start) {
+            startDrawer.openDrawer(GravityCompat.END);
+        } else if (clickViewId == R.id.fragment_word_credit_start_add) {
+            View addNewCategory = getLayoutInflater().inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
+            EditText categoryTile = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title);
+            EditText categoryDescribe = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe);
+            CheckBox titleDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title_default);
+            CheckBox describeDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe_default);
+            new AlertDialog.Builder(getContext())
+                    .setView(addNewCategory)
+                    .setCancelable(true)
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        WordCategory wordCategory = new WordCategory(categoryTile.getText().toString(),
+                                categoryDescribe.getText().toString(), titleDefault.isChecked(), describeDefault.isChecked());
+                        startSingleCategoryAdapter.addItem(wordCategory);
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> {
+                    })
+                    .show();
+        } else if (clickViewId == R.id.fragment_word_credit_click_change_mode) {
+            PopupWindow changeModePopupWindow = new PopupWindow(popWindowChangeModeLayout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            changeModePopupWindow.setOutsideTouchable(true);
+            changeModePopupWindow.setFocusable(true);
+            changeModePopupWindow.setAnimationStyle(R.style.pop_window_anim_style);
+            changeModePopupWindow.setOnDismissListener(() -> ((ViewGroup) rootView.getParent()).removeView(popWindowChangeModeLayout));
+            // PopWindow展示在某个组件的上方,这里的changeMode代表要展示在那个组件上方,popWindowChangeModeLayout代表要展示哪个组件.
+            popWindowChangeModeLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            int[] location = new int[2];
+            changeMode.getLocationInSurface(location);
+            changeModePopupWindow.showAtLocation(changeMode, Gravity.NO_GRAVITY,
+                    (location[0] + changeMode.getWidth() / 2) - popWindowChangeModeLayout.getMeasuredWidth() / 2,
+                    location[1] - popWindowChangeModeLayout.getMeasuredHeight());
+        } else if (clickViewId == R.id.fragment_word_credit_search_word) {
+            Navigation.findNavController(getView()).navigate(
+                    R.id.action_navigation_word_credit_to_navigation_search_word,
+                    null,
+                    StaticFactory.getSimpleNavOptions());
+        } else if (clickViewId == R.id.fragment_word_credit_pop_listening_write_mode) {
+            wordFunctionHandler.setCurrentCreditState(CreditState.LISTENING);
+            updateChangeModePopWindowState();
+        } else if (clickViewId == R.id.fragment_word_credit_pop_english_translation_chinese) {
+            wordFunctionHandler.setCurrentCreditState(CreditState.ENGLISH_TRANSLATION_CHINESE);
+            updateChangeModePopWindowState();
+        } else if (clickViewId == R.id.fragment_word_credit_pop_chinese_translation_english) {
+            wordFunctionHandler.setCurrentCreditState(CreditState.CHINESE_TRANSLATION_ENGLISH);
+            updateChangeModePopWindowState();
+        } else if (clickViewId == R.id.fragment_word_credit_pop_only_credit) {
+            wordFunctionHandler.setCurrentCreditState(CreditState.CREDIT);
+            updateChangeModePopWindowState();
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_green) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.GREEN);
+                this.nextWord.getDrawable().setTint(getResources().getColor(R.color.theme_color, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.GREEN)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_green).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.GREEN)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_green).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_red) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.RED);
+                this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_red_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.RED)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_red).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.RED)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_red).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_orange) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.ORANGE);
+                this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_orange_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.ORANGE)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_orange).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.ORANGE)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_orange).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_yellow) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.YELLOW);
+                this.nextWord.getDrawable().setTint(getResources().getColor(R.color.holo_yellow_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.YELLOW)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_yellow).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.YELLOW)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_yellow).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_blue) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.BLUE);
+                this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_blue_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.BLUE)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_blue).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.BLUE)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_blue).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_cyan) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.CYAN);
+                this.nextWord.getDrawable().setTint(getResources().getColor(R.color.holo_cyan_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
 
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.BLUE)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_blue).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.BLUE)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_blue).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_cyan:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.CYAN);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(R.color.holo_cyan_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.CYAN)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_cyan).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.CYAN)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_cyan).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_purple:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.PURPLE);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_purple, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.PURPLE)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_purple).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.PURPLE)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_purple).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_pink:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.PINK);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(R.color.holo_pink_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.PINK)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_pink).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.PINK)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_pink).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_gray:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.GRAY);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(R.color.dark_gray, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.GRAY)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_gray).setAlpha(0.0f);
-                } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.GRAY)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_gray).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_black:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.BLACK);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.black, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                    break;
-                }
-                if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.BLACK)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_black).setAlpha(0.0f);
-                } else if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.BLACK)) {
-                    rootView.findViewById(R.id.fragment_word_credit_view_flag_black).setAlpha(1.0f);
-                }
-                break;
-            case R.id.fragment_word_credit_button_flag_brown:
-                if (changingChameleon) {
-                    changingChameleon = false;
-                    wordFunctionHandler.setChameleon(FlagColor.BROWN);
-                    this.nextWord.getDrawable().setTint(getResources().getColor(R.color.halo_brown_dark, null));
-                    creditWord(wordFunctionHandler.jumpToWord(0));
-                    wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-                }
-                break;
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.CYAN)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_cyan).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.CYAN)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_cyan).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_purple) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.PURPLE);
+                this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.holo_purple, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.PURPLE)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_purple).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.PURPLE)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_purple).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_pink) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.PINK);
+                this.nextWord.getDrawable().setTint(getResources().getColor(R.color.holo_pink_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.PINK)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_pink).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.PINK)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_pink).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_gray) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.GRAY);
+                this.nextWord.getDrawable().setTint(getResources().getColor(R.color.dark_gray, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.GRAY)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_gray).setAlpha(0.0f);
+            } else if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.GRAY)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_gray).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_black) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.BLACK);
+                this.nextWord.getDrawable().setTint(getResources().getColor(android.R.color.black, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+                return;
+            }
+            if (wordFunctionHandler.addFlagToCurrentWord(FlagColor.BLACK)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_black).setAlpha(0.0f);
+            } else if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.BLACK)) {
+                rootView.findViewById(R.id.fragment_word_credit_view_flag_black).setAlpha(1.0f);
+            }
+        } else if (clickViewId == R.id.fragment_word_credit_button_flag_brown) {
+            if (changingChameleon) {
+                changingChameleon = false;
+                wordFunctionHandler.setChameleon(FlagColor.BROWN);
+                this.nextWord.getDrawable().setTint(getResources().getColor(R.color.halo_brown_dark, null));
+                creditWord(wordFunctionHandler.jumpToWord(0));
+                wordCount.setText(String.valueOf(wordFunctionHandler.size()));
+            }
         }
+
     }
 
     /**
@@ -562,7 +538,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      *
      * @param toBeShowWord 待被展示的单词
      */
-    private void creditWord(Word toBeShowWord) {
+    @SuppressLint("SetTextI18n")
+    private void creditWord(List<WordDTO> toBeShowWord) {
+        // 首先转换成以单词结构id为Key的集合
+        Map<Long, List<WordDTO>> structureWordMap = toBeShowWord.stream()
+                .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
+
         updateUIHandler.post(() -> {
             switch (wordFunctionHandler.getCurrentCreditState()) {
                 case LISTENING:
@@ -591,17 +572,30 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             不管是什么状态,都需要显示当前背诵的位置和总的单词个数.
             不管什么状态,都需要更新drawer里面单词的内容
              */
-            chineseAnswerAdapterDrawer.showWordChineseMessage(toBeShowWord);
-            this.sourceWordDrawer.setText(toBeShowWord.getWordOrigin());
-            this.sourceWordPhoneticsDrawer.setText(toBeShowWord.getWordPhonetics());
-            if (!TextUtils.isEmpty(toBeShowWord.getPhrase())) {
-                phraseAnswerDrawer.setText(toBeShowWord.getPhrase());
-                phraseHintDrawer.setVisibility(View.VISIBLE);
-                phraseAnswerDrawer.setVisibility(View.VISIBLE);
-            } else {
-                phraseHintDrawer.setVisibility(View.GONE);
-                phraseAnswerDrawer.setVisibility(View.GONE);
-            }
+            chineseAnswerAdapterDrawer.showWordChineseMessage(structureWordMap);
+            // 设置右侧展开列表单词的原文
+            Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
+                    .ifPresent(wordDTOS -> sourceWordDrawer.setText(
+                            Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+            // 设置右侧展开列表单词的音标
+            Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
+                    .ifPresent(wordDTOS -> sourceWordDrawer.setText(
+                            Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+            // 设置短语
+            String phraseTranslation = Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE_TRANSLATION.getWordStructureId()))
+                    .map(phraseWord -> phraseWord.size() > 0 ? phraseWord.get(0).getValue() : "")
+                    .orElse("");
+            Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE.getWordStructureId()))
+                    .ifPresentOrElse(wordDTOS -> {
+                        phraseAnswerDrawer.setText(Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("") +
+                                " " +
+                                phraseTranslation);
+                        phraseHintDrawer.setVisibility(View.VISIBLE);
+                        phraseAnswerDrawer.setVisibility(View.VISIBLE);
+                    }, () -> {
+                        phraseHintDrawer.setVisibility(View.GONE);
+                        phraseAnswerDrawer.setVisibility(View.GONE);
+                    });
             currentIndexTextView.setText(String.valueOf(wordFunctionHandler.getCurrentOrder() + 1));
             wordCount.setText(String.valueOf(wordFunctionHandler.size()));
             if (openFlagChange) {
@@ -610,41 +604,48 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 closeFlagChangeAreaFlush();
             }
         });
+
+
     }
+
 
     /**
      * 读取所有单词信息,读取完毕之后更新UI
      */
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void readAllWord() {
         StaticFactory.getExecutorService().submit(() -> {
             // 根据自定义风格背诵,获取当前要加载的所有单词
             Bundle bundle = getArguments();
             if (bundle != null) {
                 // 如果获取为null则整个逻辑都不对了
-                UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER);
+                UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER, UserCreditStyleWrapper.class);
                 this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
                 HashSet<DivideDTO> divideList = bundle.getSerializable(CreditFragment.CHILD_DIVIDE_SET, HashSet.class);
+
                 // 获取所有划分的id
                 List<Long> divideIdList = new ArrayList<>();
                 for (DivideDTO divideDTO : divideList) {
                     divideIdList.add(divideDTO.getId());
                 }
                 DivideRequest divideRequest = CoreServiceRequestFactory.getInstance().divideRequest();
+                WordStructureRequest wordStructureRequest = CoreServiceRequestFactory.getInstance().wordStructureRequest();
                 // 获取子划分下所有单词的摘要信息
                 divideRequest.listDivideWord(divideIdList)
-                        .success(data -> allDivideWordList = data.getData()).execute();
+                        .success(data -> allDivideWordList = data.getData())
+                        .execute();
                 // 根据划分的id一次性读取所有的单词详细信息
                 divideRequest.listWordByDivideId(divideIdList)
                         .success(data -> allWordList = data.getData())
                         .execute();
                 // 获取当前单词的结构
-                divideRequest.
+                wordStructureRequest.selectWordStructureById(String.valueOf(divideList.iterator().next().getLanguageId()))
+                        .success(data -> currentWordStructure = data.getData())
+                        .execute();
                 // TODO 这个地方可以用责任链设计模式,暂且先这么写
                 if (userCreditStyle.getCreditOrder() == CreditOrder.DISORDER) {
                     Collections.shuffle(allDivideWordList);
                 } else if (userCreditStyle.getCreditOrder() == CreditOrder.LEXICOGRAPHIC) {
-                    allDivideWordList.sort(Comparator.comparing(DivideWordDTO::getOrder));
+                    allDivideWordList.sort(Comparator.comparing(DivideWordDTO::getDivideOrder));
                 }
                 if (userCreditStyle.getCreditFilter() == CreditFilter.PHRASE) {
                     // todo 只背介词
@@ -752,13 +753,25 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.onlyCreditMode.setBackground(null);
         CreditState currentCreditState = wordFunctionHandler.getCurrentCreditState();
         if (currentCreditState == CreditState.ENGLISH_TRANSLATION_CHINESE) {
-            this.englishTranslationChineseMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+            this.englishTranslationChineseMode.setBackground(ResourcesCompat.getDrawable(
+                    getResources(),
+                    R.drawable.fragment_word_credit_pop_window_change_mode,
+                    null));
         } else if (currentCreditState == CreditState.CHINESE_TRANSLATION_ENGLISH) {
-            this.chineseTranslationEnglish.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+            this.chineseTranslationEnglish.setBackground(ResourcesCompat.getDrawable(
+                    getResources(),
+                    R.drawable.fragment_word_credit_pop_window_change_mode,
+                    null));
         } else if (currentCreditState == CreditState.LISTENING) {
-            this.listeningWriteMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+            this.listeningWriteMode.setBackground(ResourcesCompat.getDrawable(
+                    getResources(),
+                    R.drawable.fragment_word_credit_pop_window_change_mode,
+                    null));
         } else if (currentCreditState == CreditState.CREDIT) {
-            this.onlyCreditMode.setBackground(getResources().getDrawable(R.drawable.fragment_word_credit_pop_window_change_mode, null));
+            this.onlyCreditMode.setBackground(ResourcesCompat.getDrawable(
+                    getResources(),
+                    R.drawable.fragment_word_credit_pop_window_change_mode,
+                    null));
         }
     }
 
@@ -766,11 +779,23 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 显示当前单词的所有信息,<b>具体当前要根据状态隐藏哪些信息有调用者来处理.</b><br>
      * 该方法展示的是最全面的信息,所有隐藏信息都会被显示,但是单词没有的性质(比如没有某个中文意思)那么没有的内容不会展示.
      */
-    private void visibleWordAllMessage(Word word) {
-        this.sourceWord.setText(word.getWordOrigin());
-        this.sourceWordPhonetics.setText(word.getWordPhonetics());
+    private void visibleWordAllMessage(List<WordDTO> toBeShowWord) {
         chineseAnswer.setVisibility(View.VISIBLE);
-        chineseAnswerAdapter.showWordChineseMessage(word);
+        // 首先转换成以单词结构id为Key的集合
+        Map<Long, List<WordDTO>> structureWordMap = toBeShowWord.stream()
+                .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
+        // 设置单词原文
+        Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
+                .ifPresent(wordDTOS -> sourceWord.setText(
+                        Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+        // 设置单词音标
+        Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
+                .ifPresent(wordDTOS -> sourceWordPhonetics.setText(
+                        Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+
+        chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
+        // 扩展信息待做
+        /*
         if (!TextUtils.isEmpty(word.getExampleSentence())) {
             this.exampleSentenceAnswer.setText(word.getExampleSentence());
             this.exampleSentenceAnswer.setVisibility(View.VISIBLE);
@@ -791,6 +816,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             this.categorizeOriginAnswer.setVisibility(View.VISIBLE);
             this.categorizeOriginHint.setVisibility(View.VISIBLE);
         }
+
+         */
+
+
     }
 
 

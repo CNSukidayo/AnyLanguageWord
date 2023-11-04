@@ -69,7 +69,9 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
         cacheElement.add(holder);
         // 最后一个嵌套,单词中文意思的嵌套
         holder.chineseAnswerRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        holder.startChineseAnswerRecyclerViewAdapter = new StartChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getWordFromCategory(functionListener.getCurrentWordCategoryID(), position));
+//        holder.startChineseAnswerRecyclerViewAdapter = new StartChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getWordFromCategory(functionListener.getCurrentWordCategoryID(), position));
+        // 收藏夹这里有问题
+        holder.startChineseAnswerRecyclerViewAdapter = new StartChineseAnswerRecyclerViewAdapter(context, new ArrayList<>());
         holder.chineseAnswerRecyclerView.setAdapter(holder.startChineseAnswerRecyclerViewAdapter);
         if (!TextUtils.isEmpty(word.getPhrase())) {
             holder.phraseAnswer.setText(word.getPhrase());

@@ -1,6 +1,5 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -332,6 +331,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         } else if (clickViewId == R.id.fragment_word_credit_click_start) {
             startDrawer.openDrawer(GravityCompat.END);
         } else if (clickViewId == R.id.fragment_word_credit_start_add) {
+            // 添加一个新的收藏夹
             View addNewCategory = getLayoutInflater().inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
             EditText categoryTile = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title);
             EditText categoryDescribe = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe);
@@ -536,7 +536,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      *
      * @param toBeShowWord 待被展示的单词
      */
-    @SuppressLint("SetTextI18n")
     private void creditWord(List<WordDTO> toBeShowWord) {
         // 首先转换成以单词结构id为Key的集合
         Map<Long, List<WordDTO>> structureWordMap = toBeShowWord.stream()
@@ -575,19 +574,19 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             chineseAnswerAdapterDrawer.showWordChineseMessage(structureWordMap);
             // 设置右侧展开列表单词的原文
             Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
-                    .ifPresent(wordDTOS -> sourceWordDrawer.setText(
-                            Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+                    .ifPresent(wordDTOS -> sourceWordDrawer
+                            .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
             // 设置右侧展开列表单词的音标
             Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
-                    .ifPresent(wordDTOS -> sourceWordDrawer.setText(
-                            Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+                    .ifPresent(wordDTOS -> sourceWordPhoneticsDrawer
+                            .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
             // 设置短语
             String phraseTranslation = Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE_TRANSLATION.getWordStructureId()))
                     .map(phraseWord -> phraseWord.size() > 0 ? phraseWord.get(0).getValue() : "")
                     .orElse("");
             Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE.getWordStructureId()))
                     .ifPresentOrElse(wordDTOS -> {
-                        phraseAnswerDrawer.setText(Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("") +
+                        phraseAnswerDrawer.setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : "" +
                                 " " +
                                 phraseTranslation);
                         phraseHintDrawer.setVisibility(View.VISIBLE);
@@ -785,12 +784,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
         // 设置单词原文
         Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
-                .ifPresent(wordDTOS -> sourceWord.setText(
-                        Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+                .ifPresent(wordDTOS -> sourceWord
+                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
         // 设置单词音标
         Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
-                .ifPresent(wordDTOS -> sourceWordPhonetics.setText(
-                        Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
+                .ifPresent(wordDTOS -> sourceWordPhonetics
+                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
         chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
         // todo 扩展信息待做
         /*

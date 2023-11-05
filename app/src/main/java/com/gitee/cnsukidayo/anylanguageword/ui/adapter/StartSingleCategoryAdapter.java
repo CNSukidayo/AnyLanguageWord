@@ -83,7 +83,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
     }
 
     public void onItemMove(int fromPosition, int toPosition) {
-        startFunctionHandler.categoryRemove(fromPosition, toPosition);
+        startFunctionHandler.moveCategory(fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
     }
 
@@ -176,72 +176,66 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            switch (v.getId()) {
-                case R.id.fragment_word_credit_start_move:
-                    if (event.getAction() == MotionEvent.ACTION_DOWN && startDragListener != null) {
-                        startDragListener.accept(this);
-                    }
-                    break;
+            int clickViewId = v.getId();
+            if (clickViewId == R.id.fragment_word_credit_start_move &&
+                    event.getAction() == MotionEvent.ACTION_DOWN && startDragListener != null) {
+                startDragListener.accept(this);
             }
             return false;
         }
 
         @Override
         public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.fragment_word_credit_start_delete:
-                    // 删除当前Item
-                    startFunctionHandler.removeCategory(getAdapterPosition());
-                    notifyItemRemoved(getAdapterPosition());
-                    break;
-                case R.id.fragment_word_credit_start_edit:
-                    // 编辑收藏夹信息
-                    View editStart = LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
-                    EditText categoryTile = editStart.findViewById(R.id.fragment_word_credit_start_new_title);
-                    EditText categoryDescribe = editStart.findViewById(R.id.fragment_word_credit_start_new_describe);
-                    CheckBox titleDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_title_default);
-                    CheckBox describeDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_describe_default);
-                    new AlertDialog.Builder(context)
-                            .setView(editStart)
-                            .setCancelable(true)
-                            .setPositiveButton("确定", (dialog, which) -> {
-                                WordCategory wordCategory = startFunctionHandler.getWordCategoryByPosition(getAdapterPosition());
-                                wordCategory.setTitle(categoryTile.getText().toString());
-                                wordCategory.setDescribe(categoryDescribe.getText().toString());
-                                wordCategory.setDefaultTitleRule(titleDefault.isChecked());
-                                wordCategory.setDefaultDescribeRule(describeDefault.isChecked());
-                                title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
-                                describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
-                            })
-                            .setNegativeButton("取消", (dialog, which) -> {
-                            })
-                            .show();
-                    break;
-                case R.id.fragment_word_credit_start_open_list:
-                    if (isOpen) {
-                        underNowStartAllWord.setVisibility(View.GONE);
-                        listState.setRotation(90);
-                        listState.getDrawable().setTint(context.getResources().getColor(R.color.dark_gray, null));
-                    } else {
-                        underNowStartAllWord.setVisibility(View.VISIBLE);
-                        listState.getDrawable().setTint(context.getResources().getColor(android.R.color.holo_blue_dark, null));
-                        listState.setRotation(180);
-                    }
-                    isOpen = !isOpen;
-                    break;
-                case R.id.fragment_word_credit_start_add_word:
-                    Optional.ofNullable(startFunctionHandler.getCurrentWord()).ifPresentOrElse(word -> {
-                        // todo 错误
-                        startSingleCategoryWordAdapter.addItem(null);
-                        title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
-                        describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
-                    }, () -> {
-                        // 不能添加单词到分类的提示
-                        Toast errorAddTint = Toast.makeText(context, context.getResources().getString(R.string.error_add_hint), Toast.LENGTH_SHORT);
-                        errorAddTint.setGravity(Gravity.CENTER, 0, 500);
-                        errorAddTint.show();
-                    });
-                    break;
+            int clickViewId = v.getId();
+            if (clickViewId == R.id.fragment_word_credit_start_delete) {
+                // 删除当前Item
+                startFunctionHandler.removeCategory(getAdapterPosition());
+                notifyItemRemoved(getAdapterPosition());
+            } else if (clickViewId == R.id.fragment_word_credit_start_edit) {
+                // 编辑收藏夹信息
+                View editStart = LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
+                EditText categoryTile = editStart.findViewById(R.id.fragment_word_credit_start_new_title);
+                EditText categoryDescribe = editStart.findViewById(R.id.fragment_word_credit_start_new_describe);
+                CheckBox titleDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_title_default);
+                CheckBox describeDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_describe_default);
+                new AlertDialog.Builder(context)
+                        .setView(editStart)
+                        .setCancelable(true)
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            WordCategory wordCategory = startFunctionHandler.getWordCategoryByPosition(getAdapterPosition());
+                            wordCategory.setTitle(categoryTile.getText().toString());
+                            wordCategory.setDescribe(categoryDescribe.getText().toString());
+                            wordCategory.setDefaultTitleRule(titleDefault.isChecked());
+                            wordCategory.setDefaultDescribeRule(describeDefault.isChecked());
+                            title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
+                            describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                        })
+                        .show();
+            } else if (clickViewId == R.id.fragment_word_credit_start_open_list) {
+                if (isOpen) {
+                    underNowStartAllWord.setVisibility(View.GONE);
+                    listState.setRotation(90);
+                    listState.getDrawable().setTint(context.getResources().getColor(R.color.dark_gray, null));
+                } else {
+                    underNowStartAllWord.setVisibility(View.VISIBLE);
+                    listState.getDrawable().setTint(context.getResources().getColor(android.R.color.holo_blue_dark, null));
+                    listState.setRotation(180);
+                }
+                isOpen = !isOpen;
+            } else if (clickViewId == R.id.fragment_word_credit_start_add_word) {
+                Optional.ofNullable(startFunctionHandler.getCurrentStructureWordMap()).ifPresentOrElse(structureWordMap -> {
+                    // 要转换成结构单词使用 wordStructMap
+                    startSingleCategoryWordAdapter.addItem(structureWordMap);
+                    title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
+                    describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
+                }, () -> {
+                    // 不能添加单词到分类的提示
+                    Toast errorAddTint = Toast.makeText(context, context.getResources().getString(R.string.error_add_hint), Toast.LENGTH_SHORT);
+                    errorAddTint.setGravity(Gravity.CENTER, 0, 500);
+                    errorAddTint.show();
+                });
             }
         }
 

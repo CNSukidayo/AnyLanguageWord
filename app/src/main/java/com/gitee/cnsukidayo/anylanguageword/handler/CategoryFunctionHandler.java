@@ -3,6 +3,7 @@ package com.gitee.cnsukidayo.anylanguageword.handler;
 import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 
 import java.util.List;
+import java.util.Map;
 
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
@@ -19,6 +20,16 @@ public interface CategoryFunctionHandler extends CategoryWordFunctionHandler {
      * @return 返回当前正在背诵的单词引用
      */
     List<WordDTO> getCurrentWord();
+
+    /**
+     * 得到当前停留的单词(得到当前正在背诵的单词)<br>
+     * 该方法返回的单词是用户可能想要将其收藏到某个收藏夹内的单词.<br>
+     * 并转换成以单词结构id为Key的集合
+     *
+     * @return 返回当前正在背诵的单词引用
+     */
+    Map<Long, List<WordDTO>> getCurrentStructureWordMap();
+
 
     /**
      * 添加一个单词分类
@@ -67,6 +78,12 @@ public interface CategoryFunctionHandler extends CategoryWordFunctionHandler {
      */
     String calculationDescribe(int position);
 
-    void categoryRemove(int fromPosition, int toPosition);
+    /**
+     * 交换收藏夹列表中的两个收藏夹位置
+     *
+     * @param fromPosition 源收藏夹位置
+     * @param toPosition   目标收藏夹位置
+     */
+    void moveCategory(int fromPosition, int toPosition);
 
 }

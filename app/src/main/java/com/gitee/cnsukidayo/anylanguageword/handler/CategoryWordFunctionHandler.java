@@ -1,6 +1,9 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
-import com.gitee.cnsukidayo.anylanguageword.entity.Word;
+import java.util.List;
+import java.util.Map;
+
+import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
  * 单个分类单词功能的接口
@@ -23,8 +26,9 @@ public interface CategoryWordFunctionHandler {
      *
      * @param categoryID 分类ID
      * @param addWord    待添加的单词
+     * @return 返回是否添加成功
      */
-    void addWordToCategory(int categoryID, Word addWord);
+    boolean addWordToCategory(int categoryID, Map<Long, List<WordDTO>> addWord);
 
     /**
      * 将某个单词从某个分类中移除
@@ -41,7 +45,7 @@ public interface CategoryWordFunctionHandler {
      * @param position   单词在category中的位置
      * @return 返回Word引用
      */
-    Word getWordFromCategory(int categoryID, int position);
+    Map<Long, List<WordDTO>> getWordFromCategory(int categoryID, int position);
 
     /**
      * 交换某个分类中两个单词的位置

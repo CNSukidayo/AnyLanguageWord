@@ -5,6 +5,7 @@ import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
@@ -24,6 +25,14 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @return 返回单词引用
      */
     List<WordDTO> getCurrentWord();
+
+    /**
+     * 获取当前指针指向的单词<br>
+     * 并转换成以单词结构id为Key的集合
+     *
+     * @return 返回单词引用
+     */
+    Map<Long, List<WordDTO>> getCurrentStructureWordMap();
 
     /**
      * 跳转到上一个单词,调用该方法会将指针指向传入的索引位置

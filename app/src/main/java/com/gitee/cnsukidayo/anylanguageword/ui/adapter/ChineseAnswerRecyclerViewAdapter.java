@@ -88,6 +88,9 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
             holder.meaningCategoryAnswer.setText(currentWordDTO.get(0).getValue());
             holder.meaningCategoryHint.setVisibility(View.VISIBLE);
             holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
+        } else {
+            holder.meaningCategoryHint.setVisibility(View.GONE);
+            holder.meaningCategoryAnswer.setVisibility(View.GONE);
         }
     }
 

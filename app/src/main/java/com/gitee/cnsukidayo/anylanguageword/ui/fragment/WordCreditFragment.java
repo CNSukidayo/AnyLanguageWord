@@ -138,8 +138,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         bindView();
         // 设置监听事件
         bindListener();
-        // 隐藏不必要的UI
-        emptyUI();
         // 弹出Dialog不要阻塞UI线程,通过一个新的线程去请求所有单词信息.
         loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         // 锁定startDrawable的关闭
@@ -548,13 +546,15 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             switch (wordFunctionHandler.getCurrentCreditState()) {
                 case LISTENING:
                     // 听写模式只播放音频
-                    this.chineseAnswer.setVisibility(View.GONE);
+                    hideLinearLayoutTree(chineseAnswer);
                     break;
                 case ENGLISH_TRANSLATION_CHINESE:
-                    // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏
+                    // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏(必须在UI线程中隐藏)
                     visibleWordAllMessage(toBeShowWord);
-                    this.chineseAnswer.setVisibility(View.GONE);
-                    hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
+                    updateUIHandler.post(() -> {
+                        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_chinese_answer));
+                        hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
+                    });
                     break;
                 case CHINESE_TRANSLATION_ENGLISH:
                     // 先展示所有单词信息,然后将英文原文和音标进行隐藏
@@ -656,7 +656,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             if (userCreditStyle != null) {
                 this.wordFunctionHandler.setCurrentCreditState(userCreditStyle.getCreditState());
             }
-            // 初始化所有RecyclerView
+            // 模拟加载延迟的情况1s
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
@@ -690,7 +690,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 隐藏所有暂时不必要出现的UI
      */
     private void emptyUI() {
-        // 隐藏单词的附加显示内容
+        // 隐藏单词的附加显示内容(注意不包含形容词、副词等内容的隐藏)
         hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
         sourceWord.setText("");
         sourceWordPhonetics.setText("");
@@ -780,7 +780,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 该方法展示的是最全面的信息,所有隐藏信息都会被显示,但是单词没有的性质(比如没有某个中文意思)那么没有的内容不会展示.
      */
     private void visibleWordAllMessage(List<WordDTO> toBeShowWord) {
-        chineseAnswer.setVisibility(View.VISIBLE);
         // 首先转换成以单词结构id为Key的集合
         Map<Long, List<WordDTO>> structureWordMap = toBeShowWord.stream()
                 .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
@@ -792,9 +791,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
                 .ifPresent(wordDTOS -> sourceWordPhonetics.setText(
                         Optional.ofNullable(wordDTOS.size() > 0 ? wordDTOS.get(0).getValue() : new WordDTO().getValue()).orElse("")));
-
         chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
-        // 扩展信息待做
+        // todo 扩展信息待做
         /*
         if (!TextUtils.isEmpty(word.getExampleSentence())) {
             this.exampleSentenceAnswer.setText(word.getExampleSentence());

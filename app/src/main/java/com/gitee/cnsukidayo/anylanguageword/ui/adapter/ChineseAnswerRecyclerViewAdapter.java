@@ -12,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.support.answer.AnswerElement;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,8 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
         put(12, EnglishStructure.AUX);
     }};
 
+    private List<AnswerElement> answerElementList = new ArrayList<>();
+
     public ChineseAnswerRecyclerViewAdapter(Context context) {
         this.context = context;
     }
@@ -59,8 +63,10 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
      * @param currentWordMap 待展示的单词
      */
     public void showWordChineseMessage(Map<Long, List<WordDTO>> currentWordMap) {
+        int preCount = answerElementList.size();
         this.currentWordMap = currentWordMap;
-        notifyItemRangeChanged(0, getItemCount());
+        this.answerElementList = viewResolve(currentWordMap);
+        notifyItemRangeChanged(0, Math.max(getItemCount(), preCount));
     }
 
     public void setRecyclerViewState(RecyclerViewState recyclerViewState) {
@@ -80,7 +86,9 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // position对应wordStructureId
-        EnglishStructure englishStructure = Optional.ofNullable(positionMap.get(position)).orElse(EnglishStructure.DEFAULT);
+        //EnglishStructure englishStructure = Optional.ofNullable(positionMap.get(position)).orElse(EnglishStructure.DEFAULT);
+        // 丰富单词展示效果
+        /*
         holder.meaningCategoryHint.setText(context.getResources().getString(englishStructure.getHint()));
         List<WordDTO> currentWordDTO = currentWordMap.get(englishStructure.getWordStructureId());
         if (currentWordDTO != null &&
@@ -92,15 +100,48 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
             holder.meaningCategoryHint.setVisibility(View.GONE);
             holder.meaningCategoryAnswer.setVisibility(View.GONE);
         }
+        */
+        AnswerElement answerElement = answerElementList.get(position);
+        holder.meaningCategoryHint.setText(answerElement.getKey());
+        holder.meaningCategoryAnswer.setText(answerElement.getValue());
+        holder.meaningCategoryHint.setVisibility(View.VISIBLE);
+        holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
+
     }
 
 
     @Override
     public int getItemCount() {
-        return 13;
+        return answerElementList.size();
+    }
+
+
+    /**
+     * 解析视图
+     *
+     * @param currentWordMap 单词结构体
+     */
+    private List<AnswerElement> viewResolve(Map<Long, List<WordDTO>> currentWordMap) {
+        List<AnswerElement> result = new ArrayList<>();
+        for (EnglishStructure value : EnglishStructure.values()) {
+            create(value, result);
+        }
+        return result;
+    }
+
+    private void create(EnglishStructure englishStructure, List<AnswerElement> result) {
+        Optional.ofNullable(currentWordMap.get(englishStructure.getWordStructureId()))
+                .ifPresent(wordDTOS -> {
+                    AnswerElement answerElement = new AnswerElement.Builder()
+                            .key(context.getResources().getString(englishStructure.getHint()))
+                            .value(wordDTOS.get(0).getValue())
+                            .build();
+                    result.add(answerElement);
+                });
     }
 
     public static class RecyclerViewHolder extends RecyclerView.ViewHolder {
+
         private View itemView;
         private final TextView meaningCategoryHint, meaningCategoryAnswer;
 

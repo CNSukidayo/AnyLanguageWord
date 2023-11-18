@@ -18,6 +18,7 @@ import io.github.cnsukidayo.wword.model.dto.WordDTO;
  * @author cnsukidayo
  * @date 2023/1/6 21:18
  */
+@Deprecated
 public class WordMeaningConvertHandlerImpl implements WordMeaningConvertHandler {
     @Override
     public List<KeyValueMap<EnglishStructure, String>> convertWordMeaning(List<WordDTO> wordDTOS) {

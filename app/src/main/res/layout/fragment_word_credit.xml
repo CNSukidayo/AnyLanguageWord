@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".ui.fragment.WordCreditFragment"
-    tools:openDrawer="end">
+    tools:openDrawer="">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -84,100 +84,6 @@
                             </androidx.recyclerview.widget.RecyclerView>
                         </RelativeLayout>
 
-                        <LinearLayout
-                            android:id="@+id/fragment_word_credit_answer_area_extra"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/fragment_word_credit_example_sentence_hint"
-                                android:layout_width="@dimen/fragment_word_credit_hint_width"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/example_sentence"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
-
-                            <TextView
-                                android:id="@+id/fragment_word_credit_example_sentence_answer"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="7dp"
-                                android:layout_marginBottom="7dp"
-                                android:background="@drawable/fragment_word_credit_radius_answer"
-                                android:paddingStart="5dp"
-                                android:paddingEnd="5dp"
-                                android:text="test"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
-
-                            <TextView
-                                android:id="@+id/fragment_word_credit_phrase_hint"
-                                android:layout_width="107dp"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/phrase"
-                                android:textColor="@color/black"
-                                android:textSize="18sp" />
-
-                            <TextView
-                                android:id="@+id/fragment_word_credit_phrase_answer"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="7dp"
-                                android:layout_marginBottom="7dp"
-                                android:background="@drawable/fragment_word_credit_radius_answer"
-                                android:paddingStart="5dp"
-                                android:paddingEnd="5dp"
-                                android:text="test"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
-
-                            <TextView
-                                android:id="@+id/fragment_word_credit_distinguish_hint"
-                                android:layout_width="@dimen/fragment_word_credit_hint_width"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/distinguish"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
-
-                            <TextView
-                                android:id="@+id/fragment_word_credit_distinguish_answer"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="7dp"
-                                android:layout_marginBottom="7dp"
-                                android:background="@drawable/fragment_word_credit_radius_answer"
-                                android:paddingStart="5dp"
-                                android:paddingEnd="5dp"
-                                android:text="test"
-                                android:textColor="@color/black"
-                                android:textSize="20sp" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:id="@+id/fragment_word_credit_categorize_origin_hint"
-                                    android:layout_width="@dimen/fragment_word_credit_hint_width"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="@string/categorize_origin"
-                                    android:textColor="@color/black"
-                                    android:textSize="20sp" />
-
-                                <TextView
-                                    android:id="@+id/fragment_word_credit_textview_categorize_origin_answer"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="test"
-                                    android:textColor="@color/blue"
-                                    android:textSize="20sp" />
-                            </LinearLayout>
-                        </LinearLayout>
                     </LinearLayout>
 
                 </HorizontalScrollView>
@@ -795,7 +701,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_word_credit_bottom_constraint_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:background="@color/white"
             android:orientation="horizontal"
             android:paddingStart="10dp"
@@ -807,30 +713,37 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentStart="true"
-                android:layout_gravity="center_vertical"
                 android:background="@drawable/style_image_padding"
                 android:foreground="@drawable/item_gray_select_radius_18dp"
                 android:gravity="center"
                 android:scaleType="fitCenter"
                 android:src="@drawable/open_after"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
+            <TextView
                 android:id="@+id/fragment_word_credit_previous_word"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/style_image_padding"
-                android:foreground="@drawable/item_gray_select_radius_18dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/text_border_radius_background"
+                android:foreground="@drawable/text_border_radius_foreground"
+                android:foregroundTint="@color/theme_color"
                 android:gravity="center"
-                android:scaleType="fitCenter"
-                android:src="@android:drawable/ic_media_previous"
+                android:maxLines="1"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/previous"
+                android:textColor="@color/theme_color"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/fragment_word_credit_play_word"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/theme_color" />
+                app:layout_constraintStart_toEndOf="@+id/fragment_word_credit_pop_more_function"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/fragment_word_credit_play_word"
@@ -843,6 +756,7 @@
                 android:gravity="center"
                 android:scaleType="fitCenter"
                 android:src="@android:drawable/ic_media_play"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -859,29 +773,38 @@
                 app:layout_constraintStart_toEndOf="@id/fragment_word_credit_play_word"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
+            <TextView
                 android:id="@+id/fragment_word_credit_next_word"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/style_image_padding"
-                android:foreground="@drawable/item_gray_select_radius_18dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/text_border_radius_background"
+                android:foreground="@drawable/text_border_radius_foreground"
+                android:foregroundTint="@color/theme_color"
                 android:gravity="center"
-                android:scaleType="fitCenter"
-                android:src="@android:drawable/ic_media_next"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:maxLines="1"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/next"
+                android:textColor="@color/theme_color"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/fragment_word_container_get_answer"
                 app:layout_constraintStart_toEndOf="@+id/fragment_word_credit_play_word"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/theme_color" />
-
+                app:layout_constraintTop_toTopOf="parent" />
+`
             <TextView
                 android:id="@+id/fragment_word_credit_word_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="-12dp"
+                android:layout_marginTop="-5dp"
+                android:text="13"
                 android:textColor="@android:color/holo_red_dark"
-                android:textSize="13sp"
+                android:textSize="16sp"
                 app:layout_constraintStart_toEndOf="@id/fragment_word_credit_next_word"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -1032,7 +955,8 @@
                 android:layout_marginStart="7dp"
                 android:layout_marginEnd="7dp"
                 android:layout_marginBottom="2dp"
-                android:background="@drawable/fragment_word_credit_drawer_add_new"
+                android:background="@drawable/text_border_radius_background"
+                android:foreground="@drawable/text_border_radius_foreground"
                 android:gravity="center"
                 android:paddingBottom="3dp"
                 android:text="@string/add_new_category"

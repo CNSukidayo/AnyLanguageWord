@@ -652,7 +652,7 @@
                 android:layout_marginStart="7dp"
                 android:layout_marginEnd="7dp"
                 android:layout_marginBottom="2dp"
-                android:background="@drawable/fragment_word_credit_drawer_add_new"
+                android:background="@drawable/text_border_radius_foreground"
                 android:gravity="center"
                 android:paddingBottom="3dp"
                 android:text="@string/add_new_category"

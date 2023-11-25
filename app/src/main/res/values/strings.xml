@@ -173,14 +173,36 @@
     <string name="divide_element_count">element_count</string>
     <string name="next">下一个</string>
     <string name="previous">上一个</string>
+    <string name="question">例题:</string>
+    <string name="question_explain">例题解析:</string>
+    <string name="right_index">正确答案:</string>
+    <string name="choice_index">选项编号:</string>
+    <string name="choice_value">选项值:</string>
 
 
 
     <!--所有扣模板的,通用的内容存放在这下面-->
     <string name="template_title">title</string>
-    <string name="word_origin">[原]</string>
     <string name="uk_phonetic">[英]</string>
     <string name="default_value">default</string>
+    <string name="sentence_translation">例句翻译:</string>
+    <string name="phrase_translation">介词短语翻译:</string>
+    <string name="describe_english">字典解释:</string>
+    <string name="picture">图片:</string>
+    <string name="real_exam_sentence">真题例句:</string>
+    <string name="source_paper">第几套:</string>
+    <string name="source_level">出自:</string>
+    <string name="source_year">年份:</string>
+    <string name="source_type">题型:</string>
+    <string name="remember_method">巧记:</string>
+    <string name="syno_pos">联想词词性:</string>
+    <string name="syno_translation">联想词翻译:</string>
+    <string name="syno_word">联想词:</string>
+    <string name="syno_word_id">联想词id:</string>
+    <string name="rel_pos">同根词词性:</string>
+    <string name="rel_word">同根词:</string>
+    <string name="rel_word_translation">同根词翻译:</string>
+    <string name="rel_word_id">同根词id</string>
 
 
 </resources>

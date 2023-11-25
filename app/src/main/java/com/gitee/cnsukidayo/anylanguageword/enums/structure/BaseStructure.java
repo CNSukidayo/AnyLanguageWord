@@ -23,23 +23,9 @@ public interface BaseStructure {
     int getHint();
 
     /**
-     * 设置当前结构是否可见
+     * 当前结构在展示界面的顺序
      *
-     * @param visibility 可见性,详情见<br>
-     *                   {@link android.view.View#GONE}<br>
-     *                   {@link android.view.View#VISIBLE}<br>
-     *                   {@link android.view.View#INVISIBLE}
+     * @return 返回order值
      */
-    void setVisibility(int visibility);
-
-    /**
-     * 获取当前结构是否可见
-     *
-     * @return 可见性,详情见<br>
-     * {@link android.view.View#GONE}<br>
-     * {@link android.view.View#VISIBLE}<br>
-     * {@link android.view.View#INVISIBLE}
-     */
-    int getVisibility();
-
+    int getOrder();
 }

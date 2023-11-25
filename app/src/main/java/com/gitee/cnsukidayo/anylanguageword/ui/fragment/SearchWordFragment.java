@@ -299,9 +299,9 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                     e.printStackTrace();
                 }
             }
-
-            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext());
-            this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext());
+            // todo
+            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), null);
+            this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext(), null);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             // 实现旗帜功能
             this.flagAreaAdapter = new FlagClickRecyclerViewAdapter(getContext());

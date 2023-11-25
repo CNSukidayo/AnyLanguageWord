@@ -534,7 +534,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 changingChameleon = false;
                 wordFunctionHandler.setChameleon(FlagColor.BROWN);
                 this.nextWord.getForeground().setTint(getResources().getColor(R.color.halo_brown_dark, null));
-                this.previousWord.getForeground().setTint(getResources().getColor(R.color.halo_brown_dark, null));
                 creditWord(wordFunctionHandler.jumpToWord(0));
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
             }
@@ -673,8 +672,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext());
-            this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext());
+            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(),currentWordStructure);
+            this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             this.chineseAnswerAdapterDrawer.setRecyclerViewState(ChineseAnswerRecyclerViewAdapter.RecyclerViewState.DRAWER);
             // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能

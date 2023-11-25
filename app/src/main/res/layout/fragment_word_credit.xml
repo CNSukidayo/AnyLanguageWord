@@ -68,7 +68,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:paddingStart="7dp"
+                        android:paddingStart="15dp"
                         android:paddingEnd="15dp"
                         android:paddingBottom="7dp">
 
@@ -795,7 +795,8 @@
                 app:layout_constraintEnd_toStartOf="@+id/fragment_word_container_get_answer"
                 app:layout_constraintStart_toEndOf="@+id/fragment_word_credit_play_word"
                 app:layout_constraintTop_toTopOf="parent" />
-`
+            `
+
             <TextView
                 android:id="@+id/fragment_word_credit_word_count"
                 android:layout_width="wrap_content"

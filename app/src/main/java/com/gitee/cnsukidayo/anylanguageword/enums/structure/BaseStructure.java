@@ -20,7 +20,7 @@ public interface BaseStructure {
      *
      * @return 返回提示信息在String资源中的编号
      */
-    int getHint();
+    int getTitleHint();
 
     /**
      * 当前结构在展示界面的顺序

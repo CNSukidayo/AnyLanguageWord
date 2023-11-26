@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/credit_fragment_divide_item_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -11,24 +12,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:gravity="center"
+        android:background="@drawable/fragment_word_credit_radius_answer"
+        android:gravity="start"
         android:text="@string/adjective"
         android:textColor="@color/black"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/fragment_word_credit_textview_meaning_category_answer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/fragment_word_credit_radius_answer"
-        android:maxLines="1"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:text="test"
-        android:textColor="@color/black"
         android:textSize="20sp" />
 
+
+    <!--<com.google.android.flexbox.FlexboxLayout-->
+    <!--    android:layout_width="1000dp"-->
+    <!--    android:layout_height="wrap_content"-->
+    <!--    app:flexWrap="wrap">-->
+
+    <!--    <TextView-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="推送和即时通讯"/>-->
+
+    <!--    <TextView-->
+    <!--        app:layout_wrapBefore="true"-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="蓝牙" />-->
+
+    <!--    <TextView-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="程序员"/>-->
+
+    <!--    <TextView-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="影视天堂" />-->
+
+    <!--    <TextView-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="郭德纲" />-->
+
+    <!--    <TextView-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="旅行——在路上" />-->
+
+    <!--    <TextView-->
+    <!--        style="@style/TextStyle"-->
+    <!--        android:text="复仇者联盟4" />-->
+
+    <!--</com.google.android.flexbox.FlexboxLayout>-->
+
+    
 </LinearLayout>

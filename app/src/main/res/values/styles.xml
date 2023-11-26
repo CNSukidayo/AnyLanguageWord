@@ -80,4 +80,16 @@
         <item name="android:scaleType">fitCenter</item>
     </style>
 
+    <style name="TextStyle">
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/fragment_word_credit_radius_answer</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+
 </resources>

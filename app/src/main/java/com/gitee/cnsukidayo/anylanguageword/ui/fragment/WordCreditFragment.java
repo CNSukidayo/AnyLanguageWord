@@ -48,6 +48,11 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCall
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
+import com.google.android.flexbox.AlignItems;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
+import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -143,7 +148,29 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         // 锁定startDrawable的关闭
         startDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         // 必须在这里设置LayoutManager
-        this.chineseAnswer.setLayoutManager(new LinearLayoutManager(getContext()));
+        /*
+        flexWrap:wrap(换行)、noWrap(不换行)、wrap_reverse(反向换行,不支持)
+        flexDirection(主轴方向):row(水平方向)、row_reverse(水平方向的反方向)、column(垂直方向)、column_reverse(垂直方向的反方向)
+        justifyContent(行内元素的对齐方式):flex_start(左对齐)、flex_end(右对齐)、center(居中对齐)、space_between(两端对齐)、space_around(分散对齐)、space_evenly(均匀分布)
+        alignItems(同一行元素上下的对齐方式):stretch、flex_start、flex_end、center、baseline
+        alignContent(不支持,表示每条轴线之间的对齐方式):
+        layout_order(不支持,指定某个元素的优先级):
+        layout_flexGrow(设置剩余控件占布局的大小):
+        layout_flexShrink(缩放的比例):
+        layout_flexBasisPercent(设置某个元素的宽度为父布局宽度的多少比例):
+        layout_alignSelf(类似alignItems,设置某一个元素的上下对齐方式):
+        layout_wrapBefore(强制换行):
+        layout_(min/max)Width:
+        layout_(min/max)Height:
+        Divider:
+        Scrolling:
+         */
+        FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(getContext());
+        flexboxLayoutManager.setFlexWrap(FlexWrap.WRAP);
+        flexboxLayoutManager.setFlexDirection(FlexDirection.ROW);
+        flexboxLayoutManager.setJustifyContent(JustifyContent.FLEX_START);
+        flexboxLayoutManager.setAlignItems(AlignItems.FLEX_START);
+        this.chineseAnswer.setLayoutManager(flexboxLayoutManager);
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         // 读取状态
@@ -672,7 +699,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(),currentWordStructure);
+            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             this.chineseAnswerAdapterDrawer.setRecyclerViewState(ChineseAnswerRecyclerViewAdapter.RecyclerViewState.DRAWER);

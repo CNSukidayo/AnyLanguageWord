@@ -60,7 +60,7 @@ public class StartChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // position对应wordStructureId
         EnglishStructure englishStructure = Optional.ofNullable(positionMap.get(position)).orElse(EnglishStructure.DEFAULT);
-        holder.meaningCategoryHint.setText(context.getResources().getString(englishStructure.getHint()));
+        holder.meaningCategoryHint.setText(context.getResources().getString(englishStructure.getTitleHint()));
         List<WordDTO> currentWordDTO = finalStructureWordMap.get(englishStructure.getWordStructureId());
         if (currentWordDTO != null &&
                 currentWordDTO.size() > 0) {

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.support.answer.AnswerElement;
+import com.google.android.flexbox.FlexboxLayoutManager;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
 
-public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<ChineseAnswerRecyclerViewAdapter.RecyclerViewHolder> {
+public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
 
@@ -51,7 +52,6 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
      * 存储所有单词组装信息的集合
      */
     private List<AnswerElement> answerElementList = new ArrayList<>();
-
 
     public ChineseAnswerRecyclerViewAdapter(Context context, List<WordStructureDTO> currentWordStructure) {
         this.context = context;
@@ -76,6 +76,7 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
                 EnglishStructure.WORD_ORIGIN);
         this.answerElementList = viewResolve(currentWordMap);
         notifyItemRangeChanged(0, Math.max(getItemCount(), preCount));
+        // change完之后可以获取当前最长的文本有多长
     }
 
     public void setRecyclerViewState(RecyclerViewState recyclerViewState) {
@@ -84,46 +85,45 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
 
     @NonNull
     @Override
-    public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // 根据不同的状态,解析不同的页面
-        if (recyclerViewState == RecyclerViewState.DRAWER) {
-            return new RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_drawer_chinese_answer_element, parent, false));
+        if (viewType == RecyclerViewState.DRAWER.getViewType()) {
+            return new AnswerViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_drawer_chinese_answer_element, parent, false));
         }
-        return new RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_chinese_answer_element, parent, false));
+        return new AnswerViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_chinese_answer_element, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        // position对应wordStructureId
-        //EnglishStructure englishStructure = Optional.ofNullable(positionMap.get(position)).orElse(EnglishStructure.DEFAULT);
-        // 丰富单词展示效果
-        /*
-        holder.meaningCategoryHint.setText(context.getResources().getString(englishStructure.getHint()));
-        List<WordDTO> currentWordDTO = currentWordMap.get(englishStructure.getWordStructureId());
-        if (currentWordDTO != null &&
-                currentWordDTO.size() > 0) {
-            holder.meaningCategoryAnswer.setText(currentWordDTO.get(0).getValue());
-            holder.meaningCategoryHint.setVisibility(View.VISIBLE);
-            holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
-        } else {
-            holder.meaningCategoryHint.setVisibility(View.GONE);
-            holder.meaningCategoryAnswer.setVisibility(View.GONE);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        if (holder instanceof AnswerViewHolder) {
+            AnswerViewHolder answerViewHolder = (AnswerViewHolder) holder;
+            AnswerElement answerElement = answerElementList.get(position);
+            answerViewHolder.meaningCategoryHint.setText(answerElement.getKey());
+            answerViewHolder.meaningCategoryHint.setVisibility(View.VISIBLE);
+            ViewGroup.LayoutParams layoutParams = answerViewHolder.itemView.getLayoutParams();
+            if (layoutParams instanceof FlexboxLayoutManager.LayoutParams) {
+                FlexboxLayoutManager.LayoutParams flexLayoutParams = (FlexboxLayoutManager.LayoutParams) layoutParams;
+                // 重置缓存
+                flexLayoutParams.setWrapBefore(answerElement.hasBreak());
+            }
         }
-        */
-        AnswerElement answerElement = answerElementList.get(position);
-        holder.meaningCategoryHint.setText(answerElement.getKey());
-        holder.meaningCategoryHint.setVisibility(View.VISIBLE);
-        //holder.meaningCategoryAnswer.setText(answerElement.getValue());
-        //holder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
-
     }
 
+    private int count;
 
     @Override
     public int getItemCount() {
         return answerElementList.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return recyclerViewState.getViewType();
+    }
+
+    public int getSpanSize(int position) {
+        return answerElementList.get(position).getWeight();
+    }
 
     /**
      * 解析视图
@@ -150,15 +150,23 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
             // 父亲主动找孩子,如果当前找到的节点有groupId则放弃构造,因为会有父节点找到该子节点进行构造
             List<WordDTO> currentWordDTOList = Optional.ofNullable(currentWordMap.get(structureId)).orElse(new ArrayList<>());
             // 得到当前节点对应的结构信息
-            EnglishStructure currentEnglishStructure = englishStructureMap.get(structureId);
+            EnglishStructure currentEnglishStructure = Optional.ofNullable(englishStructureMap.get(structureId)).orElse(EnglishStructure.DEFAULT);
             // 查看当前结构是否需要添加统一标题
-
+            if (currentEnglishStructure.isAppendTitle()) {
+                AnswerElement groupTitle = new AnswerElement.Builder()
+                        .key(context.getResources().getString(currentEnglishStructure.getTitleHint()))
+                        .order(currentEnglishStructure.getOrder())
+                        .answerElementGroup(new ArrayList<>())
+                        .hasBreak(currentEnglishStructure.isTitleBreak())
+                        .build();
+                renderingCache.add(groupTitle);
+            }
             // 递归构造树
             for (WordDTO wordDTO : currentWordDTOList) {
                 // 获取当前的key提示词
                 int hint = Optional.ofNullable(englishStructureMap.get(wordDTO.getWordStructureId()))
                         .orElse(EnglishStructure.DEFAULT)
-                        .getHint();
+                        .getTitleHint();
                 // 获取当前结构的顺序,保障每个节点展示的顺序
                 int order = Optional.ofNullable(englishStructureMap.get(wordDTO.getWordStructureId()))
                         .orElse(EnglishStructure.DEFAULT)
@@ -169,6 +177,7 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
                         .groupFlag(wordDTO.getGroupFlag())
                         .groupId(wordDTO.getGroupId())
                         .order(order)
+                        .hasBreak(currentEnglishStructure.isValueBreak())
                         .answerElementGroup(new ArrayList<>())
                         .build();
                 // 如果key值为空则不构造该节点
@@ -215,8 +224,9 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
 
     /**
      * 递归添加渲染结果
+     *
      * @param renderingResult 渲染的目标集合,参数不为null
-     * @param answerElement 渲染的根节点
+     * @param answerElement   渲染的根节点
      */
     private void dfsAddRenderResult(List<AnswerElement> renderingResult, AnswerElement answerElement) {
         renderingResult.add(answerElement);
@@ -237,12 +247,12 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
         }
     }
 
-    public static class RecyclerViewHolder extends RecyclerView.ViewHolder {
+    public static class AnswerViewHolder extends RecyclerView.ViewHolder {
 
         private View itemView;
         private final TextView meaningCategoryHint, meaningCategoryAnswer;
 
-        public RecyclerViewHolder(@NonNull View itemView) {
+        public AnswerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             meaningCategoryHint = this.itemView.findViewById(R.id.fragment_word_credit_meaning_category_hint);
@@ -250,9 +260,20 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Chine
         }
     }
 
+
     public enum RecyclerViewState {
-        MAIN,
-        DRAWER
+        MAIN(0),
+        DRAWER(2);
+
+        private final int viewType;
+
+        RecyclerViewState(int viewType) {
+            this.viewType = viewType;
+        }
+
+        public int getViewType() {
+            return viewType;
+        }
     }
 
 }

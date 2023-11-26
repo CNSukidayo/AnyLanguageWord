@@ -17,11 +17,6 @@ public class AnswerElement {
     private String key;
 
     /**
-     * 显示的结果value
-     */
-    private String value;
-
-    /**
      * 显示key的颜色
      */
     private int keyColor;
@@ -56,16 +51,26 @@ public class AnswerElement {
      */
     private List<AnswerElement> answerElementGroup;
 
-    private AnswerElement(String key, String value, int keyColor, int valueColor, boolean hasBreak, Long groupFlag, Long groupId, Integer order, List<AnswerElement> answerElementGroup) {
+    private int weight;
+
+    private AnswerElement(String key,
+                          int keyColor,
+                          int valueColor,
+                          boolean hasBreak,
+                          Long groupFlag,
+                          Long groupId,
+                          Integer order,
+                          int weight,
+                          List<AnswerElement> answerElementGroup) {
         this.key = key;
-        this.value = value;
         this.keyColor = keyColor;
         this.valueColor = valueColor;
-        this.hasBreak = hasBreak;
         this.groupFlag = groupFlag;
         this.groupId = groupId;
         this.order = order;
         this.answerElementGroup = answerElementGroup;
+        this.weight = weight;
+        this.hasBreak = hasBreak;
     }
 
     /**
@@ -76,13 +81,13 @@ public class AnswerElement {
      */
     public AnswerElement clone() {
         return new Builder().key(getKey())
-                .value(getValue())
                 .keyColor(getKeyColor())
                 .valueColor(getValueColor())
-                .hasBreak(isHasBreak())
+                .hasBreak(hasBreak())
                 .groupFlag(getGroupFlag())
                 .groupId(getGroupId())
                 .order(getOrder())
+                .weight(getWeight())
                 .answerElementGroup(getAnswerElementGroup() == null ? getAnswerElementGroup() : new ArrayList<>(getAnswerElementGroup()))
                 .build();
     }
@@ -97,14 +102,6 @@ public class AnswerElement {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public int getKeyColor() {
@@ -123,7 +120,7 @@ public class AnswerElement {
         this.valueColor = valueColor;
     }
 
-    public boolean isHasBreak() {
+    public boolean hasBreak() {
         return hasBreak;
     }
 
@@ -163,29 +160,41 @@ public class AnswerElement {
         this.order = order;
     }
 
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
     public static class Builder {
 
         private String key;
-        private String value;
         private int keyColor;
         private int valueColor;
         private boolean hasBreak;
         private Long groupFlag;
         private Long groupId;
         private int order;
+        private int weight;
         private List<AnswerElement> answerElementGroup;
 
         public AnswerElement build() {
-            return new AnswerElement(key, value, keyColor, valueColor, hasBreak, groupFlag, groupId, order, answerElementGroup);
+            return new AnswerElement(
+                    key,
+                    keyColor,
+                    valueColor,
+                    hasBreak,
+                    groupFlag,
+                    groupId,
+                    order,
+                    weight,
+                    answerElementGroup);
         }
 
         public Builder key(String key) {
             this.key = key;
-            return this;
-        }
-
-        public Builder value(String value) {
-            this.value = value;
             return this;
         }
 
@@ -221,6 +230,11 @@ public class AnswerElement {
 
         public Builder order(Integer order) {
             this.order = order;
+            return this;
+        }
+
+        public Builder weight(int weight) {
+            this.weight = weight;
             return this;
         }
 

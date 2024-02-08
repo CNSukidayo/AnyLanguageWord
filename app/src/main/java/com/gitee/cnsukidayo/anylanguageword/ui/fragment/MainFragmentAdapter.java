@@ -243,7 +243,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (userSettings.getAuthToken().getAccessToken() != null) {
+        if (userSettings.getAuthToken() != null && userSettings.getAuthToken().getAccessToken() != null) {
             RequestRegister.setAuthToken(userSettings.getAuthToken());
             initView();
         }

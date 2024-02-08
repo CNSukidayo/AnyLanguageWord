@@ -5,6 +5,7 @@ import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,6 +49,9 @@ public class FileUtils {
         if (file.exists()) {
             return readAll(AnyLanguageWordProperties.getExternalFilesDir(), target);
         } else {
+            if (file.getParentFile().isDirectory()) {
+                file.getParentFile().mkdirs();
+            }
             file.createNewFile();
             return "";
         }
@@ -59,6 +63,10 @@ public class FileUtils {
 
     public static String readAll(String parent, String child) throws IOException {
         return new String(Files.readAllBytes(Paths.get(parent, child)), StandardCharsets.UTF_8);
+    }
+
+    public static String readAll(InputStream inputStream) throws IOException {
+        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     }
 
     /**

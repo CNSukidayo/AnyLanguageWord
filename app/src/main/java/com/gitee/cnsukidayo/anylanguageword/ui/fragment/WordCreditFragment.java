@@ -834,6 +834,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 .ifPresent(wordDTOS -> sourceWordPhonetics
                         .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
         chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
+
+        // todo 在这里设置recycleView的宽度
+
     }
 
 

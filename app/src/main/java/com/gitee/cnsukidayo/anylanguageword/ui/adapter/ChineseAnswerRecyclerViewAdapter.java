@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Paint;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,12 +54,36 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      */
     private List<AnswerElement> answerElementList = new ArrayList<>();
 
+    /**
+     * 计算文本宽度的工具
+     */
+    private final Paint textWidthHandler = new Paint();
+
+    /**
+     * 字体的大小
+     */
+    private final float textSize;
+
+    /**
+     * 文本的最大宽度
+     */
+    private float maxTextWidth;
+
+    /**
+     * 暂存的文本长度
+     */
+    private float previousTextWidth;
+
     public ChineseAnswerRecyclerViewAdapter(Context context, List<WordStructureDTO> currentWordStructure) {
         this.context = context;
         this.currentWordStructure = currentWordStructure.stream()
                 .collect(Collectors.toMap(WordStructureDTO::getId, wordStructureDTO -> wordStructureDTO));
         this.englishStructureMap = Arrays.stream(EnglishStructure.values())
                 .collect(Collectors.toMap(EnglishStructure::getWordStructureId, englishStructure -> englishStructure));
+        TextView textView = LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_drawer_chinese_answer_element, null)
+                .findViewById(R.id.fragment_word_credit_meaning_category_hint);
+        textSize = textView.getTextSize();
+        textWidthHandler.setTextSize(textSize);
     }
 
     /**
@@ -76,7 +101,6 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
                 EnglishStructure.WORD_ORIGIN);
         this.answerElementList = viewResolve(currentWordMap);
         notifyItemRangeChanged(0, Math.max(getItemCount(), preCount));
-        // change完之后可以获取当前最长的文本有多长
     }
 
     public void setRecyclerViewState(RecyclerViewState recyclerViewState) {
@@ -121,9 +145,15 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
         return recyclerViewState.getViewType();
     }
 
-    public int getSpanSize(int position) {
-        return answerElementList.get(position).getWeight();
+    /**
+     * 得到当前最长的文本宽度
+     *
+     * @return 返回文本宽度值, 用于动态设置recycleView的宽度
+     */
+    public float getMaxTextWidth() {
+        return maxTextWidth;
     }
+
 
     /**
      * 解析视图
@@ -215,9 +245,17 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
                         .collect(Collectors.toCollection(ArrayDeque::new));
             }
         } while (count != 0);
-        // 构造渲染集合
+        // 构造渲染集合,渲染集合的顺序就是最终展示的顺序,可以通过渲染集合来获取当前最长的文本
         for (AnswerElement answerElement : renderingCache) {
             dfsAddRenderResult(renderingResult, answerElement);
+        }
+        // 计算最长文本宽度
+        for (AnswerElement computeNode : renderingResult) {
+            previousTextWidth += textWidthHandler.measureText(computeNode.getKey());
+            if (computeNode.hasBreak()) {
+                previousTextWidth = 0;
+                maxTextWidth = Math.max(previousTextWidth, maxTextWidth);
+            }
         }
         return renderingResult;
     }

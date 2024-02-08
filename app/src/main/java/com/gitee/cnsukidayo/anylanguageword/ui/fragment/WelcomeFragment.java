@@ -1,5 +1,6 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
-import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
@@ -23,6 +23,7 @@ import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import io.noties.markwon.Markwon;
 
@@ -35,11 +36,14 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
     private MainActivity mainActivity;
     private Button disAgree, accept;
     private TextView welcomeMessage;
+    private AssetManager assetManager;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.mainActivity = (MainActivity) view.getContext();
+        this.assetManager = mainActivity.getAssets();
+        initView();
     }
 
     @Override
@@ -49,7 +53,6 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
         }
         this.rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
         bindView();
-        initView();
         return rootView;
     }
 
@@ -65,7 +68,9 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
 
     private void initView() {
         try {
-            message = FileUtils.readWithExternal(SystemFilePath.WELCOME_MESSAGE.getPath());
+            // 读取欢迎markdown文件
+            InputStream welcomeInputStream = assetManager.open("systemFile/welcomeMessage.md");
+            message = FileUtils.readAll(welcomeInputStream);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -79,14 +84,13 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener, K
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_welcome_disagree:
-                // todo 应该调用finish方法
-                android.os.Process.killProcess(android.os.Process.myPid());
+                mainActivity.finish();
                 break;
             case R.id.fragment_welcome_accept:
                 try {
                     UserSettings userSettings = JsonUtils.readJson(UserInfoPath.USER_SETTINGS.getPath(), UserSettings.class);
                     userSettings.setAcceptUserAgreement(true);
-                    JsonUtils.writeJson(UserInfoPath.USER_SETTINGS.getPath(),userSettings);
+                    JsonUtils.writeJson(UserInfoPath.USER_SETTINGS.getPath(), userSettings);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

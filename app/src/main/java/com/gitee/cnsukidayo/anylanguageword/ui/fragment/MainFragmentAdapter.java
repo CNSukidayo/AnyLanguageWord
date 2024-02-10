@@ -80,7 +80,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
      */
     private UserSettings userSettings;
 
-    private final String ip = "192.168.31.182";
+    private final String ip = "192.168.0.103";
     private final String port = "8200";
 
     @Override

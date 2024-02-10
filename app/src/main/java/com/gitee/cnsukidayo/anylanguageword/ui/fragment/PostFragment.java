@@ -18,15 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
 import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.CommentRecyclerViewAdapter;
-import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 import com.google.android.material.appbar.AppBarLayout;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -76,12 +73,7 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     private void showMarkDown() {
         this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         StaticFactory.getExecutorService().submit(() -> {
-            try {
-                markdownOrigin = FileUtils.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
+            markdownOrigin = "文章内容";
             Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
             final Spanned spanned = markwon.toMarkdown(markdownOrigin);
             // 加载评论区

@@ -10,9 +10,7 @@ import java.io.File;
  */
 public enum SystemFilePath {
     SYSTEM_FILE_ROOT_PATH(null),
-    USER_AGREEMENT("userAgreement.md"),
-    WELCOME_MESSAGE("welcomeMessage.md"),
-    PRIVACY_POLICY("privacyPolicy.md");
+    WELCOME_MESSAGE("welcomeMessage.md");
 
     private final String systemFilePath = Environment.DIRECTORY_DOCUMENTS + File.separator + "systemFile" + File.separator;
     private final String path;

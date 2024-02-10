@@ -13,12 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.SystemFilePath;
 import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 
-import java.io.IOException;
-
+import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.interfaces.core.SystemInfoRequest;
+import io.github.cnsukidayo.wword.model.enums.SystemInfoType;
 import io.noties.markwon.Markwon;
 
 /**
@@ -31,7 +30,6 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
     private Handler updateUIHandler;
     private ProgressBar loadingBar;
     private ImageButton backToTrace;
-    private String markdownOrigin;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,17 +53,19 @@ public class UserAgreementFragment extends Fragment implements View.OnClickListe
 
     private void showMarkDown() {
         StaticFactory.getExecutorService().submit(() -> {
-            try {
-                markdownOrigin = FileUtils.readWithExternal(SystemFilePath.USER_AGREEMENT.getPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-            Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
-            updateUIHandler.post(() -> {
-                markwon.setMarkdown(markDownTextView, markdownOrigin);
-                loadingBar.setVisibility(View.GONE);
-            });
+            StaticFactory
+                    .getExecutorService()
+                    .execute(() -> {
+                        SystemInfoRequest systemInfoRequest = CoreServiceRequestFactory.getInstance().systemInfoRequest();
+                        systemInfoRequest.getSystemInfo(SystemInfoType.USER_POLICY)
+                                .success(stringBaseResponse -> updateUIHandler.post(() -> {
+                                    String message = stringBaseResponse.getData();
+                                    Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
+                                    markwon.setMarkdown(markDownTextView, message);
+                                    loadingBar.setVisibility(View.GONE);
+                                })).execute();
+                    });
+
         });
     }
 

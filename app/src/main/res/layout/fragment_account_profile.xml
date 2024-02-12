@@ -68,7 +68,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true">
 
-                            <TextView
+                            <EditText
                                 android:id="@+id/fragment_account_user_name"
                                 style="@style/settings_profile_hint_text_view"
                                 android:text="@string/user_name" />
@@ -90,7 +90,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true">
 
-                            <TextView
+                            <EditText
                                 android:id="@+id/fragment_account_describe_info"
                                 style="@style/settings_profile_hint_text_view"
                                 android:hint="@string/introduction_hint" />
@@ -153,12 +153,13 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true">
 
-                            <TextView
+                            <EditText
                                 android:id="@+id/fragment_account_university"
                                 style="@style/settings_profile_hint_text_view"
                                 android:hint="@string/school_hint" />
 
-                            <ImageView style="@style/settings_image_view" />
+                            <ImageView android:id="@+id/fragment_account_university_button"
+                                style="@style/settings_image_view" />
                         </LinearLayout>
                     </RelativeLayout>
 

@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
 import com.gitee.cnsukidayo.anylanguageword.context.interceptor.BadResponseToastInterceptor;
+import com.gitee.cnsukidayo.anylanguageword.context.interceptor.HttpLogInterceptor;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.enums.UserLevel;
 import com.gitee.cnsukidayo.anylanguageword.enums.VIPLevel;
@@ -232,6 +233,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
                 .addInterceptor(new BadResponseOkHttpInterceptor(gson))
                 .addInterceptor(new BadResponseToastInterceptor(gson, getContext()))
                 .addInterceptor(new TokenCheckOkHttpInterceptor(gson))
+                .addInterceptor(new HttpLogInterceptor())
                 .build();
 
         RequestHandler requestHandler = new RequestHandler(okHttpClient, gson, null);

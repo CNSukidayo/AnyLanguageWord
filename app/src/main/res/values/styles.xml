@@ -5,6 +5,11 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
+    <style name="pop_window_alpha_anim_style" parent="android:Animation">
+        <item name="android:windowExitAnimation">@anim/alpha_exit</item>
+        <item name="android:windowEnterAnimation">@anim/alpha_in</item>
+    </style>
+
     <style name="settings_linear_layout">
         <item name="android:background">@drawable/background_solid_radius_6dp</item>
         <item name="android:backgroundTint">@color/white</item>
@@ -33,6 +38,12 @@
 
     <style name="settings_profile_hint_text_view" parent="settings_profile_text_view">
         <item name="android:layout_marginEnd">5dp</item>
+        <item name="android:gravity">right|center_vertical</item>
+        <item name="android:layout_height">25dp</item>
+        <item name="android:maxWidth">200dp</item>
+        <item name="android:minWidth">200dp</item>
+        <item name="android:background">@null</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="settings_relate_layout">

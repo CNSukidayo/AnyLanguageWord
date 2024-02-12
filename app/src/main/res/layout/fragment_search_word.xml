@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".ui.fragment.SearchWordFragment"
-    tools:openDrawer="end">
+    tools:openDrawer="">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -55,170 +55,27 @@
                 android:layout_height="match_parent"
                 android:fillViewport="true">
 
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:id="@+id/fragment_search_word_answer_area"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:fillViewport="true"
-                    android:scrollbars="none">
+                    android:orientation="vertical"
+                    android:paddingBottom="7dp">
 
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/fragment_search_word_chinese_answer"
+                        android:layout_width="1000dp"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingStart="15dp"
+                        android:paddingTop="15dp"
+                        android:paddingEnd="15dp"
+                        android:paddingBottom="15dp">
 
-                        <LinearLayout
-                            android:id="@+id/fragment_search_word_answer_area"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentTop="true"
-                            android:layout_toStartOf="@+id/fragment_search_word_flag_area"
-                            android:orientation="vertical"
-                            android:paddingStart="7dp"
-                            android:paddingEnd="15dp"
-                            android:paddingBottom="7dp">
+                    </androidx.recyclerview.widget.RecyclerView>
 
-                            <RelativeLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <androidx.recyclerview.widget.RecyclerView
-                                    android:id="@+id/fragment_search_word_chinese_answer"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content">
-
-                                </androidx.recyclerview.widget.RecyclerView>
-                            </RelativeLayout>
-
-                            <LinearLayout
-                                android:id="@+id/fragment_search_word_answer_area_extra"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/fragment_search_word_example_sentence_hint"
-                                    android:layout_width="@dimen/fragment_word_credit_hint_width"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="@string/example_sentence"
-                                    android:textColor="@color/black"
-                                    android:textSize="20sp" />
-
-                                <TextView
-                                    android:id="@+id/fragment_search_word_example_sentence_answer"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="7dp"
-                                    android:layout_marginBottom="7dp"
-                                    android:background="@drawable/fragment_word_credit_radius_answer"
-                                    android:paddingStart="5dp"
-                                    android:paddingEnd="5dp"
-                                    android:text="test"
-                                    android:textColor="@color/black"
-                                    android:textSize="20sp" />
-
-                                <TextView
-                                    android:id="@+id/fragment_search_word_phrase_hint"
-                                    android:layout_width="107dp"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="@string/phrase"
-                                    android:textColor="@color/black"
-                                    android:textSize="18sp" />
-
-                                <TextView
-                                    android:id="@+id/fragment_search_word_phrase_answer"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="7dp"
-                                    android:layout_marginBottom="7dp"
-                                    android:background="@drawable/fragment_word_credit_radius_answer"
-                                    android:paddingStart="5dp"
-                                    android:paddingEnd="5dp"
-                                    android:text="test"
-                                    android:textColor="@color/black"
-                                    android:textSize="20sp" />
-
-                                <TextView
-                                    android:id="@+id/fragment_search_word_distinguish_hint"
-                                    android:layout_width="@dimen/fragment_word_credit_hint_width"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:text="@string/distinguish"
-                                    android:textColor="@color/black"
-                                    android:textSize="20sp" />
-
-                                <TextView
-                                    android:id="@+id/fragment_search_word_distinguish_answer"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="7dp"
-                                    android:layout_marginBottom="7dp"
-                                    android:background="@drawable/fragment_word_credit_radius_answer"
-                                    android:paddingStart="5dp"
-                                    android:paddingEnd="5dp"
-                                    android:text="test"
-                                    android:textColor="@color/black"
-                                    android:textSize="20sp" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content">
-
-                                    <TextView
-                                        android:id="@+id/fragment_search_word_categorize_origin_hint"
-                                        android:layout_width="@dimen/fragment_word_credit_hint_width"
-                                        android:layout_height="wrap_content"
-                                        android:gravity="center"
-                                        android:text="@string/categorize_origin"
-                                        android:textColor="@color/black"
-                                        android:textSize="20sp" />
-
-                                    <TextView
-                                        android:id="@+id/fragment_search_word_categorize_origin_answer"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="test"
-                                        android:textColor="@color/blue"
-                                        android:textSize="20sp" />
-                                </LinearLayout>
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <androidx.core.widget.NestedScrollView
-                            android:id="@+id/fragment_search_word_flag_area"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true">
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <androidx.recyclerview.widget.RecyclerView
-                                    android:id="@+id/fragment_search_word_flag_decorate_recycler_view"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:paddingStart="0dp"
-                                    android:paddingEnd="2dp"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
-
-                                <androidx.recyclerview.widget.RecyclerView
-                                    android:id="@+id/fragment_search_word_flag_recycler_view"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_toEndOf="@id/fragment_search_word_flag_decorate_recycler_view"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                        </androidx.core.widget.NestedScrollView>
-
-                    </RelativeLayout>
-                </HorizontalScrollView>
-
-
+                </LinearLayout>
             </androidx.core.widget.NestedScrollView>
-
         </RelativeLayout>
 
         <HorizontalScrollView
@@ -261,40 +118,6 @@
                         android:textColor="@color/gray_black"
                         android:textSize="14sp" />
 
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/fragment_search_word_click_flag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@+id/fragment_search_word_click_rate"
-                    android:clickable="true"
-                    android:foreground="@drawable/item_gray_select"
-                    android:orientation="vertical">
-
-
-                    <ImageView
-                        android:id="@+id/fragment_search_word_imageview_click_flag"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/style_image_padding"
-                        android:gravity="center"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/flag_close" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:text="@string/sign"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="14sp" />
-
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -302,11 +125,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@+id/fragment_search_word_click_flag"
+                    android:layout_toEndOf="@+id/fragment_search_word_click_rate"
                     android:clickable="true"
                     android:foreground="@drawable/item_gray_select"
                     android:orientation="vertical">
-
 
                     <ImageView
                         android:layout_width="40dp"
@@ -325,103 +147,6 @@
                         android:textColor="@color/dark_gray"
                         android:textSize="14sp" />
 
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/fragment_search_word_click_association"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@+id/fragment_search_word_click_start"
-                    android:clickable="true"
-                    android:foreground="@drawable/item_gray_select"
-                    android:orientation="vertical">
-
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/style_image_padding"
-                        android:gravity="center"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_association"
-                        app:tint="@color/dark_gray" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/association"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="14sp" />
-
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/fragment_search_word_click_query_word"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@id/fragment_search_word_click_association"
-                    android:clickable="true"
-                    android:foreground="@drawable/item_gray_select"
-                    android:orientation="vertical">
-
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/style_image_padding"
-                        android:gravity="center"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/search_word"
-                        app:tint="@color/dark_gray" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/quick_query_word"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="14sp" />
-
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/fragment_search_word_save_progress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@+id/fragment_search_word_click_query_word"
-                    android:clickable="true"
-                    android:foreground="@drawable/item_gray_select"
-                    android:orientation="vertical">
-
-
-                    <ImageView
-                        android:id="@+id/fragment_search_word_imageview_save_progress"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/style_image_padding"
-                        android:gravity="center"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/save_progress" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/save_progress"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="14sp" />
-
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -429,11 +154,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@+id/fragment_search_word_save_progress"
+                    android:layout_toEndOf="@+id/fragment_search_word_click_start"
                     android:clickable="true"
                     android:foreground="@drawable/item_gray_select"
                     android:orientation="vertical">
-
 
                     <ImageView
                         android:layout_width="40dp"
@@ -452,12 +176,9 @@
                         android:textColor="@color/dark_gray"
                         android:textSize="14sp" />
 
-
                 </LinearLayout>
 
-
             </RelativeLayout>
-
 
         </HorizontalScrollView>
 
@@ -470,7 +191,6 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             app:layout_constraintBottom_toBottomOf="parent">
-
 
             <ImageButton
                 android:id="@+id/fragment_search_word_play_word"
@@ -489,7 +209,7 @@
                 app:tint="@color/theme_color" />
 
             <androidx.appcompat.widget.SearchView
-                android:id="@+id/fragment_home_search_view"
+                android:id="@+id/fragment_search_word_search_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -497,27 +217,12 @@
                 android:layout_marginEnd="10dp"
                 android:background="@drawable/fragment_home_search_view_bg"
                 android:gravity="center"
-                android:iconifiedByDefault="false"
+                android:iconifiedByDefault="true"
                 android:imeOptions="actionSearch"
-                android:queryBackground="@drawable/fragment_home_search_view_bg"
-                android:queryHint="233"
-                app:layout_constraintEnd_toStartOf="@+id/fragment_search_word_get_answer"
-                app:layout_constraintStart_toEndOf="@+id/fragment_search_word_play_word"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/fragment_search_word_get_answer"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:clickable="true"
-                android:foreground="@drawable/item_gray_select_radius_18dp"
-                android:gravity="center"
-                android:text="@string/get_answer"
-                android:textColor="@color/theme_color"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toEndOf="@+id/fragment_search_word_play_word"
+                app:layout_constraintTop_toTopOf="parent"
+                app:queryBackground="@null" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -644,7 +349,6 @@
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
-
             <TextView
                 android:id="@+id/fragment_search_word_start_add"
                 android:layout_width="match_parent"
@@ -661,8 +365,6 @@
                 app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 
 </androidx.drawerlayout.widget.DrawerLayout>

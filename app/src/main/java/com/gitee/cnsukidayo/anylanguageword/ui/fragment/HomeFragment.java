@@ -10,8 +10,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.utils.widget.ImageFilterView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
@@ -38,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
 
 public class HomeFragment extends Fragment implements View.OnClickListener,
-        SwipeRefreshLayout.OnRefreshListener, NestedScrollView.OnScrollChangeListener, NavigationItemSelectListener {
+        SwipeRefreshLayout.OnRefreshListener, NestedScrollView.OnScrollChangeListener, NavigationItemSelectListener, View.OnFocusChangeListener {
 
     private View rootView;
     private ImageFilterView popDrawerLayoutButton;
@@ -51,6 +53,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     private NestedScrollView nestedScrollView;
     private volatile int preImageRotationPosition;
     private LinearLayout imageRotationContainer;
+    // 搜索框
+    private SearchView searchView;
+    // 搜索框的提示组件
+    private TextView searchViewHint;
     // 用户是否正在滑动图片的标识
     private volatile boolean userSlideImage;
     private volatile boolean isLoadMore;
@@ -78,7 +84,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onClick(View v) {
-        popDrawerListener.onClickUserFace(v);
+        int itemId = v.getId();
+        if (itemId == R.id.fragment_home_user_face) {
+            popDrawerListener.onClickUserFace(v);
+        } else if (itemId == R.id.fragment_home_search_view) {
+            searchView.setIconified(false);
+            searchView.requestFocus();
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -140,6 +152,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
      */
     public void setPopDrawerListener(OnClickListener popDrawerListener) {
         this.popDrawerListener = popDrawerListener;
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        int itemId = v.getId();
+        if (itemId == R.id.fragment_home_search_view) {
+            searchViewHint.setVisibility(hasFocus ? ViewGroup.INVISIBLE : ViewGroup.VISIBLE);
+        }
     }
 
     public interface OnClickListener {
@@ -215,9 +235,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         this.imageRotationViewPager = rootView.findViewById(R.id.fragment_home_picture_rotation);
         this.nestedScrollView = rootView.findViewById(R.id.fragment_home_nested_scroll_view);
         this.imageRotationContainer = rootView.findViewById(R.id.fragment_home_picture_rotation_oval_container);
+        this.searchView = rootView.findViewById(R.id.fragment_home_search_view);
+        this.searchViewHint = rootView.findViewById(R.id.fragment_home_search_view_hint);
 
         this.popDrawerLayoutButton.setOnClickListener(this);
         this.nestedScrollView.setOnScrollChangeListener(this);
+        this.searchView.setOnClickListener(this);
+        this.searchView.setOnQueryTextFocusChangeListener(this);
 
         downRefreshLayout.setSize(CircularProgressDrawable.LARGE);
         downRefreshLayout.setColorSchemeResources(R.color.theme_color);

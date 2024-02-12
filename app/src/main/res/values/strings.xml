@@ -204,6 +204,8 @@
     <string name="rel_word_translation">同根词翻译:</string>
     <string name="rel_word_id">同根词id</string>
     <string name="university">学校A</string>
+    <string name="search_post">搜索帖子</string>
+    <string name="search_word">搜索单词</string>
 
 
 </resources>

@@ -3,6 +3,7 @@ package com.gitee.cnsukidayo.anylanguageword.ui;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -45,6 +46,16 @@ public class MainActivity extends AppCompatActivity {
             return ((KeyEvent.Callback) fragment).onKeyUp(keyCode, event);
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    /**
+     * 方便每个fragment设置自已的键盘弹起规则
+     *
+     * @param mode {@link WindowManager.LayoutParams#softInputMode
+     *             WindowManager.LayoutParams.softInputMode
+     */
+    public void setFragmentWindowSoftInputMode(int mode) {
+        getWindow().setSoftInputMode(mode);
     }
 
     private void changeFragment() {

@@ -10,8 +10,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AnyLanguageWord"
-        tools:targetApi="31">
+        android:theme="@style/Theme.AnyLanguageWord">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">

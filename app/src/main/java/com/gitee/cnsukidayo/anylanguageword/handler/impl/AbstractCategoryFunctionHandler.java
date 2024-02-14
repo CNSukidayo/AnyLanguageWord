@@ -60,7 +60,11 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
 
     @Override
     public Map<Long, List<WordDTO>> getCurrentStructureWordMap() {
-        return getCurrentWord().stream()
+        List<WordDTO> currentWord = getCurrentWord();
+        if (currentWord == null) {
+            return null;
+        }
+        return currentWord.stream()
                 .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
     }
 

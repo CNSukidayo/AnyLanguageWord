@@ -20,42 +20,4 @@
         android:paddingEnd="5dp"
         android:textSize="20sp" />
 
-
-    <!--<com.google.android.flexbox.FlexboxLayout-->
-    <!--    android:layout_width="1000dp"-->
-    <!--    android:layout_height="wrap_content"-->
-    <!--    app:flexWrap="wrap">-->
-
-    <!--    <TextView-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="推送和即时通讯"/>-->
-
-    <!--    <TextView-->
-    <!--        app:layout_wrapBefore="true"-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="蓝牙" />-->
-
-    <!--    <TextView-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="程序员"/>-->
-
-    <!--    <TextView-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="影视天堂" />-->
-
-    <!--    <TextView-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="郭德纲" />-->
-
-    <!--    <TextView-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="旅行——在路上" />-->
-
-    <!--    <TextView-->
-    <!--        style="@style/TextStyle"-->
-    <!--        android:text="复仇者联盟4" />-->
-
-    <!--</com.google.android.flexbox.FlexboxLayout>-->
-
-    
 </LinearLayout>

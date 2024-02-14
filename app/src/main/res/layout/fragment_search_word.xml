@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".ui.fragment.SearchWordFragment"
-    tools:openDrawer="">
+    tools:openDrawer="end">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -48,8 +48,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:paddingTop="5dp"
             app:layout_constraintBottom_toTopOf="@+id/fragment_search_word_function_horizontal_scroll_view"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_search_word_phonetics">
 
             <androidx.core.widget.NestedScrollView
@@ -59,7 +59,7 @@
 
                 <LinearLayout
                     android:id="@+id/fragment_search_word_answer_area"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:paddingBottom="7dp">
@@ -77,20 +77,21 @@
 
                     </androidx.recyclerview.widget.RecyclerView>
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/fragment_search_word_select_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingStart="15dp"
+                        android:paddingTop="15dp"
+                        android:paddingEnd="15dp">
 
+                    </androidx.recyclerview.widget.RecyclerView>
                 </LinearLayout>
+
+
             </androidx.core.widget.NestedScrollView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/fragment_search_word_select_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:paddingStart="15dp"
-                android:paddingTop="15dp"
-                android:paddingEnd="15dp">
-
-            </androidx.recyclerview.widget.RecyclerView>
         </RelativeLayout>
 
         <HorizontalScrollView
@@ -136,7 +137,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/fragment_search_word_click_start"
+                    android:id="@+id/fragment_search_word_click_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
@@ -169,7 +170,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="25dp"
-                    android:layout_toEndOf="@+id/fragment_search_word_click_start"
+                    android:layout_toEndOf="@+id/fragment_search_word_click_star"
                     android:clickable="true"
                     android:foreground="@drawable/item_gray_select"
                     android:orientation="vertical">
@@ -243,6 +244,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!--可以考虑复用单独抽离出一个模块-->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -250,7 +252,7 @@
         android:background="@color/white"
         android:clickable="true"
         android:fitsSystemWindows="false"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
@@ -278,10 +280,10 @@
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
             <androidx.core.widget.NestedScrollView
-                android:id="@+id/fragment_search_word_nested_start"
+                android:id="@+id/fragment_word_credit_nested_start"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_constraintBottom_toTopOf="@id/fragment_search_word_start_add"
+                app:layout_constraintBottom_toTopOf="@id/drawer_start_add_category"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
@@ -309,7 +311,7 @@
                                 android:layout_marginTop="3dp">
 
                                 <androidx.recyclerview.widget.RecyclerView
-                                    android:id="@+id/fragment_search_word_drawer_chinese_answer"
+                                    android:id="@+id/drawer_star_chinese_answer_recycler_view"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content" />
                             </RelativeLayout>
@@ -320,7 +322,7 @@
                                 android:orientation="vertical">
 
                                 <TextView
-                                    android:id="@+id/fragment_search_word_drawer_phrase_hint"
+                                    android:id="@+id/drawer_star_phrase_hint"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
@@ -329,7 +331,7 @@
                                     android:textSize="20sp" />
 
                                 <TextView
-                                    android:id="@+id/fragment_search_word_drawer_phrase_answer"
+                                    android:id="@+id/drawer_star_phrase_answer"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:background="@drawable/fragment_word_credit_radius_answer"
@@ -357,21 +359,23 @@
                         android:layout_marginTop="5dp">
                         <!--这里实际上是三层嵌套,逻辑比较复杂-->
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/fragment_search_word_start_category_recycler"
+                            android:id="@+id/start_category_recycler"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content" />
                     </RelativeLayout>
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
+
             <TextView
-                android:id="@+id/fragment_search_word_start_add"
+                android:id="@+id/drawer_start_add_category"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginStart="7dp"
                 android:layout_marginEnd="7dp"
                 android:layout_marginBottom="2dp"
-                android:background="@drawable/text_border_radius_foreground"
+                android:background="@drawable/text_border_radius_background"
+                android:foreground="@drawable/text_border_radius_foreground"
                 android:gravity="center"
                 android:paddingBottom="3dp"
                 android:text="@string/add_new_category"
@@ -379,6 +383,7 @@
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

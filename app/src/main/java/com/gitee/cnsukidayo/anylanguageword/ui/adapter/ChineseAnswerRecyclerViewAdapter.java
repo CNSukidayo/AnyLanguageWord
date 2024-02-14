@@ -74,6 +74,26 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      */
     private float previousTextWidth;
 
+    /**
+     * key:组件的position<br>
+     * value:单词的结构id
+     */
+    private final Map<Integer, EnglishStructure> positionMap = new HashMap<>(13) {{
+        put(0, EnglishStructure.ADJ);
+        put(1, EnglishStructure.ADV);
+        put(2, EnglishStructure.V);
+        put(3, EnglishStructure.VI);
+        put(4, EnglishStructure.VT);
+        put(5, EnglishStructure.N);
+        put(6, EnglishStructure.CONJ);
+        put(7, EnglishStructure.PRON);
+        put(8, EnglishStructure.NUM);
+        put(9, EnglishStructure.ART);
+        put(10, EnglishStructure.PREP);
+        put(11, EnglishStructure.INT);
+        put(12, EnglishStructure.AUX);
+    }};
+
     public ChineseAnswerRecyclerViewAdapter(Context context, List<WordStructureDTO> currentWordStructure) {
         this.context = context;
         this.currentWordStructure = currentWordStructure.stream()
@@ -130,6 +150,7 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
                 // 重置缓存
                 flexLayoutParams.setWrapBefore(answerElement.hasBreak());
             }
+        } else if (holder instanceof DrawerAnswerViewHolder) {
         }
     }
 
@@ -289,6 +310,19 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
         private final TextView meaningCategoryHint, meaningCategoryAnswer;
 
         public AnswerViewHolder(@NonNull View itemView) {
+            super(itemView);
+            this.itemView = itemView;
+            meaningCategoryHint = this.itemView.findViewById(R.id.fragment_word_credit_meaning_category_hint);
+            meaningCategoryAnswer = this.itemView.findViewById(R.id.fragment_word_credit_textview_meaning_category_answer);
+        }
+    }
+
+    public static class DrawerAnswerViewHolder extends RecyclerView.ViewHolder {
+
+        private View itemView;
+        private final TextView meaningCategoryHint, meaningCategoryAnswer;
+
+        public DrawerAnswerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             meaningCategoryHint = this.itemView.findViewById(R.id.fragment_word_credit_meaning_category_hint);

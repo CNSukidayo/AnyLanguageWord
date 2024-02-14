@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.GravityCompat;
@@ -32,12 +34,20 @@ import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.wordsearch.SelectWordListAdapter;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
+import io.github.cnsukidayo.wword.common.request.factory.SearchServiceRequestFactory;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
+import io.github.cnsukidayo.wword.model.dto.es.WordESDTO;
+import io.github.cnsukidayo.wword.model.dto.support.DataPage;
+import io.github.cnsukidayo.wword.model.params.SearchWordParam;
 
 /**
  * @author sukidayo
@@ -71,6 +81,18 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     private SearchView searchInput;
     // 当前查询单词的结构
     private List<WordStructureDTO> currentWordStructure;
+    // 上一次查询的文本
+    private String preQueryText;
+    // 每隔1s执行单词查询
+    private Timer queryTimer;
+    // 单词搜索列表
+    private RecyclerView selectWordList;
+    // 单词搜索列表的adapter
+    private SelectWordListAdapter selectWordListAdapter;
+    // 用户搜索单词事件
+    private final ConcurrentLinkedDeque<SearchWordParam> eventQueue = new ConcurrentLinkedDeque<>();
+    // 当前正在使用的单词搜索事件
+    private SearchWordParam searchWordEvent = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,6 +103,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (rootView != null) {
+            initView();
             return rootView;
         }
         rootView = inflater.inflate(R.layout.fragment_search_word, container, false);
@@ -90,9 +113,10 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // 注意每次进入到该页面的时候都必须更新收藏夹信息,包括背诵界面也要更新
+    public void onDestroy() {
+        queryTimer.cancel();
+        queryTimer = null;
+        super.onDestroy();
     }
 
     @Override
@@ -139,6 +163,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
 
     private void initView() {
         this.title.setText(R.string.search_word);
+        this.queryTimer = new Timer();
         ((MainActivity) requireActivity()).setFragmentWindowSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         updateUIHandler = new Handler();
         startDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -155,6 +180,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.chineseAnswer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
+        this.selectWordList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         StaticFactory.getExecutorService().submit(() -> {
             // 获取所有的单词结构
@@ -166,6 +192,9 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
+            // 初始化单词列表的adapter
+            this.selectWordListAdapter = new SelectWordListAdapter(getContext(), currentWordStructure);
+
             // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能
             ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryAdapter));
             startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
@@ -174,12 +203,73 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                 this.chineseAnswer.setAdapter(chineseAnswerAdapter);
                 this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
                 this.starSingleCategory.setAdapter(startSingleCategoryAdapter);
+                // 设置单词选择列表的adapter
+                this.selectWordList.setAdapter(selectWordListAdapter);
                 touchHelper.attachToRecyclerView(starSingleCategory);
                 this.chineseAnswer.setVisibility(View.GONE);
                 this.chineseAnswerDrawer.setVisibility(View.GONE);
                 loadingDialog.dismiss();
             });
         });
+        // 每隔1s查询单词
+        this.queryTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (!TextUtils.isEmpty(searchInput.getQuery()) &&
+                        !searchInput.getQuery().toString().equals(preQueryText)) {
+                    // 保存本次查询的字符串
+                    preQueryText = searchInput.getQuery().toString();
+                    // 查询单词
+                    SearchWordParam searchWordParam = new SearchWordParam();
+                    searchWordParam.setWord(preQueryText);
+                    searchWordParam.setSize(20);
+                    searchWordParam.setCurrent(1);
+                    searchWordParam.setLanguageId(2L);
+                    eventQueue.add(searchWordParam);
+                }
+                // 使用阻塞队列保证最近的一个操作执行
+                SearchWordParam lastSearchWordEvent = eventQueue.pollLast();
+                eventQueue.clear();
+                if (lastSearchWordEvent != null) {
+                    // 更新搜索列表
+                    searchWordEvent = lastSearchWordEvent;
+                    SearchServiceRequestFactory.getInstance()
+                            .wordSearchRequest()
+                            .searchWord(lastSearchWordEvent)
+                            .success(data -> {
+                                DataPage<WordESDTO> wordESDTODataPage = data.getData();
+                                updateUIHandler.post(() -> {
+                                    if (wordESDTODataPage.isFirst()) {
+                                        // 如果是第一页就替换
+                                        selectWordListAdapter.replaceAllWithDataPage(wordESDTODataPage);
+                                    } else {
+                                        // 否则就添加所有数据到集合中
+                                        selectWordListAdapter.addAllWithDataPage(wordESDTODataPage);
+                                    }
+                                });
+                            })
+                            .execute();
+                }
+            }
+        }, 0, 2000);
+        // 检测当前单词搜索列表是否滑动到底部需要加载更多的单词
+        selectWordList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!recyclerView.canScrollVertically(1)) {
+                    // 滑动到底部
+                    SearchWordParam searchWordParam = new SearchWordParam();
+                    // 因为不对searchWordEvent进行修改所以不存在线程安全问题
+                    searchWordParam.setLanguageId(searchWordEvent.getLanguageId());
+                    searchWordParam.setWord(searchWordEvent.getWord());
+                    searchWordParam.setSize(searchWordEvent.getSize());
+                    searchWordParam.setCurrent(searchWordEvent.getCurrent() + 1);
+                    eventQueue.add(searchWordParam);
+                }
+            }
+        });
+
     }
 
     private void hideLinearLayoutTree(ViewGroup linearLayout) {
@@ -211,13 +301,16 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         this.starSingleCategory = rootView.findViewById(R.id.fragment_search_word_start_category_recycler);
         this.addNewCategory = rootView.findViewById(R.id.fragment_search_word_start_add);
         this.searchInput = rootView.findViewById(R.id.fragment_search_word_search_view);
+        this.selectWordList = rootView.findViewById(R.id.fragment_search_word_select_recycler_view);
 
         this.searchInput.setOnClickListener(this);
         this.backToTrace.setOnClickListener(this);
         this.analysisWord.setOnClickListener(this);
         this.openStartDrawer.setOnClickListener(this);
         this.addNewCategory.setOnClickListener(this);
+
     }
+
     // ----下面是一些用不到的方法----
 
     @Override

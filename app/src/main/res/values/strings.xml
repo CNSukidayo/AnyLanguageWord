@@ -206,6 +206,7 @@
     <string name="university">学校A</string>
     <string name="search_post">搜索帖子</string>
     <string name="search_word">搜索单词</string>
+    <string name="word_translation">单词翻译</string>
 
 
 </resources>

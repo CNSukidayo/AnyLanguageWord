@@ -26,6 +26,7 @@
             android:text="@string/source_word"
             android:textColor="@color/black"
             android:textSize="24sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/include" />
@@ -39,6 +40,7 @@
             android:text="@string/word_phonetics"
             android:textColor="@color/black"
             android:textSize="17sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_search_word_source_word" />
@@ -57,7 +59,7 @@
 
                 <LinearLayout
                     android:id="@+id/fragment_search_word_answer_area"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:paddingBottom="7dp">
@@ -70,12 +72,25 @@
                         android:paddingStart="15dp"
                         android:paddingTop="15dp"
                         android:paddingEnd="15dp"
-                        android:paddingBottom="15dp">
+                        android:paddingBottom="15dp"
+                        android:visibility="gone">
 
                     </androidx.recyclerview.widget.RecyclerView>
 
+
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragment_search_word_select_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingStart="15dp"
+                android:paddingTop="15dp"
+                android:paddingEnd="15dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
         </RelativeLayout>
 
         <HorizontalScrollView

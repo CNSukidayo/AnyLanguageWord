@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/fragment_search_word_choice_element_word"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/fragment_search_word_start_word_element"
+        android:clickable="true"
+        android:foreground="@drawable/item_gray_select"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_search_word_choice_element_word_origin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/source_word"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/fragment_search_word_choice_element_word_translation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/word_translation"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/fragment_search_word_start_word_element"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/fragment_home_face"
+        android:clickable="true"
+        android:gravity="center"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_start"
+        app:tint="@color/dark_gray" />
+
+</RelativeLayout>

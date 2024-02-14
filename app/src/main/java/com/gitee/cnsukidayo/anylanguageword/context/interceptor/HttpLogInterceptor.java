@@ -36,9 +36,16 @@ public class HttpLogInterceptor implements Interceptor {
                 throw new RuntimeException(e);
             }
         }
-        // 获取当前的请求体
+        // 获取当前请求的所有信息
         Request request = chain.request();
-        Log.d("httpLog-Request", request.toString());
+        String bodyMessage = " ;body-";
+        if (request.body() != null) {
+            Buffer buffer = new Buffer();
+            request.body().writeTo(buffer);
+            bodyMessage += buffer.readUtf8();
+
+        }
+        Log.d("httpLog-Request", request.toString() + bodyMessage);
         Response response = chain.proceed(request);
         try {
             Log.d("httpLog-Response", getResponseBody(response.body()));

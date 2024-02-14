@@ -17,7 +17,7 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="6dp"
-            android:background="@drawable/back_to_trace"
+            android:background="@drawable/item_click_gray_round"
             android:gravity="center"
             android:scaleType="fitCenter"
             android:src="?attr/actionModeCloseDrawable" />

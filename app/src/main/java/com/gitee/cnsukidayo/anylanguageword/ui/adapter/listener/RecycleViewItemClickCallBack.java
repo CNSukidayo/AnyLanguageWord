@@ -7,6 +7,7 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener;
  * @author cnsukidayo
  * @date 2023/2/11 16:34
  */
+@FunctionalInterface
 public interface RecycleViewItemClickCallBack<T> {
     void viewClickCallBack(T recycleViewOnClick);
 }

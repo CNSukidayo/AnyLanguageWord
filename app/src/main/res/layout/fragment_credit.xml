@@ -25,7 +25,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="10dp"
-                android:background="@drawable/back_to_trace"
+                android:background="@drawable/item_click_gray_round"
                 android:gravity="center"
                 android:scaleType="fitCenter"
                 android:src="?attr/actionModeCloseDrawable"

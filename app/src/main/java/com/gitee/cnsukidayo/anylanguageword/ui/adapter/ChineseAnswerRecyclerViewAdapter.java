@@ -133,8 +133,6 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
         }
     }
 
-    private int count;
-
     @Override
     public int getItemCount() {
         return answerElementList.size();

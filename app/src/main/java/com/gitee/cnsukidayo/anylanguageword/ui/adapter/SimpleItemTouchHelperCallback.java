@@ -64,6 +64,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+        // 当某个viewHolder被点击选中时调用该方法
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder instanceof StateChangedListener) {
             StateChangedListener listener = (StateChangedListener) viewHolder;
             listener.onItemSelected();
@@ -73,6 +74,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        // 当某个viewHolder停止选中时调用该方法
         super.clearView(recyclerView, viewHolder);
         if (viewHolder instanceof StateChangedListener) {
             StateChangedListener listener = (StateChangedListener) viewHolder;

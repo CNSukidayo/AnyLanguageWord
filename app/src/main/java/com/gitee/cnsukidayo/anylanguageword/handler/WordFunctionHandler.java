@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 public interface WordFunctionHandler extends CategoryFunctionHandler {
@@ -24,7 +25,7 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      *
      * @return 返回单词引用
      */
-    List<WordDTO> getCurrentWord();
+    WordCategoryWordDTO getCurrentViewWord();
 
     /**
      * 获取当前指针指向的单词<br>

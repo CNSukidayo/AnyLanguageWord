@@ -28,6 +28,17 @@ android {
     buildFeatures {
         viewBinding true
     }
+    // 不打包不需要的文件
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+    }
+
 }
 
 dependencies {
@@ -47,6 +58,7 @@ dependencies {
     implementation 'io.github.h07000223:flycoTabLayout:3.0.0'
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.14.9'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
+
     // 导入本地jar
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 

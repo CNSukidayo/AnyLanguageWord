@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
+import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
@@ -98,13 +99,14 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     }
 
     @Override
-    public List<WordDTO> getCurrentWord() {
-        if (nowSelectChameleonSize == 0) {
-            currentOrder = 0;
-            currentIndex = 0;
-            return null;
-        }
-        return dict.get(allDivideWordList.get(currentIndex).getWordId());
+    public WordCategoryWordDTO getCurrentViewWord() {
+        //if (nowSelectChameleonSize == 0) {
+        //    currentOrder = 0;
+        //    currentIndex = 0;
+        //    return null;
+        //}
+        //return dict.get(allDivideWordList.get(currentIndex).getWordId());
+        return null;
     }
 
     @Override

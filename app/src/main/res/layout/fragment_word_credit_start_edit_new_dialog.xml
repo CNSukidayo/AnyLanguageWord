@@ -25,21 +25,9 @@
         android:id="@+id/fragment_word_credit_start_new_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/title" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <CheckBox
-            android:id="@+id/fragment_word_credit_start_new_title_default"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:checked="true"
-            android:text="@string/default_name_rule" />
-    </RelativeLayout>
-
+        android:autofillHints="title"
+        android:hint="@string/title"
+        android:inputType="text" />
 
     <TextView
         android:layout_width="match_parent"
@@ -53,19 +41,30 @@
         android:id="@+id/fragment_word_credit_start_new_describe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/describe_message" />
+        android:autofillHints="title"
+        android:hint="@string/describe_message"
+        android:inputType="text" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <CheckBox
-            android:id="@+id/fragment_word_credit_start_new_describe_default"
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/fragment_word_credit_start_edit_new_dialog_default_name_rule"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:src="@drawable/ic_doubt" />
+
+        <TextView
+            android:id="@+id/fragment_word_credit_start_edit_new_dialog_default_name_rule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:checked="true"
-            android:text="@string/default_name_rule" />
+            android:layout_centerVertical="true"
+            android:text="@string/default_name_rule"
+            android:textSize="16sp" />
     </RelativeLayout>
-
 </LinearLayout>

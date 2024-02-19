@@ -86,7 +86,7 @@ public class UniversityListAdapter extends RecyclerView.Adapter<UniversityListAd
             super(itemView);
             this.itemView = itemView;
             this.universityName = itemView.findViewById(R.id.account_profile_fragment_university_name);
-            this.universityName.setOnClickListener(this);
+            this.itemView.setOnClickListener(this);
         }
 
         @Override

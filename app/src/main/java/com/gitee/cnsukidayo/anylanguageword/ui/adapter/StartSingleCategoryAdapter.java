@@ -2,13 +2,11 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,16 +21,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.MoveAndSwipedListener;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.StateChangedListener;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import io.github.cnsukidayo.wword.model.dto.WordCategoryDTO;
+import io.github.cnsukidayo.wword.model.vo.WordCategoryDetailVO;
 
 /**
  * 每个分类的Adapter
@@ -40,11 +38,10 @@ import java.util.function.Consumer;
  * @author cnsukidayo
  * @date 2023/1/7 17:35
  */
-public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingleCategoryAdapter.RecyclerViewHolder> implements MoveAndSwipedListener, RecyclerViewAdapterItemChange<WordCategory> {
+public class StartSingleCategoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements MoveAndSwipedListener, RecyclerViewAdapterItemChange<WordCategoryDTO> {
 
-    private Context context;
-    // 用于存储所有所有的element
-    private List<StartSingleCategoryAdapter.RecyclerViewHolder> cacheElement = new ArrayList<>(15);
+    private final Context context;
     // 用于回调startDrag方法的接口,该接口耦合了,定义方式不好.
     private Consumer<RecyclerView.ViewHolder> startDragListener;
     // 用于处理单词收藏功能的Handler
@@ -54,27 +51,22 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         this.context = context;
     }
 
-
     @NonNull
     @Override
-    public StartSingleCategoryAdapter.RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new StartSingleCategoryAdapter.RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_single_category, parent, false));
-    }
-
-
-    @Override
-    public void onBindViewHolder(@NonNull StartSingleCategoryAdapter.RecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        // 重置改变，防止由于复用而导致的显示问题
-        holder.scroller.scrollTo(0, 0);
-        holder.underNowStartAllWord.setVisibility(View.GONE);
-        holder.title.setText(startFunctionHandler.calculationTitle(position));
-        holder.describe.setText(startFunctionHandler.calculationDescribe(position));
+    public SingleSingleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new SingleSingleViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_single_category, parent, false));
     }
 
     @Override
-    public int getItemViewType(int position) {
-        // 栽大坑,这里不能返回不同的ViewType否则处大问题,所以要做好position的状态复用考虑
-        return 0;
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        // 重置改变,防止由于复用而导致的显示问题
+        if (holder instanceof SingleSingleViewHolder) {
+            SingleSingleViewHolder singleSingleViewHolder = (SingleSingleViewHolder) holder;
+            singleSingleViewHolder.scroller.scrollTo(0, 0);
+            singleSingleViewHolder.underNowStartAllWord.setVisibility(View.GONE);
+            singleSingleViewHolder.title.setText(startFunctionHandler.calculationTitle(position));
+            singleSingleViewHolder.describe.setText(startFunctionHandler.calculationDescribe(position));
+        }
     }
 
     @Override
@@ -103,23 +95,18 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
 
 
     @Override
-    public void addItem(WordCategory wordCategory) {
-        if (startFunctionHandler == null) {
-            Log.e("no Handler", "caller want to use StartFunction,but no settings startFunctionHandler");
-            return;
-        }
-        startFunctionHandler.addNewCategory(wordCategory);
+    public void addItem(WordCategoryDTO wordCategoryDTO) {
+        startFunctionHandler.addNewCategory(wordCategoryDTO);
         notifyItemInserted(startFunctionHandler.categoryListSize() - 1);
     }
 
     @Override
-    public void removeItem(WordCategory wordCategory) {
+    public void removeItem(WordCategoryDTO wordCategoryDTO) {
 
     }
 
-
-    protected class RecyclerViewHolder extends RecyclerView.ViewHolder
-            implements StateChangedListener, View.OnTouchListener, View.OnClickListener, StartSingleCategoryWordAdapter.FunctionListener {
+    protected class SingleSingleViewHolder extends RecyclerView.ViewHolder
+            implements StateChangedListener, View.OnTouchListener, View.OnClickListener, StartSingleCategoryWordAdapter.FunctionContentCallBack {
         public View itemView, scroller;
         public TextView title, describe, edit, delete, addWord;
         public LinearLayout openList;
@@ -135,7 +122,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         public StartSingleCategoryWordAdapter startSingleCategoryWordAdapter;
         public ItemTouchHelper touchHelper;
 
-        public RecyclerViewHolder(@NonNull View itemView) {
+        public SingleSingleViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             this.title = itemView.findViewById(R.id.fragment_word_credit_start_single_category_title);
@@ -172,6 +159,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         @Override
         public void onItemClear() {
             itemView.setAlpha(1.0f);
+            startFunctionHandler.updateWordCategoryList();
         }
 
         @Override
@@ -196,17 +184,14 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
                 View editStart = LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
                 EditText categoryTile = editStart.findViewById(R.id.fragment_word_credit_start_new_title);
                 EditText categoryDescribe = editStart.findViewById(R.id.fragment_word_credit_start_new_describe);
-                CheckBox titleDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_title_default);
-                CheckBox describeDefault = editStart.findViewById(R.id.fragment_word_credit_start_new_describe_default);
                 new AlertDialog.Builder(context)
                         .setView(editStart)
                         .setCancelable(true)
                         .setPositiveButton("确定", (dialog, which) -> {
-                            WordCategory wordCategory = startFunctionHandler.getWordCategoryByPosition(getAdapterPosition());
-                            wordCategory.setTitle(categoryTile.getText().toString());
-                            wordCategory.setDescribe(categoryDescribe.getText().toString());
-                            wordCategory.setDefaultTitleRule(titleDefault.isChecked());
-                            wordCategory.setDefaultDescribeRule(describeDefault.isChecked());
+                            WordCategoryDetailVO wordCategoryDetailVO = new WordCategoryDetailVO();
+                            wordCategoryDetailVO.setTitle(categoryTile.getText().toString());
+                            wordCategoryDetailVO.setDescribeInfo(categoryDescribe.getText().toString());
+                            startFunctionHandler.updateWordCategoryDto(getAdapterPosition(), wordCategoryDetailVO);
                             title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
                             describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
                         })
@@ -225,9 +210,8 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
                 }
                 isOpen = !isOpen;
             } else if (clickViewId == R.id.fragment_word_credit_start_add_word) {
-                Optional.ofNullable(startFunctionHandler.getCurrentStructureWordMap()).ifPresentOrElse(structureWordMap -> {
-                    // 要转换成结构单词使用 wordStructMap
-                    startSingleCategoryWordAdapter.addItem(structureWordMap);
+                Optional.ofNullable(startFunctionHandler.getCurrentViewWord()).ifPresentOrElse(wordCategoryWordDTO -> {
+                    startSingleCategoryWordAdapter.addItem(wordCategoryWordDTO);
                     title.setText(startFunctionHandler.calculationTitle(getAdapterPosition()));
                     describe.setText(startFunctionHandler.calculationDescribe(getAdapterPosition()));
                 }, () -> {
@@ -245,7 +229,7 @@ public class StartSingleCategoryAdapter extends RecyclerView.Adapter<StartSingle
         }
 
         @Override
-        public int getCurrentWordCategoryID() {
+        public int getCurrentWordCategoryPosition() {
             return getAdapterPosition();
         }
 

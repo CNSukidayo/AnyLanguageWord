@@ -3,6 +3,7 @@ package com.gitee.cnsukidayo.anylanguageword.handler;
 import java.util.List;
 import java.util.Map;
 
+import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
@@ -24,11 +25,11 @@ public interface CategoryWordFunctionHandler {
     /**
      * 将某个单词添加到某个分类中
      *
-     * @param categoryID 分类ID
-     * @param addWord    待添加的单词
+     * @param categoryPosition    分类的位置
+     * @param wordCategoryWordDTO 待添加的单词
      * @return 返回是否添加成功
      */
-    boolean addWordToCategory(int categoryID, Map<Long, List<WordDTO>> addWord);
+    boolean addWordToCategory(int categoryPosition, WordCategoryWordDTO wordCategoryWordDTO);
 
     /**
      * 将某个单词从某个分类中移除
@@ -41,23 +42,34 @@ public interface CategoryWordFunctionHandler {
     /**
      * 从某个分类中获取某个单词
      *
-     * @param categoryID 分类ID
-     * @param position   单词在category中的位置
+     * @param categoryPosition 分类在列表中的位置
+     * @param position         单词在category中的位置
      * @return 返回Word引用
      */
-    Map<Long, List<WordDTO>> getWordFromCategory(int categoryID, int position);
+    Map<Long, List<WordDTO>> getWordFromCategory(int categoryPosition, int position);
 
     /**
-     * 交换某个分类中两个单词的位置
+     * 添加一个单词到查询缓存中
      *
-     * @param categoryID     分类ID
-     * @param sourcePosition 源单词的位置
-     * @param targetPosition 目标单词的位置
+     * @param structureWord 单词结构对象
      */
-    void moveCategoryWord(int categoryID, int sourcePosition, int targetPosition);
-    /*
-    展示某个单词
-    void showWord(int categoryID, int position);
-     */
+    void addWordQueryCache(Map<Long, Map<Long, List<WordDTO>>> structureWord);
 
+    /**
+     * 这个方法实际上是一种状态的刷新
+     * 因为收藏夹内单词的位置位置不断地变化,为避免频繁更新所以使用该方法统一发送请求更新收藏夹单词顺序<br>
+     * 本方法不负责维护单词的Order值;而是直接更新;如果需要维护某收藏夹中单词的Order值则通过{@link CategoryWordFunctionHandler#moveCategoryWord(int, int, int)}方法来维护
+     *
+     * @param categoryPosition 收藏夹的位置
+     */
+    void updateWordCategoryWordOrder(int categoryPosition);
+
+    /**
+     * 交换收藏夹中两个单词的位置
+     *
+     * @param categoryPosition 收藏夹的位置
+     * @param fromPosition     源单词的位置
+     * @param toPosition       目标单词的位置
+     */
+    void moveCategoryWord(int categoryPosition, int fromPosition, int toPosition);
 }

@@ -74,26 +74,6 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      */
     private float previousTextWidth;
 
-    /**
-     * key:组件的position<br>
-     * value:单词的结构id
-     */
-    private final Map<Integer, EnglishStructure> positionMap = new HashMap<>(13) {{
-        put(0, EnglishStructure.ADJ);
-        put(1, EnglishStructure.ADV);
-        put(2, EnglishStructure.V);
-        put(3, EnglishStructure.VI);
-        put(4, EnglishStructure.VT);
-        put(5, EnglishStructure.N);
-        put(6, EnglishStructure.CONJ);
-        put(7, EnglishStructure.PRON);
-        put(8, EnglishStructure.NUM);
-        put(9, EnglishStructure.ART);
-        put(10, EnglishStructure.PREP);
-        put(11, EnglishStructure.INT);
-        put(12, EnglishStructure.AUX);
-    }};
-
     public ChineseAnswerRecyclerViewAdapter(Context context, List<WordStructureDTO> currentWordStructure) {
         this.context = context;
         this.currentWordStructure = currentWordStructure.stream()
@@ -113,13 +93,14 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      */
     public void showWordChineseMessage(Map<Long, List<WordDTO>> currentWordMap) {
         int preCount = answerElementList.size();
-        this.currentWordMap = currentWordMap;
-        this.removeWordStructure(currentWordMap,
+        // 拷贝当前Map,单词结构信息不允许修改
+        this.currentWordMap = new HashMap<>(currentWordMap);
+        this.removeWordStructure(this.currentWordMap,
                 EnglishStructure.DEFAULT,
                 EnglishStructure.US_PHONETIC,
                 EnglishStructure.UK_PHONETIC,
                 EnglishStructure.WORD_ORIGIN);
-        this.answerElementList = viewResolve(currentWordMap);
+        this.answerElementList = viewResolve(this.currentWordMap);
         notifyItemRangeChanged(0, Math.max(getItemCount(), preCount));
     }
 

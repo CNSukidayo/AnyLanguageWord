@@ -75,7 +75,7 @@
     <string name="edit">编辑</string>
     <string name="categorize_title">分类标题:</string>
     <string name="title">标题</string>
-    <string name="default_name_rule">采用默认命名规则</string>
+    <string name="default_name_rule">若内容为空则使用默认的名称生成规则</string>
     <string name="describe">描述信息(简短地描述该分类)</string>
     <string name="describe_message">描述信息</string>
     <string name="add_word">添加单词</string>
@@ -178,7 +178,6 @@
     <string name="right_index">正确答案:</string>
     <string name="choice_index">选项编号:</string>
     <string name="choice_value">选项值:</string>
-
 
 
     <!--所有扣模板的,通用的内容存放在这下面-->

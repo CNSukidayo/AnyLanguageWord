@@ -8,7 +8,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -32,7 +31,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
-import com.gitee.cnsukidayo.anylanguageword.entity.WordCategory;
 import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditFilter;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditOrder;
@@ -69,8 +67,10 @@ import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
 import io.github.cnsukidayo.wword.common.request.interfaces.core.WordStructureRequest;
 import io.github.cnsukidayo.wword.model.dto.DivideDTO;
 import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
+import io.github.cnsukidayo.wword.model.dto.WordCategoryDTO;
 import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
+import io.github.cnsukidayo.wword.model.params.WordCategoryParam;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
@@ -224,9 +224,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             emptyUI();
             creditWord(wordFunctionHandler.jumpPreviousWord());
         } else if (clickViewId == R.id.fragment_word_container_get_answer) {
-            visibleWordAllMessage(wordFunctionHandler.getCurrentWord());
+            //visibleWordAllMessage(wordFunctionHandler.getCurrentWord());
         } else if (clickViewId == R.id.fragment_word_credit_play_word) {
-            creditWord(wordFunctionHandler.getCurrentWord());
+            //creditWord(wordFunctionHandler.getCurrentWord());
         } else if (clickViewId == R.id.fragment_word_credit_jump_next) {
             final EditText inputEditText = new EditText(getContext());
             inputEditText.setInputType(InputType.TYPE_CLASS_DATETIME);
@@ -363,15 +363,21 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             View addNewCategory = getLayoutInflater().inflate(R.layout.fragment_word_credit_start_edit_new_dialog, null);
             EditText categoryTile = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title);
             EditText categoryDescribe = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe);
-            CheckBox titleDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_title_default);
-            CheckBox describeDefault = addNewCategory.findViewById(R.id.fragment_word_credit_start_new_describe_default);
             new AlertDialog.Builder(getContext())
                     .setView(addNewCategory)
                     .setCancelable(true)
                     .setPositiveButton("确定", (dialog, which) -> {
-                        WordCategory wordCategory = new WordCategory(categoryTile.getText().toString(),
-                                categoryDescribe.getText().toString(), titleDefault.isChecked(), describeDefault.isChecked());
-                        startSingleCategoryAdapter.addItem(wordCategory);
+                        WordCategoryParam wordCategoryParam = new WordCategoryParam();
+                        wordCategoryParam.setTitle(categoryTile.getText().toString());
+                        wordCategoryParam.setDescribeInfo(categoryDescribe.getText().toString());
+                        CoreServiceRequestFactory.getInstance()
+                                .wordCategoryRequest()
+                                .save(wordCategoryParam)
+                                .success(data -> {
+                                    WordCategoryDTO wordCategoryDTO = data.getData();
+                                    updateUIHandler.post(() -> startSingleCategoryAdapter.addItem(wordCategoryDTO));
+                                })
+                                .execute();
                     })
                     .setNegativeButton("取消", (dialog, which) -> {
                     })

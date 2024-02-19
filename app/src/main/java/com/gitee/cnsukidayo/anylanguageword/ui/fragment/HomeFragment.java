@@ -25,7 +25,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.entity.PostCover;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.HomeMessageStreamHandler;
 import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;

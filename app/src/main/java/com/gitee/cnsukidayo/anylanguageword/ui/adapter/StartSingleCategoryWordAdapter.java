@@ -76,8 +76,9 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
                         .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
         // 最后一个嵌套,单词中文意思的嵌套
         holder.chineseAnswerRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        holder.startChineseAnswerRecyclerViewAdapter = new StartChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getWordFromCategory(functionContentCallBack.getCurrentWordCategoryPosition(), position));
-        holder.chineseAnswerRecyclerView.setAdapter(holder.startChineseAnswerRecyclerViewAdapter);
+        holder.starChineseAnswerRecyclerViewAdapter = new StarChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getCurrentLanguageId());
+        holder.chineseAnswerRecyclerView.setAdapter(holder.starChineseAnswerRecyclerViewAdapter);
+        holder.starChineseAnswerRecyclerViewAdapter.addItem(categoryWordFunctionHandler.getWordFromCategory(functionContentCallBack.getCurrentWordCategoryPosition(), position));
         String phraseTranslation = Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE_TRANSLATION.getWordStructureId()))
                 .map(phraseWord -> phraseWord.size() > 0 ? phraseWord.get(0).getValue() : "")
                 .orElse("");
@@ -144,7 +145,7 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
         private final TextView delete, wordOrigin, wordPhonetics, phraseAnswer, phraseHint;
         private final ImageButton move;
         private final RecyclerView chineseAnswerRecyclerView;
-        private StartChineseAnswerRecyclerViewAdapter startChineseAnswerRecyclerViewAdapter;
+        private StarChineseAnswerRecyclerViewAdapter starChineseAnswerRecyclerViewAdapter;
 
         public SingleCategoryWordViewHolder(@NonNull View itemView) {
             super(itemView);

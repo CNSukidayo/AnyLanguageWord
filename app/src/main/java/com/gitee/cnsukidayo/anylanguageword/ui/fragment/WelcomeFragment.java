@@ -17,7 +17,7 @@ import androidx.navigation.Navigation;
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
 import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;

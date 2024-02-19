@@ -1,4 +1,4 @@
-package com.gitee.cnsukidayo.anylanguageword.context.word;
+package com.gitee.cnsukidayo.anylanguageword.context.support.word;
 
 import java.util.List;
 import java.util.Map;

@@ -2,7 +2,7 @@ package com.gitee.cnsukidayo.anylanguageword.utils;
 
 import androidx.annotation.NonNull;
 
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 
 import java.io.IOException;
 

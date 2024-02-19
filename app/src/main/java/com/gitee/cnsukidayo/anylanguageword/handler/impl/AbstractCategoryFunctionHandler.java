@@ -2,9 +2,9 @@ package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
 import android.text.TextUtils;
 
-import com.gitee.cnsukidayo.anylanguageword.context.word.StructureWord;
+import com.gitee.cnsukidayo.anylanguageword.context.support.word.StructureWord;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.utils.BeanUtils;
 
@@ -40,7 +40,12 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
      * 当前用户收藏的所有单词列表;第一个Map的Key单词的Id
      * 第二个Map的key是单词的结构id,value就是该结构下面的所有信息
      */
-    private final Map<Long, Map<Long, List<WordDTO>>> allStatWordList = new HashMap<>(30);
+    protected final Map<Long, Map<Long, List<WordDTO>>> queryCache = new HashMap<>(30);
+
+    /**
+     * 本次使用的语种
+     */
+    private Long languageId;
 
     @Override
     public void batchAddCategory(List<WordCategoryDetailVO> wordCategoryDetailVOList) {
@@ -68,7 +73,7 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
                             structureWordMap.put(wordEntry.getKey(), structureWord);
                         }
                         // 批量添加
-                        allStatWordList.putAll(structureWordMap);
+                        queryCache.putAll(structureWordMap);
                     })
                     .execute();
         });
@@ -171,7 +176,7 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
         if (wordCategoryWordDTO == null) {
             return null;
         }
-        return allStatWordList.get(wordCategoryWordDTO.getWordId());
+        return queryCache.get(wordCategoryWordDTO.getWordId());
     }
 
     @Override
@@ -208,8 +213,8 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
     }
 
     @Override
-    public void removeWordFromCategory(int categoryID, int position) {
-        WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(categoryID);
+    public void removeWordFromCategory(int categoryPosition, int position) {
+        WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(categoryPosition);
         WordCategoryWordDTO wordCategoryWordDTO = wordCategoryDetailVO.getWordCategoryWordList().remove(position);
         // 重排序
         wordCategoryDetailVO.getWordCategoryWordList().sort((o1, o2) -> o1.getWordOrder() - o2.getWordOrder());
@@ -231,14 +236,14 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
 
     @Override
     public Map<Long, List<WordDTO>> getWordFromCategory(int categoryID, int position) {
-        return allStatWordList.get(getWordCategoryByPosition(categoryID).getWordCategoryWordList()
+        return queryCache.get(getWordCategoryByPosition(categoryID).getWordCategoryWordList()
                 .get(position)
                 .getWordId());
     }
 
     @Override
     public void addWordQueryCache(Map<Long, Map<Long, List<WordDTO>>> structureWord) {
-        allStatWordList.putAll(structureWord);
+        queryCache.putAll(structureWord);
     }
 
     @Override
@@ -265,6 +270,16 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
         Collections.swap(wordCategoryDetailVOList.get(categoryPosition).getWordCategoryWordList(), fromPosition, toPosition);
     }
 
+    @Override
+    public void setCurrentLanguageId(Long languageId) {
+        this.languageId = languageId;
+    }
+
+    @Override
+    public Long getCurrentLanguageId() {
+        return this.languageId;
+    }
+
     /**
      * 计算标题和计算描述信息的方法复用
      *
@@ -278,7 +293,7 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
         WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(position);
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < 3 && i < wordCategoryDetailVO.getWordCategoryWordList().size(); i++) {
-            Optional.ofNullable(allStatWordList.get(wordCategoryDetailVO.getWordCategoryWordList()
+            Optional.ofNullable(queryCache.get(wordCategoryDetailVO.getWordCategoryWordList()
                             .get(i)
                             .getWordId()))
                     .map((Function<Map<Long, List<WordDTO>>, List<WordDTO>>) wordStructureMap -> wordStructureMap.get(wordStructureId))

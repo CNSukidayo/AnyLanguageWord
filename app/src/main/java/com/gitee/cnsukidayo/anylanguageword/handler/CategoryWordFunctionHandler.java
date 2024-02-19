@@ -12,15 +12,14 @@ import io.github.cnsukidayo.wword.model.dto.WordDTO;
  * @author cnsukidayo
  * @date 2023/1/9 16:45
  */
-public interface CategoryWordFunctionHandler {
+public interface CategoryWordFunctionHandler extends WordFunctionContextHandler {
 
     /**
      * 得到某个具体分类(收藏夹)中单词的数量
      *
      * @return 返回int类型
      */
-    int currentCategorySize(int categoryID);
-
+    int currentCategorySize(int categoryPosition);
 
     /**
      * 将某个单词添加到某个分类中
@@ -34,10 +33,10 @@ public interface CategoryWordFunctionHandler {
     /**
      * 将某个单词从某个分类中移除
      *
-     * @param categoryID 分类ID
-     * @param position   单词在category中的位置
+     * @param categoryPosition 分类ID
+     * @param position         单词在category中的位置
      */
-    void removeWordFromCategory(int categoryID, int position);
+    void removeWordFromCategory(int categoryPosition, int position);
 
     /**
      * 从某个分类中获取某个单词
@@ -47,13 +46,6 @@ public interface CategoryWordFunctionHandler {
      * @return 返回Word引用
      */
     Map<Long, List<WordDTO>> getWordFromCategory(int categoryPosition, int position);
-
-    /**
-     * 添加一个单词到查询缓存中
-     *
-     * @param structureWord 单词结构对象
-     */
-    void addWordQueryCache(Map<Long, Map<Long, List<WordDTO>>> structureWord);
 
     /**
      * 这个方法实际上是一种状态的刷新
@@ -72,4 +64,5 @@ public interface CategoryWordFunctionHandler {
      * @param toPosition       目标单词的位置
      */
     void moveCategoryWord(int categoryPosition, int fromPosition, int toPosition);
+
 }

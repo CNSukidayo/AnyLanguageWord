@@ -1,14 +1,16 @@
 package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
+import com.gitee.cnsukidayo.anylanguageword.context.support.word.StructureWord;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordFunctionHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,16 +64,16 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
      */
     private int start = 0, end;
 
-    /**
-     * 字典
-     */
-    private final Map<Long, List<WordDTO>> dict;
-
-
     public WordFunctionHandlerImpl(List<DivideWordDTO> initWordList,
                                    Map<Long, List<WordDTO>> dict) {
         this.allDivideWordList = new ArrayList<>(initWordList.size());
-        this.dict = dict;
+        // 和收藏夹共享本地查询缓存
+        Map<Long, Map<Long, List<WordDTO>>> structureWord = new HashMap<>(dict.size());
+        for (Map.Entry<Long, List<WordDTO>> entry : dict.entrySet()) {
+            Map<Long, List<WordDTO>> convert = StructureWord.convert(entry.getValue());
+            structureWord.put(entry.getKey(), convert);
+        }
+        super.addWordQueryCache(structureWord);
         this.allDivideWordList.addAll(initWordList);
         this.wordsFlagList = new ArrayList<>(initWordList.size());
         for (int i = 0; i < allDivideWordList.size(); i++) {
@@ -82,7 +84,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
 
 
     @Override
-    public List<WordDTO> getWordByOrder(int order) {
+    public Map<Long, List<WordDTO>> getWordByOrder(int order) {
         if (nowSelectChameleonSize == 0) {
             currentOrder = 0;
             currentIndex = 0;
@@ -95,22 +97,23 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
             }
         }
         this.currentIndex = i - 1;
-        return dict.get(allDivideWordList.get(currentIndex).getWordId());
+        return queryCache.get(allDivideWordList.get(currentIndex).getWordId());
     }
 
     @Override
     public WordCategoryWordDTO getCurrentViewWord() {
-        //if (nowSelectChameleonSize == 0) {
-        //    currentOrder = 0;
-        //    currentIndex = 0;
-        //    return null;
-        //}
-        //return dict.get(allDivideWordList.get(currentIndex).getWordId());
-        return null;
+        if (nowSelectChameleonSize == 0) {
+            currentOrder = 0;
+            currentIndex = 0;
+            return null;
+        }
+        WordCategoryWordDTO wordCategoryWordDTO = new WordCategoryWordDTO();
+        wordCategoryWordDTO.setWordId(allDivideWordList.get(currentIndex).getWordId());
+        return wordCategoryWordDTO;
     }
 
     @Override
-    public List<WordDTO> jumpPreviousWord() {
+    public Map<Long, List<WordDTO>> jumpPreviousWord() {
         if (currentOrder <= 0) {
             currentOrder = nowSelectChameleonSize;
         }
@@ -118,7 +121,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     }
 
     @Override
-    public List<WordDTO> jumpNextWord() {
+    public Map<Long, List<WordDTO>> jumpNextWord() {
         if (currentOrder >= nowSelectChameleonSize - 1) {
             currentOrder = -1;
         }
@@ -131,7 +134,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     }
 
     @Override
-    public List<WordDTO> jumpToWord(int jumpOrder) {
+    public Map<Long, List<WordDTO>> jumpToWord(int jumpOrder) {
         this.currentOrder = jumpOrder;
         return getWordByOrder(currentOrder);
     }

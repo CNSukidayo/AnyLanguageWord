@@ -18,10 +18,12 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @param order 单词在列表中的位序,注意order的顺序是从0开始的.
      * @return 返回单词的引用(单词的信息是一个集合)
      */
-    List<WordDTO> getWordByOrder(int order);
+    Map<Long, List<WordDTO>> getWordByOrder(int order);
 
     /**
-     * 获取当前指针指向的单词
+     * 获取当前指针指向的单词<br>
+     * 该方法和{@link CategoryFunctionHandler#getCurrentViewWord()}方法的含义有相似之处
+     * 因为该方法即可以作为收藏夹收藏单词时的依据,又可以作为当下要为用户展示的单词依据
      *
      * @return 返回单词引用
      */
@@ -40,14 +42,14 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      *
      * @return 返回单词引用
      */
-    List<WordDTO> jumpPreviousWord();
+    Map<Long, List<WordDTO>> jumpPreviousWord();
 
     /**
      * 跳转到下一个单词,调用该方法会将指针指向传入的索引位置
      *
      * @return 返回单词引用
      */
-    List<WordDTO> jumpNextWord();
+    Map<Long, List<WordDTO>> jumpNextWord();
 
     /**
      * 设置当前指针指向的位序
@@ -62,7 +64,7 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @param jumpOrder 跳转的目标位序
      * @return 返回单词引用
      */
-    List<WordDTO> jumpToWord(int jumpOrder);
+    Map<Long, List<WordDTO>> jumpToWord(int jumpOrder);
 
     /**
      * 得到当前指针指向的位序,currentOrder是对外显示的方法.

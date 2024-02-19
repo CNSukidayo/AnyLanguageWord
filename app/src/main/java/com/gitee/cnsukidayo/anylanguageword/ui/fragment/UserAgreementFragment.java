@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 
 import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
 import io.github.cnsukidayo.wword.common.request.interfaces.core.SystemInfoRequest;

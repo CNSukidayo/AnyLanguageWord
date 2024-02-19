@@ -26,14 +26,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.AbstractCategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartChineseAnswerRecyclerViewAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StarChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.wordsearch.SelectWordListAdapter;
@@ -78,7 +78,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter;
     // 收藏夹列表单词显示适配器
-    private StartChineseAnswerRecyclerViewAdapter chineseAnswerAdapterDrawer;
+    private StarChineseAnswerRecyclerViewAdapter chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
     private Handler updateUIHandler;
     private LinearLayout analysisWord, openStarDrawer;
@@ -282,6 +282,12 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                     .selectWordStructureById("2")
                     .success(data -> currentWordStructure = data.getData())
                     .execute();
+            // 得到当前选择的语种
+            Long languageId = currentWordStructure.stream()
+                    .findFirst()
+                    .map(WordStructureDTO::getLanguageId)
+                    .orElse(2L);
+            categoryFunctionHandler.setCurrentLanguageId(languageId);
             this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             // 初始化单词列表的adapter
@@ -292,6 +298,8 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryAdapter));
             startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
             startSingleCategoryAdapter.setStartFunctionHandler(categoryFunctionHandler);
+            // 设置收藏夹列表中中文意思显示的adapter
+            this.chineseAnswerAdapterDrawer = new StarChineseAnswerRecyclerViewAdapter(getContext(), languageId);
             // 获取当前用户的所有收藏夹信息
             CoreServiceRequestFactory.getInstance()
                     .wordCategoryRequest()
@@ -374,11 +382,10 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                     drawerPhraseHint.setVisibility(View.GONE);
                     drawerPhraseAnswer.setVisibility(View.GONE);
                 });
-        // 设置收藏夹翻译的中文
-        this.chineseAnswerAdapterDrawer = new StartChineseAnswerRecyclerViewAdapter(getContext(), structureWordMap);
-        this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
         // 设置中文翻译列表
         chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
+        // 设置收藏夹中文翻译
+        chineseAnswerAdapterDrawer.addItem(structureWordMap);
         // todo 在这里设置recycleView的宽度
     }
 

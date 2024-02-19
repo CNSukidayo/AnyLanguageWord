@@ -24,7 +24,7 @@ import com.gitee.cnsukidayo.anylanguageword.enums.CreditFilter;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditFormat;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditOrder;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 
 import java.io.IOException;

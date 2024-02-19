@@ -38,11 +38,12 @@ import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordFunctionHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StarChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
@@ -59,8 +60,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
 import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
@@ -82,7 +81,8 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private WordFunctionHandler wordFunctionHandler;
     private DrawerLayout startDrawer;
     private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
-    private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter, chineseAnswerAdapterDrawer;
+    private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter;
+    private StarChineseAnswerRecyclerViewAdapter chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
     /**
      * 获取的所有单词的摘要信息
@@ -224,9 +224,9 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             emptyUI();
             creditWord(wordFunctionHandler.jumpPreviousWord());
         } else if (clickViewId == R.id.fragment_word_container_get_answer) {
-            //visibleWordAllMessage(wordFunctionHandler.getCurrentWord());
+            visibleWordAllMessage(wordFunctionHandler.getCurrentStructureWordMap());
         } else if (clickViewId == R.id.fragment_word_credit_play_word) {
-            //creditWord(wordFunctionHandler.getCurrentWord());
+            creditWord(wordFunctionHandler.getCurrentStructureWordMap());
         } else if (clickViewId == R.id.fragment_word_credit_jump_next) {
             final EditText inputEditText = new EditText(getContext());
             inputEditText.setInputType(InputType.TYPE_CLASS_DATETIME);
@@ -370,14 +370,14 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                         WordCategoryParam wordCategoryParam = new WordCategoryParam();
                         wordCategoryParam.setTitle(categoryTile.getText().toString());
                         wordCategoryParam.setDescribeInfo(categoryDescribe.getText().toString());
-                        CoreServiceRequestFactory.getInstance()
+                        StaticFactory.getExecutorService().submit(() -> CoreServiceRequestFactory.getInstance()
                                 .wordCategoryRequest()
                                 .save(wordCategoryParam)
                                 .success(data -> {
                                     WordCategoryDTO wordCategoryDTO = data.getData();
                                     updateUIHandler.post(() -> startSingleCategoryAdapter.addItem(wordCategoryDTO));
                                 })
-                                .execute();
+                                .execute());
                     })
                     .setNegativeButton("取消", (dialog, which) -> {
                     })
@@ -494,7 +494,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                 this.previousWord.getForeground().setTint(getResources().getColor(R.color.holo_cyan_dark, null));
                 creditWord(wordFunctionHandler.jumpToWord(0));
                 wordCount.setText(String.valueOf(wordFunctionHandler.size()));
-
                 return;
             }
             if (wordFunctionHandler.removeFlagToCurrentWord(FlagColor.CYAN)) {
@@ -580,11 +579,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      *
      * @param toBeShowWord 待被展示的单词
      */
-    private void creditWord(List<WordDTO> toBeShowWord) {
-        // 首先转换成以单词结构id为Key的集合
-        Map<Long, List<WordDTO>> structureWordMap = toBeShowWord.stream()
-                .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
-
+    private void creditWord(Map<Long, List<WordDTO>> structureWordMap) {
         updateUIHandler.post(() -> {
             switch (wordFunctionHandler.getCurrentCreditState()) {
                 case LISTENING:
@@ -593,7 +588,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     break;
                 case ENGLISH_TRANSLATION_CHINESE:
                     // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏(必须在UI线程中隐藏)
-                    visibleWordAllMessage(toBeShowWord);
+                    visibleWordAllMessage(structureWordMap);
                     updateUIHandler.post(() -> {
                         //hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_chinese_answer));
                         //hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
@@ -601,13 +596,13 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     break;
                 case CHINESE_TRANSLATION_ENGLISH:
                     // 先展示所有单词信息,然后将英文原文和音标进行隐藏
-                    visibleWordAllMessage(toBeShowWord);
+                    visibleWordAllMessage(structureWordMap);
                     sourceWord.setText("");
                     sourceWordPhonetics.setText("");
                     break;
                 case CREDIT:
                     // 不隐藏任何信息
-                    visibleWordAllMessage(toBeShowWord);
+                    visibleWordAllMessage(structureWordMap);
                     break;
             }
             /*
@@ -615,7 +610,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             不管是什么状态,都需要显示当前背诵的位置和总的单词个数.
             不管什么状态,都需要更新drawer里面单词的内容
              */
-            //chineseAnswerAdapterDrawer.showWordChineseMessage(structureWordMap);
+            chineseAnswerAdapterDrawer.addItem(structureWordMap);
             // 设置右侧展开列表单词的原文
             Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
                     .ifPresent(wordDTOS -> sourceWordDrawer
@@ -695,24 +690,30 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
 //                    wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
                 }
             }
+            // 得到当前选择的语种
+            Long languageId = currentWordStructure.stream()
+                    .findFirst()
+                    .map(WordStructureDTO::getLanguageId)
+                    .orElse(2L);
             this.wordFunctionHandler = new WordFunctionHandlerImpl(allDivideWordList, allWordList);
+            wordFunctionHandler.setCurrentLanguageId(languageId);
             if (userCreditStyle != null) {
                 this.wordFunctionHandler.setCurrentCreditState(userCreditStyle.getCreditState());
             }
-            // 模拟加载延迟的情况1s
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
-            this.chineseAnswerAdapterDrawer = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
+            // 设置收藏夹列表中中文意思显示的adapter
+            this.chineseAnswerAdapterDrawer = new StarChineseAnswerRecyclerViewAdapter(getContext(), languageId);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
-            this.chineseAnswerAdapterDrawer.setRecyclerViewState(ChineseAnswerRecyclerViewAdapter.RecyclerViewState.DRAWER);
             // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能
             ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryAdapter));
             startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
             startSingleCategoryAdapter.setStartFunctionHandler(wordFunctionHandler);
+            // 获取当前用户的所有收藏夹信息
+            CoreServiceRequestFactory.getInstance()
+                    .wordCategoryRequest()
+                    .list()
+                    .success(data -> wordFunctionHandler.batchAddCategory(data.getData()))
+                    .execute();
             updateUIHandler.post(() -> {
                 this.chineseAnswer.setAdapter(chineseAnswerAdapter);
                 Optional.ofNullable(((SimpleItemAnimator) this.chineseAnswer.getItemAnimator())).ifPresent(simpleItemAnimator -> {
@@ -827,10 +828,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 显示当前单词的所有信息,<b>具体当前要根据状态隐藏哪些信息有调用者来处理.</b><br>
      * 该方法展示的是最全面的信息,所有隐藏信息都会被显示,但是单词没有的性质(比如没有某个中文意思)那么没有的内容不会展示.
      */
-    private void visibleWordAllMessage(List<WordDTO> toBeShowWord) {
-        // 首先转换成以单词结构id为Key的集合
-        Map<Long, List<WordDTO>> structureWordMap = toBeShowWord.stream()
-                .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
+    private void visibleWordAllMessage(Map<Long, List<WordDTO>> structureWordMap) {
         // 设置单词原文
         Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
                 .ifPresent(wordDTOS -> sourceWord

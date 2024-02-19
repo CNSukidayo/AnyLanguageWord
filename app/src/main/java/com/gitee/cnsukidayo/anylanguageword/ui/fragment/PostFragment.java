@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.CommentRecyclerViewAdapter;
 import com.google.android.material.appbar.AppBarLayout;

@@ -1,10 +1,12 @@
-package com.gitee.cnsukidayo.anylanguageword.factory;
+package com.gitee.cnsukidayo.anylanguageword.context.support.factory;
 
 import android.content.Context;
 
 import androidx.navigation.NavOptions;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.support.category.WordMetaInfoFilter;
+import com.gitee.cnsukidayo.anylanguageword.context.support.category.WordMetaInfoFilterImpl;
 import com.gitee.cnsukidayo.anylanguageword.handler.HomeMessageStreamHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordMeaningConvertHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.HomeMessageStreamHandlerImpl;
@@ -12,8 +14,10 @@ import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordMeaningConvertHandl
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.plugin.GlobalMarkwonPlugin;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +42,7 @@ public class StaticFactory {
     }
 
     private static final class EmptyWordHolder {
-        static final List<WordDTO> EMPTY_WORD = new ArrayList<>();
+        static final Map<Long, List<WordDTO>> EMPTY_WORD = Collections.unmodifiableMap(new HashMap<>());
     }
 
     private static final class WordMeaningConvertHandlerHolder {
@@ -59,6 +63,10 @@ public class StaticFactory {
 
     private static final class CssInlineStyleParserHolder {
         static final CssInlineStyleParser CSS_INLINE_STYLE_PARSER = CssInlineStyleParser.create();
+    }
+
+    private static final class WordMetaInfoFilterHolder {
+        static final WordMetaInfoFilterImpl WORD_META_INFO_FILTER = new WordMetaInfoFilterImpl();
     }
 
     /**
@@ -84,7 +92,7 @@ public class StaticFactory {
      *
      * @return 获取一个空单词
      */
-    public static List<WordDTO> getEmptyWord() {
+    public static Map<Long, List<WordDTO>> getEmptyWord() {
         return EmptyWordHolder.EMPTY_WORD;
     }
 
@@ -137,6 +145,15 @@ public class StaticFactory {
      */
     public static CssInlineStyleParser getCssInlineStyleParser() {
         return CssInlineStyleParserHolder.CSS_INLINE_STYLE_PARSER;
+    }
+
+    /**
+     * 得到单词元数据过滤Map获取器
+     *
+     * @return 返回单利的元数据过滤获取器
+     */
+    public static WordMetaInfoFilter getWordMetaInfoFilter() {
+        return WordMetaInfoFilterHolder.WORD_META_INFO_FILTER;
     }
 
 

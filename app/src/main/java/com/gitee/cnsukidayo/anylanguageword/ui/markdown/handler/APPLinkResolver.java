@@ -6,7 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
 
-import com.gitee.cnsukidayo.anylanguageword.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 
 import io.noties.markwon.LinkResolver;
 import io.noties.markwon.LinkResolverDef;

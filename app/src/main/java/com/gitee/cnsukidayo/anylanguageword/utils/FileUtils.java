@@ -49,9 +49,7 @@ public class FileUtils {
         if (file.exists()) {
             return readAll(AnyLanguageWordProperties.getExternalFilesDir(), target);
         } else {
-            if (file.getParentFile().isDirectory()) {
-                file.getParentFile().mkdirs();
-            }
+            file.getParentFile().mkdirs();
             file.createNewFile();
             return "";
         }

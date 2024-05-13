@@ -7,10 +7,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
+import io.github.cnsukidayo.wword.common.request.RequestHandler;
 import io.github.cnsukidayo.wword.common.request.ResponseWrapper;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -39,9 +41,10 @@ public class HttpLogInterceptor implements Interceptor {
         // 获取当前请求的所有信息
         Request request = chain.request();
         String bodyMessage = " ;body-";
-        if (request.body() != null) {
+        RequestBody requestBody = request.body();
+        if (requestBody != null && requestBody.contentType().equals(RequestHandler.APPLICATION_JSON_VALUE)) {
             Buffer buffer = new Buffer();
-            request.body().writeTo(buffer);
+            requestBody.writeTo(buffer);
             bodyMessage += buffer.readUtf8();
 
         }

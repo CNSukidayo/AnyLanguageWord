@@ -2,7 +2,6 @@ package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,29 +17,26 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
 import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.CommentRecyclerViewAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.PostDetailRecyclerViewAdapter;
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.noties.markwon.Markwon;
 
 /*
  * @author sukidayo
  * @date 2023/2/12 15:19:39
  */
-public class PostFragment extends Fragment implements View.OnClickListener, AppBarLayout.OnOffsetChangedListener, View.OnScrollChangeListener {
+public class PostFragment extends Fragment implements
+        View.OnClickListener, AppBarLayout.OnOffsetChangedListener, View.OnScrollChangeListener {
 
     private View rootView;
     private Handler updateUIHandler;
     private ProgressBar loadingBar;
     private ImageButton backToTrace;
-    private String markdownOrigin;
     private AppBarLayout appBarLayout;
     private RelativeLayout title;
     private LinearLayout jumpComment;
@@ -48,7 +44,7 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
     private final int[] locationOnScreen = new int[2];
     private volatile boolean isLoadMore;
     private RecyclerView commentRecyclerView;
-    private CommentRecyclerViewAdapter commentAdapter;
+    private PostDetailRecyclerViewAdapter commentAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,49 +62,26 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
         bindView();
         // 先隐藏标题信息
         this.title.setVisibility(View.GONE);
-        showMarkDown();
+        initView();
         return rootView;
-    }
-
-    private void showMarkDown() {
-        this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        StaticFactory.getExecutorService().submit(() -> {
-            markdownOrigin = "文章内容";
-            Markwon markwon = StaticFactory.getGlobalMarkwon(getContext());
-            final Spanned spanned = markwon.toMarkdown(markdownOrigin);
-            // 加载评论区
-            this.commentAdapter = new CommentRecyclerViewAdapter(getContext());
-            commentAdapter.setMarkDownText(spanned);
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            updateUIHandler.post(() -> {
-                commentRecyclerView.setAdapter(commentAdapter);
-                loadingBar.setVisibility(View.GONE);
-            });
-        });
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.toolbar_back_to_trace:
-                Navigation.findNavController(getView()).popBackStack();
-                break;
-            case R.id.fragment_post_jump_comment:
-                appBarLayout.setExpanded(false, false);
-                this.commentOrderLayout = commentAdapter.getCommentOrderLayout();
-                commentOrderLayout.getLocationOnScreen(locationOnScreen);//测量某View相对于屏幕的距离
-                int dy = locationOnScreen[1];
-                commentRecyclerView.getLocationOnScreen(locationOnScreen);
-                int distance = dy - locationOnScreen[1];
-                if (distance > 0) {
-                    commentRecyclerView.fling(0, distance);
-                    commentRecyclerView.smoothScrollBy(0, distance);
-                }
-                break;
+        int itemId = v.getId();
+        if (itemId == R.id.toolbar_back_to_trace) {
+            Navigation.findNavController(getView()).popBackStack();
+        } else if (itemId == R.id.fragment_post_jump_comment) {
+            appBarLayout.setExpanded(false, false);
+            this.commentOrderLayout = commentAdapter.getCommentOrderLayout();
+            commentOrderLayout.getLocationOnScreen(locationOnScreen);//测量某View相对于屏幕的距离
+            int dy = locationOnScreen[1];
+            commentRecyclerView.getLocationOnScreen(locationOnScreen);
+            int distance = dy - locationOnScreen[1];
+            if (distance > 0) {
+                commentRecyclerView.fling(0, distance);
+                commentRecyclerView.smoothScrollBy(0, distance);
+            }
         }
     }
 
@@ -151,6 +124,20 @@ public class PostFragment extends Fragment implements View.OnClickListener, AppB
             });
 
         }
+    }
+
+    private void initView() {
+        this.commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        StaticFactory.getExecutorService().submit(() -> {
+            if (getArguments() == null || !getArguments().containsKey("postId")) {
+                return;
+            }
+            long postId = getArguments().getLong("postId");
+            // 加载整个页面
+            this.commentAdapter = new PostDetailRecyclerViewAdapter(getContext(), postId);
+            updateUIHandler.post(() -> commentRecyclerView.setAdapter(commentAdapter));
+        });
+        loadingBar.setVisibility(View.GONE);
     }
 
     private void bindView() {

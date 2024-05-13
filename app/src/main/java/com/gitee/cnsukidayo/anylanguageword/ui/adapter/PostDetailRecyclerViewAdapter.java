@@ -15,6 +15,7 @@ import androidx.constraintlayout.utils.widget.ImageFilterView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.entity.Comment;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
 
@@ -23,7 +24,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerViewAdapterItemChange<Comment> {
+import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
+import io.noties.markwon.Markwon;
+
+public class PostDetailRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerViewAdapterItemChange<Comment> {
 
     private final Context context;
     private final List<Comment> allComments = new ArrayList<>(5);
@@ -31,9 +35,14 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private final Random random = new Random();
     private Spanned markDownText;
     private RelativeLayout commentOrderLayout;
+    // 帖子的id
+    private final Long postId;
+    // markdown原文
+    private String markdownOrigin;
 
-    public CommentRecyclerViewAdapter(Context context) {
+    public PostDetailRecyclerViewAdapter(Context context, Long postId) {
         this.context = context;
+        this.postId = postId;
         updateUIHandler = new Handler(context.getMainLooper());
     }
 
@@ -61,7 +70,7 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (holder instanceof CommentViewHolder) {
             CommentViewHolder commentViewHolder = (CommentViewHolder) holder;
-            Comment comment = allComments.get(position-1);
+            Comment comment = allComments.get(position - 1);
             commentViewHolder.commentAuthorFace.setImageResource(comment.getFace());
             commentViewHolder.name.setText(comment.getName());
             commentViewHolder.level.setText(String.valueOf(comment.getLevel()));
@@ -74,7 +83,16 @@ public class CommentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             }
         } else if (holder instanceof CommentHeaderViewHolder) {
             CommentHeaderViewHolder commentHeaderViewHolder = (CommentHeaderViewHolder) holder;
-            commentHeaderViewHolder.markDownTextView.setText(markDownText);
+            StaticFactory.getExecutorService().submit(() -> CoreServiceRequestFactory.getInstance()
+                    .postRequest()
+                    .getPostDetailUncheck(postId)
+                    .success(data -> {
+                        markdownOrigin = data.getData().getContent();
+                        Markwon markwon = StaticFactory.getGlobalMarkwon(context);
+                        // 更新markdown文本
+                        updateUIHandler.post(() -> markwon.setMarkdown(commentHeaderViewHolder.markDownTextView, markdownOrigin));
+                    })
+                    .execute());
         }
     }
 

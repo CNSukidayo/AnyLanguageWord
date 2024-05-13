@@ -65,7 +65,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             holder.childDivideListRecyclerView.setVisibility(View.GONE);
         }
         holder.divideTextView.setText(divideDTO.getName());
-        holder.elementCount.setText(String.valueOf(divideDTO.getElementCount()));
+        //holder.elementCount.setText(String.valueOf(divideDTO.getElementCount()));
 
     }
 
@@ -99,7 +99,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private TextView divideTextView;
-        private TextView elementCount;
+        //private TextView elementCount;
         private ImageButton addToPlane;
         private RelativeLayout relativeLayout;
         /**
@@ -118,7 +118,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             this.addToPlane = itemView.findViewById(R.id.credit_fragment_divide_image_button);
             this.relativeLayout = itemView.findViewById(R.id.parent_divide_relative_layout);
             this.childDivideListRecyclerView = itemView.findViewById(R.id.child_divide_recycler_view);
-            this.elementCount = itemView.findViewById(R.id.credit_fragment_divide_element_count);
+            //this.elementCount = itemView.findViewById(R.id.credit_fragment_divide_element_count);
 
             this.childDivideListRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             this.childDivideListAdapter = new ChildDivideListAdapter(context);

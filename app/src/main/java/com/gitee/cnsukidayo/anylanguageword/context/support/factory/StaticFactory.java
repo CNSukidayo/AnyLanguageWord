@@ -25,6 +25,7 @@ import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.html.CssInlineStyleParser;
 import io.noties.markwon.html.HtmlPlugin;
+import io.noties.markwon.image.ImagesPlugin;
 
 public class StaticFactory {
 
@@ -133,6 +134,7 @@ public class StaticFactory {
      */
     public static Markwon getGlobalMarkwon(Context context) {
         return Markwon.builder(context)
+                .usePlugin(ImagesPlugin.create())
                 .usePlugin(HtmlPlugin.create())
                 .usePlugin(GlobalMarkwonPlugin.create(context))
                 .build();

@@ -34,7 +34,7 @@
                 android:foreground="@drawable/item_gray_select_radius_22dp"
                 android:gravity="center"
                 android:scaleType="fitXY"
-                android:src="@drawable/face"
+                android:src="@drawable/rabbit"
                 app:round="@dimen/user_face_oval" />
 
             <androidx.constraintlayout.widget.ConstraintLayout

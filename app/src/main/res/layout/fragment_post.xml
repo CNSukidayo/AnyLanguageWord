@@ -55,7 +55,7 @@
                         android:layout_marginStart="@dimen/app_layout_margin"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="@dimen/app_layout_margin"
-                        android:text="中分头背带裤,我是爱坤你记住!\n荔枝?你让我拿什么荔枝?"
+                        android:text="如何正确回复How are you?"
                         android:textColor="@color/black"
                         android:textSize="22sp" />
 
@@ -73,7 +73,7 @@
                             android:layout_height="40dp"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
-                            android:src="@drawable/post_cover2"
+                            android:src="@drawable/rabbit"
                             app:round="64dp" />
 
                         <LinearLayout
@@ -93,7 +93,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="IKUN"
+                                    android:text="小欣说英语"
                                     android:textColor="@color/black" />
 
                                 <TextView
@@ -277,7 +277,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="0.9"
                         android:gravity="center"
-                        android:text="2333" />
+                        android:text="12" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -301,7 +301,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="0.9"
                         android:gravity="center"
-                        android:text="2333" />
+                        android:text="25" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -324,7 +324,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="0.9"
                         android:gravity="center"
-                        android:text="2333" />
+                        android:text="1" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -347,7 +347,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="0.9"
                         android:gravity="center"
-                        android:text="2333" />
+                        android:text="79" />
                 </LinearLayout>
             </LinearLayout>
 

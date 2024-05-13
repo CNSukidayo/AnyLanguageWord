@@ -17,6 +17,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
@@ -124,7 +125,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // 如果是从主页进入背词页面是一定会从新加载的,如果是从查词界面进入背词界面则不能重新加载.
         if (rootView != null) {
             return rootView;
@@ -577,7 +578,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 按模式展示某个单词.
      * 展示单词是一种状态,随着单词的变化,页面的UI也要跟随变化.
      *
-     * @param toBeShowWord 待被展示的单词
+     * @param structureWordMap 待被展示的单词
      */
     private void creditWord(Map<Long, List<WordDTO>> structureWordMap) {
         updateUIHandler.post(() -> {

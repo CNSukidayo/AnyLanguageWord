@@ -7,7 +7,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.handler.APPLinkResolver;
+import com.gitee.cnsukidayo.anylanguageword.ui.markdown.handler.INetworkSchemeHandler;
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.handler.SpanHandler;
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.movementmethod.ClickableSpanMovementMethod;
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.spanfactory.AppHeadingSpanFactory;
@@ -27,6 +29,8 @@ import io.noties.markwon.core.CorePlugin;
 import io.noties.markwon.core.CoreProps;
 import io.noties.markwon.core.MarkwonTheme;
 import io.noties.markwon.html.HtmlPlugin;
+import io.noties.markwon.image.ImagesPlugin;
+import io.noties.markwon.image.destination.ImageDestinationProcessor;
 
 /**
  * 调用链路:<br>
@@ -48,7 +52,7 @@ import io.noties.markwon.html.HtmlPlugin;
  * @date 2023/1/12 12:20
  */
 public class GlobalMarkwonPlugin extends AbstractMarkwonPlugin {
-    private Context context;
+    private final Context context;
 
     private GlobalMarkwonPlugin(Context context) {
         this.context = context;
@@ -69,6 +73,12 @@ public class GlobalMarkwonPlugin extends AbstractMarkwonPlugin {
         */
         registry.require(HtmlPlugin.class).addHandler(new SpanHandler(context));
         registry.require(CorePlugin.class).hasExplicitMovementMethod(true);
+        registry.require(ImagesPlugin.class, new Action<ImagesPlugin>() {
+            @Override
+            public void apply(@NonNull ImagesPlugin imagesPlugin) {
+                imagesPlugin.addSchemeHandler(INetworkSchemeHandler.create());
+            }
+        });
         super.configure(registry);
     }
 
@@ -101,6 +111,13 @@ public class GlobalMarkwonPlugin extends AbstractMarkwonPlugin {
     public void configureConfiguration(@NonNull MarkwonConfiguration.Builder builder) {
         // 配置解析器功能
         builder.linkResolver(new APPLinkResolver());
+        builder.imageDestinationProcessor(new ImageDestinationProcessor() {
+            @NonNull
+            @Override
+            public String process(@NonNull String destination) {
+                return AnyLanguageWordProperties.imagePrefix + destination;
+            }
+        });
     }
 
     @Override

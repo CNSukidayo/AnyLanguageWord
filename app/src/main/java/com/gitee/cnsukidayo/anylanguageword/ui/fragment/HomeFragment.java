@@ -24,9 +24,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
-import com.gitee.cnsukidayo.anylanguageword.entity.PostCover;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.handler.HomeMessageStreamHandler;
+import com.gitee.cnsukidayo.anylanguageword.entity.PostCover;
 import com.gitee.cnsukidayo.anylanguageword.test.BeanTest;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.HomePictureViewAdapter;
@@ -38,6 +37,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
+import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
+import io.github.cnsukidayo.wword.model.vo.PostAbstractVO;
 
 public class HomeFragment extends Fragment implements View.OnClickListener,
         SwipeRefreshLayout.OnRefreshListener, NestedScrollView.OnScrollChangeListener, NavigationItemSelectListener, View.OnFocusChangeListener {
@@ -62,7 +63,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     private volatile boolean isLoadMore;
 
     private StaggeredGridLayoutManager postRecyclerViewLayoutManager;
-    private HomeMessageStreamHandler homeMessageStreamHandler;
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
 
     @Override
@@ -78,7 +78,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         updateUIHandler = new Handler();
         MainActivity mainActivity = (MainActivity) rootView.getContext();
         bindView();
-        initPost();
+        initView();
         return rootView;
     }
 
@@ -113,7 +113,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                     PostCover postCover = BeanTest.createPostCover();
                     list.add(postCover);
                 }
-                updateUIHandler.post(() -> postRecyclerViewAdapter.addAll(list));
+                //updateUIHandler.post(() -> postRecyclerViewAdapter.addAll(list));
                 isLoadMore = false;
             });
         }
@@ -123,7 +123,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     public void onRefresh() {
         StaticFactory.getExecutorService().submit(() -> {
             // 先执行网络请求,请求完成后统一更新UI
-            homeMessageStreamHandler.refresh();
             try {
                 TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {
@@ -131,7 +130,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
             }
             // 更新UI
             updateUIHandler.post(() -> {
-                postRecyclerViewAdapter.notifyDataSetChanged();
                 downRefreshLayout.setRefreshing(false);
             });
         });
@@ -169,13 +167,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     /**
      * 初始化所有帖子,耗时方法放到线程池中执行,UI到时候统一更新.
      */
-    private void initPost() {
+    private void initView() {
         this.postRecyclerViewLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         this.postRecyclerView.setLayoutManager(postRecyclerViewLayoutManager);
         this.postRecyclerViewAdapter = new PostRecyclerViewAdapter(getContext());
-        this.homeMessageStreamHandler = StaticFactory.getHomeMessageStreamHandler();
-        homeMessageStreamHandler.refresh();
-        postRecyclerViewAdapter.setHomeMessageStreamHandler(homeMessageStreamHandler);
         this.postRecyclerView.setAdapter(postRecyclerViewAdapter);
         this.postRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
@@ -200,8 +195,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                 userSlideImage = true;
             }
         });
+        // 获取帖子信息
         // 实现图片定时轮转 todo 实际上做起来挺麻烦的,目前这里只是做一个样式
         StaticFactory.getExecutorService().submit(() -> {
+            // 获取首页帖子信息
+            CoreServiceRequestFactory.getInstance()
+                    .postRequest()
+                    .getPostListUncheck()
+                    .success(data -> {
+                        List<PostAbstractVO> postAbstractVOList = data.getData();
+                        updateUIHandler.post(() -> postRecyclerViewAdapter.addAll(postAbstractVOList));
+                    })
+                    .execute();
             while (true) {
                 try {
                     TimeUnit.SECONDS.sleep(3);

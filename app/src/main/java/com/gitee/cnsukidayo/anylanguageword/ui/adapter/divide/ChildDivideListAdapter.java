@@ -59,7 +59,7 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
         } else {
             holder.childDivideButton.setImageDrawable(null);
         }
-        holder.elementCount.setText(String.valueOf(divideDTO.getElementCount()));
+        //holder.elementCount.setText(String.valueOf(divideDTO.getElementCount()));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View itemView;
         private TextView divideTextView;
-        private TextView elementCount;
+        //private TextView elementCount;
         private ImageButton childDivideButton;
 
         public RecyclerViewHolder(@NonNull View itemView) {
@@ -100,7 +100,7 @@ public class ChildDivideListAdapter extends RecyclerView.Adapter<ChildDivideList
             this.itemView = itemView;
             this.divideTextView = itemView.findViewById(R.id.credit_fragment_child_divide_textview);
             this.childDivideButton = itemView.findViewById(R.id.credit_fragment_child_divide_image_button);
-            this.elementCount = itemView.findViewById(R.id.credit_fragment_child_divide_element_count);
+            //this.elementCount = itemView.findViewById(R.id.credit_fragment_child_divide_element_count);
 
             itemView.setOnClickListener(this);
         }

@@ -19,13 +19,14 @@ import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 import com.gitee.cnsukidayo.anylanguageword.context.UserSettings;
 import com.gitee.cnsukidayo.anylanguageword.context.interceptor.BadResponseToastInterceptor;
 import com.gitee.cnsukidayo.anylanguageword.context.interceptor.HttpLogInterceptor;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.enums.UserLevel;
 import com.gitee.cnsukidayo.anylanguageword.enums.VIPLevel;
-import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.BottomViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
@@ -38,9 +39,17 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import io.github.cnsukidayo.wword.common.request.BadResponseOkHttpInterceptor;
 import io.github.cnsukidayo.wword.common.request.OkHttpHostnameVerifier;
@@ -80,9 +89,6 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
      * 用户设置
      */
     private UserSettings userSettings;
-
-    private final String ip = "192.168.0.103";
-    private final String port = "8200";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -152,10 +158,9 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
 
     @Override
     public boolean onLongClick(View v) {
-        switch (v.getId()) {
-            case R.id.fragment_main_bottom_recite:
-                Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_navigation_search_word, null, StaticFactory.getSimpleNavOptions());
-                break;
+        int itemId = v.getId();
+        if (itemId == R.id.fragment_main_bottom_recite) {
+            Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_navigation_search_word, null, StaticFactory.getSimpleNavOptions());
         }
         return true;
     }
@@ -227,6 +232,7 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
                 //LocalDate反序列化适配器
                 .registerTypeAdapter(LocalDate.class, new GLocalDateDeSerializer())
                 .create();
+        handleSSLHandshake();
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .hostnameVerifier(new OkHttpHostnameVerifier())
                 .sslSocketFactory(sslSocketFactoryCreate.getSslSocketFactory(), sslSocketFactoryCreate.getX509TrustManager())
@@ -235,9 +241,8 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
                 .addInterceptor(new TokenCheckOkHttpInterceptor(gson))
                 .addInterceptor(new HttpLogInterceptor())
                 .build();
-
         RequestHandler requestHandler = new RequestHandler(okHttpClient, gson, null);
-        requestHandler.setBaseUrl("https://" + ip + ":" + port);
+        requestHandler.setBaseUrl("https://" + AnyLanguageWordProperties.ip + ":" + AnyLanguageWordProperties.port);
         RequestRegister.register(requestHandler);
         // 初始化读取用户token
         try {
@@ -251,6 +256,40 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         }
 
     }
+
+    /**
+     * 忽略https的证书校验
+     */
+    private void handleSSLHandshake() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            SSLContext sc = SSLContext.getInstance("TLS");
+            // 信任所有证书
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+        } catch (Exception ignored) {
+            // 处理异常
+        }
+    }
+
 
     /**
      * 初始化ViewPage,实现滑动切换的功能

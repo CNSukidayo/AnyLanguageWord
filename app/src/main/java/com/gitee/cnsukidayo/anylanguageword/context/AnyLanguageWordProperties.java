@@ -8,9 +8,9 @@ public class AnyLanguageWordProperties {
 
     public static final String androidPackageName = "android";
 
-    public static final String ip = "192.168.148.63";
+    public static final String ip = "119.45.248.231";
     public static final String port = "8200";
-    public static final String imagePrefix = "https://" + AnyLanguageWordProperties.ip + ":" + AnyLanguageWordProperties.port + "/";
+    public static final String imagePrefix = "https://cnsukidayo.oss-cn-shanghai.aliyuncs.com/";
 
     public static File getExternalFilesDir() {
         return AnyLanguageWordProperties.externalFilesDir;

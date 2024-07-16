@@ -87,6 +87,13 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         notifyItemRangeChanged(0, allPostDTOList.size());
     }
 
+    @Override
+    public void replaceAll(Collection<PostAbstractVO> postAbstractVOS) {
+        allPostDTOList.clear();
+        allPostDTOList.addAll(postAbstractVOS);
+        notifyItemRangeChanged(0, postAbstractVOS.size());
+    }
+
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final View itemView;
         private final RoundImageView postCover;

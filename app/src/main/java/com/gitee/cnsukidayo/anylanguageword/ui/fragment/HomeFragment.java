@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.utils.widget.ImageFilterView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
@@ -61,6 +63,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     // 用户是否正在滑动图片的标识
     private volatile boolean userSlideImage;
     private volatile boolean isLoadMore;
+    // 跳转帖子发布页面按钮
+    private ImageView pushPostCardView;
 
     private StaggeredGridLayoutManager postRecyclerViewLayoutManager;
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
@@ -90,6 +94,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         } else if (itemId == R.id.fragment_home_search_view) {
             searchView.setIconified(false);
             searchView.requestFocus();
+        } else if (itemId == R.id.fragment_home_push_post) {
+            Navigation.findNavController(getView()).navigate(R.id.action_main_navigation_to_navigation_push_post, null,
+                    StaticFactory.getSimpleNavOptions());
         }
     }
 
@@ -123,15 +130,17 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     public void onRefresh() {
         StaticFactory.getExecutorService().submit(() -> {
             // 先执行网络请求,请求完成后统一更新UI
-            try {
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            // 更新UI
-            updateUIHandler.post(() -> {
-                downRefreshLayout.setRefreshing(false);
-            });
+            CoreServiceRequestFactory instance = CoreServiceRequestFactory.getInstance();
+            instance.postRequest()
+                    .getPostListUncheck()
+                    .success(data -> {
+                        List<PostAbstractVO> postAbstractVOList = data.getData();
+                        updateUIHandler.post(() -> {
+                            postRecyclerViewAdapter.replaceAll(postAbstractVOList);
+                            downRefreshLayout.setRefreshing(false);
+                        });
+                    })
+                    .execute();
         });
     }
 
@@ -242,11 +251,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         this.imageRotationContainer = rootView.findViewById(R.id.fragment_home_picture_rotation_oval_container);
         this.searchView = rootView.findViewById(R.id.fragment_home_search_view);
         this.searchViewHint = rootView.findViewById(R.id.fragment_home_search_view_hint);
+        this.pushPostCardView = rootView.findViewById(R.id.fragment_home_push_post);
 
         this.popDrawerLayoutButton.setOnClickListener(this);
         this.nestedScrollView.setOnScrollChangeListener(this);
         this.searchView.setOnClickListener(this);
         this.searchView.setOnQueryTextFocusChangeListener(this);
+        this.pushPostCardView.setOnClickListener(this);
 
         downRefreshLayout.setSize(CircularProgressDrawable.LARGE);
         downRefreshLayout.setColorSchemeResources(R.color.theme_color);

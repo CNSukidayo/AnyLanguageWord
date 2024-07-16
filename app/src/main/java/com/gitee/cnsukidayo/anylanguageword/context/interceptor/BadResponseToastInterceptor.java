@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
+import io.github.cnsukidayo.wword.common.request.RequestHandler;
 import io.github.cnsukidayo.wword.model.support.BaseResponse;
 import io.github.cnsukidayo.wword.model.vo.ErrorVo;
 import okhttp3.Interceptor;
@@ -50,10 +51,14 @@ public class BadResponseToastInterceptor implements Interceptor {
         Response response = chain.proceed(request);
         // 如果出现异常,终止操作,下面这段代码会最后执行.
         String body = null;
+        ResponseBody responseBody = response.body();
         try {
-            body = getResponseBody(response.body());
+            body = getResponseBody(responseBody);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+        if(!responseBody.contentType().equals(RequestHandler.APPLICATION_JSON_VALUE)){
+            return response;
         }
         // 执行到此方法表明外层肯定没有出现错误,但是内层可能出现错误
         BaseResponse baseResponse = gson.fromJson(body, BaseResponse.class);

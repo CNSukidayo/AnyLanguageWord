@@ -25,8 +25,6 @@ import com.gitee.cnsukidayo.anylanguageword.context.interceptor.BadResponseToast
 import com.gitee.cnsukidayo.anylanguageword.context.interceptor.HttpLogInterceptor;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.enums.UserLevel;
-import com.gitee.cnsukidayo.anylanguageword.enums.VIPLevel;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.BottomViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
@@ -57,13 +55,10 @@ import io.github.cnsukidayo.wword.common.request.RequestHandler;
 import io.github.cnsukidayo.wword.common.request.RequestRegister;
 import io.github.cnsukidayo.wword.common.request.SSLSocketFactoryCreate;
 import io.github.cnsukidayo.wword.common.request.TokenCheckOkHttpInterceptor;
-import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
-import io.github.cnsukidayo.wword.common.request.interfaces.auth.UserRequest;
 import io.github.cnsukidayo.wword.common.request.type.deser.GLocalDateDeSerializer;
 import io.github.cnsukidayo.wword.common.request.type.deser.GLocalDateTimeDeSerializer;
 import io.github.cnsukidayo.wword.common.request.type.ser.GLocalDateSerializer;
 import io.github.cnsukidayo.wword.common.request.type.ser.GLocalDateTimeSerializer;
-import io.github.cnsukidayo.wword.model.dto.UserProfileDTO;
 import okhttp3.OkHttpClient;
 
 public class MainFragmentAdapter extends Fragment implements NavigationBarView.OnItemSelectedListener, DrawerLayout.DrawerListener,
@@ -80,8 +75,8 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
     private TextView userName, userLevel, userVipLevel, userMoney;
     private LinearLayout settings;
     private DrawerLayout drawerLayout;
-    private final Fragment homeFragment = new HomeFragment(), creditFragment = new CreditFragment(), hearingFragment = new HearingFragment(), analysisFragment = new AnalysisFragment();
-    private BottomNavigationItemView bottomHome, bottomRecite, bottomHearing, bottomAnalysis;
+    private final Fragment creditFragment = new CreditFragment(), hearingFragment = new HearingFragment(), analysisFragment = new HistoryFragment();
+    private BottomNavigationItemView bottomRecite, bottomHearing, bottomAnalysis;
     private RelativeLayout userInfoArea;
     private final Handler updateUIHandler = new Handler();
 
@@ -128,13 +123,13 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
             int position = 0;
             switch (item.getItemId()) {
                 case R.id.fragment_main_bottom_recite:
-                    position = 1;
+                    position = 0;
                     break;
                 case R.id.fragment_main_bottom_hearing:
-                    position = 2;
+                    position = 1;
                     break;
                 case R.id.fragment_main_bottom_analysis:
-                    position = 3;
+                    position = 2;
                     break;
             }
             viewPager.setCurrentItem(position, false);
@@ -191,26 +186,26 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
 
     private void initView() {
         // 进入主页时加载用户个人信息
-        if (RequestRegister.getAuthToken().getAccessToken() != null) {
-            userInfoArea.setVisibility(View.VISIBLE);
-            StaticFactory
-                    .getExecutorService()
-                    .execute(() -> {
-                        UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();
-                        userRequest.getProfile()
-                                .success(data -> {
-                                    UserProfileDTO userProfile = data.getData();
-                                    updateUIHandler.post(() -> {
-                                        userName.setText(userProfile.getNick());
-                                        userLevel.setText(getResources().getString(UserLevel.values()[userProfile.getLevel() - 1].getLevelDescribe()));
-                                        userVipLevel.setText(getResources().getString(VIPLevel.values()[userProfile.getLevel() - 1].getVipDescribe()));
-                                    });
-                                })
-                                .execute();
-                    });
-        } else {
-            userInfoArea.setVisibility(View.INVISIBLE);
-        }
+        //if (RequestRegister.getAuthToken().getAccessToken() != null) {
+        //    userInfoArea.setVisibility(View.VISIBLE);
+        //    StaticFactory
+        //            .getExecutorService()
+        //            .execute(() -> {
+        //                UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();
+        //                userRequest.getProfile()
+        //                        .success(data -> {
+        //                            UserProfileDTO userProfile = data.getData();
+        //                            updateUIHandler.post(() -> {
+        //                                userName.setText(userProfile.getNick());
+        //                                userLevel.setText(getResources().getString(UserLevel.values()[userProfile.getLevel() - 1].getLevelDescribe()));
+        //                                userVipLevel.setText(getResources().getString(VIPLevel.values()[userProfile.getLevel() - 1].getVipDescribe()));
+        //                            });
+        //                        })
+        //                        .execute();
+        //            });
+        //} else {
+        //    userInfoArea.setVisibility(View.INVISIBLE);
+        //}
     }
 
     private void initOKHttp() {
@@ -296,7 +291,6 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
      */
     private void initViewPage() {
         this.listFragment = new ArrayList<>(4);
-        listFragment.add(homeFragment);
         listFragment.add(creditFragment);
         listFragment.add(hearingFragment);
         listFragment.add(analysisFragment);
@@ -334,17 +328,14 @@ public class MainFragmentAdapter extends Fragment implements NavigationBarView.O
         this.userMoney = headerLayout.findViewById(R.id.fragment_main_navigation_header_money);
         this.drawerLayout = rootView.findViewById(R.id.fragment_main_drawer_layout);
         this.settings = rootView.findViewById(R.id.fragment_main_navigation_header_settings);
-        this.bottomHome = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_main);
         this.bottomRecite = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_recite);
         this.bottomHearing = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_hearing);
         this.bottomAnalysis = this.viewPageChangeNavigationView.findViewById(R.id.fragment_main_bottom_analysis);
         this.userInfoArea = headerLayout.findViewById(R.id.fragment_main_navigation_hear_user_info);
 
-        ((HomeFragment) homeFragment).setPopDrawerListener(this::onClickUserFace);
         drawerLayout.addDrawerListener(this);
         this.drawerNavigationView.setNavigationItemSelectedListener(this);
         this.settings.setOnClickListener(this);
-        this.bottomHome.setOnLongClickListener(this);
         this.bottomRecite.setOnLongClickListener(this);
         this.bottomHearing.setOnLongClickListener(this);
         this.bottomAnalysis.setOnLongClickListener(this);

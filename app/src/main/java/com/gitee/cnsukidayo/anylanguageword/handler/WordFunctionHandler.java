@@ -1,15 +1,14 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 public interface WordFunctionHandler extends CategoryFunctionHandler {
     /**
@@ -18,7 +17,7 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @param order 单词在列表中的位序,注意order的顺序是从0开始的.
      * @return 返回单词的引用(单词的信息是一个集合)
      */
-    Map<Long, List<WordDTO>> getWordByOrder(int order);
+    WordDTOLocal getWordByOrder(int order);
 
     /**
      * 获取当前指针指向的单词<br>
@@ -35,21 +34,21 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      *
      * @return 返回单词引用
      */
-    Map<Long, List<WordDTO>> getCurrentStructureWordMap();
+    WordDTOLocal getCurrentStructureWordMap();
 
     /**
      * 跳转到上一个单词,调用该方法会将指针指向传入的索引位置
      *
      * @return 返回单词引用
      */
-    Map<Long, List<WordDTO>> jumpPreviousWord();
+    WordDTOLocal jumpPreviousWord();
 
     /**
      * 跳转到下一个单词,调用该方法会将指针指向传入的索引位置
      *
      * @return 返回单词引用
      */
-    Map<Long, List<WordDTO>> jumpNextWord();
+    WordDTOLocal jumpNextWord();
 
     /**
      * 设置当前指针指向的位序
@@ -64,7 +63,7 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @param jumpOrder 跳转的目标位序
      * @return 返回单词引用
      */
-    Map<Long, List<WordDTO>> jumpToWord(int jumpOrder);
+    WordDTOLocal jumpToWord(int jumpOrder);
 
     /**
      * 得到当前指针指向的位序,currentOrder是对外显示的方法.
@@ -118,6 +117,21 @@ public interface WordFunctionHandler extends CategoryFunctionHandler {
      * @see FlagColor
      */
     FlagColor getChameleon();
+
+    /**
+     * 得到当前背诵的变色龙列表
+     *
+     * @return 返回变色龙列表
+     */
+    List<Set<FlagColor>> getAllWordChameleon();
+
+    /**
+     * 设置变色龙列表
+     *
+     * @param flag 变色龙列表
+     */
+    void setAllChameleon(List<Set<FlagColor>> flag);
+
 
     /**
      * 设置变色龙颜色,此时函数的各个方法的返回值都会因为FlagColor的改变而改变.

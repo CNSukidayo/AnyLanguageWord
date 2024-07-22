@@ -2,6 +2,7 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +13,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.BaseStructure;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
-
 public class StarChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements RecyclerViewAdapterItemChange<Map<Long, List<WordDTO>>> {
+        implements RecyclerViewAdapterItemChange<WordDTOLocal> {
 
     private final Context context;
-    private Map<Long, List<WordDTO>> structureWordMap;
+    private WordDTOLocal currentWord;
 
     private final Map<Integer, BaseStructure> metaInfoFilterMap;
 
@@ -48,10 +47,9 @@ public class StarChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<R
             // position对应wordStructureId
             BaseStructure baseStructure = Optional.ofNullable(metaInfoFilterMap.get(position)).orElse(EnglishStructure.DEFAULT);
             starChineseAnswerViewHolder.meaningCategoryHint.setText(context.getResources().getString(baseStructure.getTitleHint()));
-            List<WordDTO> currentWordDTO = structureWordMap.get(baseStructure.getWordStructureId());
-            if (currentWordDTO != null &&
-                    currentWordDTO.size() > 0) {
-                starChineseAnswerViewHolder.meaningCategoryAnswer.setText(currentWordDTO.get(0).getValue());
+            String value = currentWord.getValue().get(baseStructure);
+            if (!TextUtils.isEmpty(value)) {
+                starChineseAnswerViewHolder.meaningCategoryAnswer.setText(value);
                 starChineseAnswerViewHolder.meaningCategoryHint.setVisibility(View.VISIBLE);
                 starChineseAnswerViewHolder.meaningCategoryAnswer.setVisibility(View.VISIBLE);
             } else {
@@ -63,17 +61,17 @@ public class StarChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<R
 
     @Override
     public int getItemCount() {
-        return structureWordMap == null ? 0 : metaInfoFilterMap.size();
+        return currentWord == null ? 0 : metaInfoFilterMap.size();
     }
 
     @Override
-    public void addItem(Map<Long, List<WordDTO>> item) {
-        structureWordMap = item;
+    public void addItem(WordDTOLocal item) {
+        currentWord = item;
         notifyItemChanged(0, getItemCount());
     }
 
     @Override
-    public void removeItem(Map<Long, List<WordDTO>> item) {
+    public void removeItem(WordDTOLocal item) {
 
     }
 

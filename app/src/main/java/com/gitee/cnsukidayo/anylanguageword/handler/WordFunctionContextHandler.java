@@ -1,9 +1,8 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
-import java.util.List;
-import java.util.Map;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
+import java.util.Map;
 
 /**
  * @author cnsukidayo
@@ -15,7 +14,7 @@ public interface WordFunctionContextHandler {
      *
      * @param structureWord 单词结构对象
      */
-    void addWordQueryCache(Map<Long, Map<Long, List<WordDTO>>> structureWord);
+    void addWordQueryCache(Map<Long, WordDTOLocal> structureWord);
 
     /**
      * 设置本次使用的语种Id

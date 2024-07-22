@@ -1,5 +1,6 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -8,12 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.GravityCompat;
@@ -23,13 +24,15 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.WordContextPath;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.AbstractCategoryFunctionHandler;
+import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordSearchHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
@@ -37,30 +40,21 @@ import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StarChineseAnswerRecycler
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.wordsearch.SelectWordListAdapter;
-import com.google.android.flexbox.AlignItems;
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayoutManager;
-import com.google.android.flexbox.JustifyContent;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
-import io.github.cnsukidayo.wword.common.request.factory.SearchServiceRequestFactory;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryDTO;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
-import io.github.cnsukidayo.wword.model.dto.es.WordESDTO;
-import io.github.cnsukidayo.wword.model.dto.support.DataPage;
-import io.github.cnsukidayo.wword.model.params.SearchWordParam;
 import io.github.cnsukidayo.wword.model.params.WordCategoryParam;
+import io.github.cnsukidayo.wword.model.vo.WordCategoryDetailVO;
 
 /**
  * @author sukidayo
@@ -68,14 +62,15 @@ import io.github.cnsukidayo.wword.model.params.WordCategoryParam;
  */
 public class SearchWordFragment extends Fragment implements View.OnClickListener,
         KeyEvent.Callback,
-        RecycleViewItemClickCallBack<WordESDTO>, SearchView.OnQueryTextListener {
+        RecycleViewItemClickCallBack<WordDTOLocal>, SearchView.OnQueryTextListener {
 
     private View rootView;
     // 界面标题
     private TextView title;
     private ImageButton backToTrace;
     private AlertDialog loadingDialog = null;
-    private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
+    private WebView chineseAnswer;
+    private RecyclerView chineseAnswerDrawer, starSingleCategory;
     private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter;
     // 收藏夹列表单词显示适配器
     private StarChineseAnswerRecyclerViewAdapter chineseAnswerAdapterDrawer;
@@ -103,13 +98,15 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     // 单词搜索列表的adapter
     private SelectWordListAdapter selectWordListAdapter;
     // 当前正在使用的单词搜索事件
-    private SearchWordParam searchWordEvent = null;
+    private String searchWordEvent = null;
     // 当前选中的单词
     private WordCategoryWordDTO currentViewWord = null;
     // 当前是否是最后一页,为了防止重复请求
     private volatile boolean lastList = false;
     // 判断当前是否有任务正在执行
     private volatile boolean isRunning = false;
+    // 单词搜索handler
+    private WordSearchHandlerImpl wordSearchHandler;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -189,7 +186,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void viewClickCallBack(WordESDTO wordESDTO) {
+    public void viewClickCallBack(WordDTOLocal wordDTOLocal) {
         // 设置搜索单词的回调事件
         if (queryTimer != null) {
             queryTimer.cancel();
@@ -197,26 +194,8 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         }
         // 将当前搜索得到的单词转换为选中的单词
         this.currentViewWord = new WordCategoryWordDTO();
-        currentViewWord.setWordId(wordESDTO.getWordId());
-        StaticFactory.getExecutorService().submit(() -> {
-            // 查询单词的详细信息
-            CoreServiceRequestFactory.getInstance()
-                    .wordRequest()
-                    .selectWordById(wordESDTO.getWordId())
-                    .success(data -> {
-                        // 得到单词详情信息
-                        List<WordDTO> currentSelectWord = data.getData();
-                        // 首先转换成以单词结构id为Key的集合
-                        Map<Long, List<WordDTO>> structureWordMap = currentSelectWord.stream()
-                                .collect(Collectors.groupingBy(WordDTO::getWordStructureId, Collectors.toList()));
-                        Map<Long, Map<Long, List<WordDTO>>> cacheWord = new HashMap<>();
-                        cacheWord.put(wordESDTO.getWordId(), structureWordMap);
-                        // 将单词添加到查询缓存中
-                        categoryFunctionHandler.addWordQueryCache(cacheWord);
-                        updateUIHandler.post(() -> visibleWordAllMessage(structureWordMap));
-                    })
-                    .execute();
-        });
+        currentViewWord.setWordId(wordDTOLocal.getId());
+        visibleWordAllMessage(wordDTOLocal);
     }
 
     @Override
@@ -233,12 +212,7 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         if (!TextUtils.isEmpty(newText)) {
             // 保存本次查询的字符串
             // 查询单词
-            SearchWordParam searchWordParam = new SearchWordParam();
-            searchWordParam.setWord(newText);
-            searchWordParam.setSize(20);
-            searchWordParam.setCurrent(1);
-            searchWordParam.setLanguageId(2L);
-            searchWordEvent = searchWordParam;
+            searchWordEvent = newText;
             if (queryTimer != null) {
                 queryTimer.cancel();
                 isRunning = false;
@@ -265,33 +239,19 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         drawerPhraseAnswer.setVisibility(View.GONE);
         loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         // 中文结果显示的RecyclerView需要使用FlexboxLayoutManager
-        FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(getContext());
-        flexboxLayoutManager.setFlexWrap(FlexWrap.WRAP);
-        flexboxLayoutManager.setFlexDirection(FlexDirection.ROW);
-        flexboxLayoutManager.setJustifyContent(JustifyContent.FLEX_START);
-        flexboxLayoutManager.setAlignItems(AlignItems.FLEX_START);
-        this.chineseAnswer.setLayoutManager(flexboxLayoutManager);
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         this.selectWordList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         StaticFactory.getExecutorService().submit(() -> {
-            // 获取所有的单词结构
-            CoreServiceRequestFactory.getInstance()
-                    .wordStructureRequest()
-                    .selectWordStructureById("2")
-                    .success(data -> currentWordStructure = data.getData())
-                    .execute();
-            // 得到当前选择的语种
-            Long languageId = currentWordStructure.stream()
-                    .findFirst()
-                    .map(WordStructureDTO::getLanguageId)
-                    .orElse(2L);
-            categoryFunctionHandler.setCurrentLanguageId(languageId);
-            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
+            Map<Long, WordDTOLocal> allWordDict = StaticFactory.getAllWordDict();
+            categoryFunctionHandler.setCurrentLanguageId(2L);
+            categoryFunctionHandler.addWordQueryCache(allWordDict);
+            wordSearchHandler = new WordSearchHandlerImpl(allWordDict);
+            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext());
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             // 初始化单词列表的adapter
-            this.selectWordListAdapter = new SelectWordListAdapter(getContext(), currentWordStructure);
+            this.selectWordListAdapter = new SelectWordListAdapter(getContext());
             // 设置选中单词的回调事件
             this.selectWordListAdapter.setRecycleViewItemClickCallBack(this);
             // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能
@@ -299,20 +259,14 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
             startSingleCategoryAdapter.setStartFunctionHandler(categoryFunctionHandler);
             // 设置收藏夹列表中中文意思显示的adapter
-            this.chineseAnswerAdapterDrawer = new StarChineseAnswerRecyclerViewAdapter(getContext(), languageId);
-            // 获取当前用户的所有收藏夹信息
-            CoreServiceRequestFactory.getInstance()
-                    .wordCategoryRequest()
-                    .list()
-                    .success(data -> categoryFunctionHandler.batchAddCategory(data.getData()))
-                    .execute();
+            this.chineseAnswerAdapterDrawer = new StarChineseAnswerRecyclerViewAdapter(getContext(), 2L);
+            // 读取用户收藏夹信息
+            try {
+                categoryFunctionHandler.batchAddCategory(JsonUtils.readJsonArray(WordContextPath.WORD_STAR.getPath(), WordCategoryDetailVO.class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             updateUIHandler.post(() -> {
-                this.chineseAnswer.setAdapter(chineseAnswerAdapter);
-                Optional.ofNullable(((SimpleItemAnimator) this.chineseAnswer.getItemAnimator())).ifPresent(simpleItemAnimator -> {
-                    simpleItemAnimator.setSupportsChangeAnimations(false);
-                    chineseAnswer.setItemAnimator(null);
-                    chineseAnswer.setHasFixedSize(false);
-                });
                 this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
                 this.starSingleCategory.setAdapter(startSingleCategoryAdapter);
                 // 设置单词选择列表的adapter
@@ -323,21 +277,21 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
             });
         });
         // 检测当前单词搜索列表是否滑动到底部需要加载更多的单词
-        selectWordList.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                // 滑动到底部
-                if (!recyclerView.canScrollVertically(1) && !lastList) {
-                    // 优先执行搜索事件或者已有的分页查询事件
-                    if (!isRunning) {
-                        searchWordEvent.setCurrent(searchWordEvent.getCurrent() + 1);
-                        queryTimer = new Timer();
-                        queryTimer.schedule(getQueryTask(), 1000);
-                    }
-                }
-            }
-        });
+        //selectWordList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        //    @Override
+        //    public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+        //        super.onScrolled(recyclerView, dx, dy);
+        //        // 滑动到底部
+        //        if (!recyclerView.canScrollVertically(1) && !lastList) {
+        //            // 优先执行搜索事件或者已有的分页查询事件
+        //            if (!isRunning) {
+        //                searchWordEvent.setCurrent(searchWordEvent.getCurrent() + 1);
+        //                queryTimer = new Timer();
+        //                queryTimer.schedule(getQueryTask(), 1000);
+        //            }
+        //        }
+        //    }
+        //});
 
     }
 
@@ -345,35 +299,35 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
      * 显示当前单词的所有信息,<b>具体当前要根据状态隐藏哪些信息有调用者来处理.</b><br>
      * 该方法展示的是最全面的信息,所有隐藏信息都会被显示,但是单词没有的性质(比如没有某个中文意思)那么没有的内容不会展示.
      */
-    private void visibleWordAllMessage(Map<Long, List<WordDTO>> structureWordMap) {
+    @SuppressLint("SetTextI18n")
+    private void visibleWordAllMessage(WordDTOLocal wordDTOLocal) {
         // 隐藏单词选择列表,显示单词详情列表
         selectWordList.setVisibility(View.GONE);
         chineseAnswer.setVisibility(View.VISIBLE);
         sourceWord.setVisibility(View.VISIBLE);
         sourceWordPhonetics.setVisibility(View.VISIBLE);
         // 设置单词原文
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.WORD_ORIGIN))
                 .ifPresent(wordDTOS -> sourceWord
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+                        .setText(wordDTOS));
         // 设置单词音标
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.UK_PHONETIC))
                 .ifPresent(wordDTOS -> sourceWordPhonetics
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+                        .setText(wordDTOS));
         // 设置右侧展开列表单词的原文
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.WORD_ORIGIN))
                 .ifPresent(wordDTOS -> sourceWordDrawer
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+                        .setText(wordDTOS));
         // 设置右侧展开列表单词的音标
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.UK_PHONETIC))
                 .ifPresent(wordDTOS -> sourceWordPhoneticsDrawer
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+                        .setText(wordDTOS));
         // 设置短语
-        String phraseTranslation = Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE_TRANSLATION.getWordStructureId()))
-                .map(phraseWord -> phraseWord.size() > 0 ? phraseWord.get(0).getValue() : "")
+        String phraseTranslation = Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.PHRASE_TRANSLATION))
                 .orElse("");
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE.getWordStructureId()))
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.PHRASE))
                 .ifPresentOrElse(wordDTOS -> {
-                    drawerPhraseAnswer.setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : "" +
+                    drawerPhraseAnswer.setText(wordDTOS +
                             " " +
                             phraseTranslation);
                     drawerPhraseHint.setVisibility(View.VISIBLE);
@@ -383,9 +337,9 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
                     drawerPhraseAnswer.setVisibility(View.GONE);
                 });
         // 设置中文翻译列表
-        chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
+        chineseAnswerAdapter.showWordChineseMessage(wordDTOLocal);
         // 设置收藏夹中文翻译
-        chineseAnswerAdapterDrawer.addItem(structureWordMap);
+        chineseAnswerAdapterDrawer.addItem(wordDTOLocal);
         // todo 在这里设置recycleView的宽度
     }
 
@@ -407,28 +361,10 @@ public class SearchWordFragment extends Fragment implements View.OnClickListener
         return new TimerTask() {
             @Override
             public void run() {
-                SearchServiceRequestFactory.getInstance()
-                        .wordSearchRequest()
-                        .searchWord(searchWordEvent)
-                        .success(data -> {
-                            DataPage<WordESDTO> wordESDTODataPage = data.getData();
-                            updateUIHandler.post(() -> {
-                                // 显示单词搜索列表,隐藏单词详情列表
-                                selectWordList.setVisibility(View.VISIBLE);
-                                chineseAnswer.setVisibility(View.GONE);
-                                sourceWord.setVisibility(View.GONE);
-                                sourceWordPhonetics.setVisibility(View.GONE);
-                                lastList = wordESDTODataPage.isLast();
-                                if (wordESDTODataPage.isFirst()) {
-                                    // 如果是第一页就替换
-                                    selectWordListAdapter.replaceAllWithDataPage(wordESDTODataPage);
-                                } else {
-                                    // 否则就添加所有数据到集合中
-                                    selectWordListAdapter.addAllWithDataPage(wordESDTODataPage);
-                                }
-                            });
-                        })
-                        .execute();
+                StaticFactory.getExecutorService().submit(() -> {
+                    List<WordDTOLocal> wordDTOLocals = wordSearchHandler.searchWord(searchWordEvent);
+                    selectWordListAdapter.replaceAll(wordDTOLocals);
+                });
                 isRunning = false;
             }
         };

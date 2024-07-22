@@ -3,7 +3,6 @@ package com.gitee.cnsukidayo.anylanguageword.utils;
 import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -79,7 +78,7 @@ public class FileUtils {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
-        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
             outputStreamWriter.write(str);
             outputStreamWriter.flush();
         } catch (IOException e) {

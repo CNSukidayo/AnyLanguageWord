@@ -208,14 +208,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         // 实现图片定时轮转 todo 实际上做起来挺麻烦的,目前这里只是做一个样式
         StaticFactory.getExecutorService().submit(() -> {
             // 获取首页帖子信息
-            CoreServiceRequestFactory.getInstance()
-                    .postRequest()
-                    .getPostListUncheck()
-                    .success(data -> {
-                        List<PostAbstractVO> postAbstractVOList = data.getData();
-                        updateUIHandler.post(() -> postRecyclerViewAdapter.addAll(postAbstractVOList));
-                    })
-                    .execute();
+            //CoreServiceRequestFactory.getInstance()
+            //        .postRequest()
+            //        .getPostListUncheck()
+            //        .success(data -> {
+            //            List<PostAbstractVO> postAbstractVOList = data.getData();
+            //            updateUIHandler.post(() -> postRecyclerViewAdapter.addAll(postAbstractVOList));
+            //        })
+            //        .execute();
             while (true) {
                 try {
                     TimeUnit.SECONDS.sleep(3);

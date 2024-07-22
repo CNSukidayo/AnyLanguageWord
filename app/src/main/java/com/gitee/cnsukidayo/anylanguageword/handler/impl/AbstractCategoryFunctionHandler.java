@@ -2,28 +2,25 @@ package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
 import android.text.TextUtils;
 
-import com.gitee.cnsukidayo.anylanguageword.context.support.word.StructureWord;
-import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.WordContextPath;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
+import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
-import com.gitee.cnsukidayo.anylanguageword.utils.BeanUtils;
+import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
+import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryDTO;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
-import io.github.cnsukidayo.wword.model.params.WordCategoryParam;
-import io.github.cnsukidayo.wword.model.params.WordCategoryWordParam;
 import io.github.cnsukidayo.wword.model.vo.WordCategoryDetailVO;
 
 /**
@@ -40,7 +37,7 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
      * 当前用户收藏的所有单词列表;第一个Map的Key单词的Id
      * 第二个Map的key是单词的结构id,value就是该结构下面的所有信息
      */
-    protected final Map<Long, Map<Long, List<WordDTO>>> queryCache = new HashMap<>(30);
+    protected final Map<Long, WordDTOLocal> queryCache = new HashMap<>(30);
 
     /**
      * 本次使用的语种
@@ -50,37 +47,12 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
     @Override
     public void batchAddCategory(List<WordCategoryDetailVO> wordCategoryDetailVOList) {
         this.wordCategoryDetailVOList.addAll(wordCategoryDetailVOList);
-        // 本次添加的所有单词Id列表
-        List<Long> wordIdList = wordCategoryDetailVOList.stream()
-                .flatMap(wordCategoryDetailVO -> wordCategoryDetailVO.getWordCategoryWordList().stream())
-                .map(WordCategoryWordDTO::getWordId)
-                .collect(Collectors.toList());
-
-        // 批量查询出所有的单词信息
-        StaticFactory.getExecutorService().submit(() -> {
-            CoreServiceRequestFactory.getInstance()
-                    .wordRequest()
-                    .batchSelectWordById(wordIdList)
-                    .success(data -> {
-                        List<WordDTO> wordDTOList = data.getData();
-                        // 根据单词的Id进行分类
-                        Map<Long, List<WordDTO>> wordDTOListGroupById = wordDTOList.stream()
-                                .collect(Collectors.groupingBy(WordDTO::getWordId));
-                        Map<Long, Map<Long, List<WordDTO>>> structureWordMap = new HashMap<>(wordDTOListGroupById.size());
-                        for (Map.Entry<Long, List<WordDTO>> wordEntry : wordDTOListGroupById.entrySet()) {
-                            // 转为结构单词并将所有的单词添加到查询缓存中!
-                            Map<Long, List<WordDTO>> structureWord = StructureWord.convert(wordEntry.getValue());
-                            structureWordMap.put(wordEntry.getKey(), structureWord);
-                        }
-                        // 批量添加
-                        queryCache.putAll(structureWordMap);
-                    })
-                    .execute();
-        });
     }
 
     @Override
     public void addNewCategory(WordCategoryDTO wordCategoryDTO) {
+        wordCategoryDTO.setId((long) wordCategoryDetailVOList.size());
+        wordCategoryDTO.setCategoryOrder(wordCategoryDetailVOList.size());
         WordCategoryDetailVO wordCategoryDetailVO = new WordCategoryDetailVO();
         wordCategoryDetailVO.setId(wordCategoryDTO.getId());
         wordCategoryDetailVO.setTitle(wordCategoryDTO.getTitle());
@@ -88,62 +60,28 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
         wordCategoryDetailVO.setCategoryOrder(wordCategoryDTO.getCategoryOrder());
         wordCategoryDetailVO.setWordCategoryWordList(new ArrayList<>());
         wordCategoryDetailVOList.add(wordCategoryDetailVO);
+        persist();
     }
 
     @Override
     public void updateWordCategoryDto(int position, WordCategoryDTO wordCategoryDTO) {
-        WordCategoryParam wordCategoryParam = new WordCategoryParam();
         WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(position);
-        wordCategoryDTO.setCategoryOrder(wordCategoryDetailVO.getCategoryOrder());
-        BeanUtils.copyPropertiesWithNonNullSourceFields(wordCategoryDTO, wordCategoryParam);
-        List<WordCategoryParam> updateWordCategoryParamList = new ArrayList<>();
-        updateWordCategoryParamList.add(wordCategoryParam);
-        // 更新当前的收藏夹列表
-        StaticFactory.getExecutorService().submit(() -> {
-            CoreServiceRequestFactory.getInstance()
-                    .wordCategoryRequest()
-                    .update(updateWordCategoryParamList)
-                    .execute();
-        });
+        wordCategoryDetailVO.setTitle(wordCategoryDTO.getTitle());
+        wordCategoryDetailVO.setDescribeInfo(wordCategoryDTO.getDescribeInfo());
+        persist();
     }
 
     @Override
     public void updateWordCategoryList() {
         // 移动结束后需要根据List的顺序来设置order值
-        int order = 0;
-        for (WordCategoryDetailVO wordCategoryDetailVO : wordCategoryDetailVOList) {
-            wordCategoryDetailVO.setCategoryOrder(order++);
-        }
-        // 更新当前的收藏夹列表
-        StaticFactory.getExecutorService().submit(() -> {
-            List<WordCategoryParam> wordCategoryParamList = BeanUtils.copyArrayProperties(WordCategoryParam.class, wordCategoryDetailVOList);
-            CoreServiceRequestFactory.getInstance()
-                    .wordCategoryRequest()
-                    .update(wordCategoryParamList)
-                    .execute();
-        });
+        persist();
     }
 
     @Override
     public void removeCategory(int position) {
-        WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(position);
         wordCategoryDetailVOList.remove(position);
-        StaticFactory.getExecutorService().submit(() -> {
-            CoreServiceRequestFactory.getInstance()
-                    .wordCategoryRequest()
-                    .remove(wordCategoryDetailVO.getId())
-                    .execute();
-        });
         // 重排序当前的收藏夹
-        wordCategoryDetailVOList.sort((o1, o2) -> o1.getCategoryOrder() - o2.getCategoryOrder());
-        wordCategoryDetailVOList.forEach(new Consumer<>() {
-            int order = 0;
-
-            @Override
-            public void accept(WordCategoryDetailVO wordCategoryDetailVO) {
-                wordCategoryDetailVO.setCategoryOrder(order++);
-            }
-        });
+        persist();
     }
 
     @Override
@@ -171,7 +109,7 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
     }
 
     @Override
-    public Map<Long, List<WordDTO>> getCurrentStructureWordMap() {
+    public WordDTOLocal getCurrentStructureWordMap() {
         WordCategoryWordDTO wordCategoryWordDTO = getCurrentViewWord();
         if (wordCategoryWordDTO == null) {
             return null;
@@ -203,20 +141,14 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
         addWordCategoryWordDTO.setWordOrder(wordCategoryWordList.size());
         addWordCategoryWordDTO.setWordCategoryId(wordCategoryDetailVO.getId());
         wordCategoryWordList.add(addWordCategoryWordDTO);
-        StaticFactory.getExecutorService().submit(() -> {
-            CoreServiceRequestFactory.getInstance()
-                    .wordCategoryRequest()
-                    .addWord(wordCategoryDetailVO.getId(), addWordCategoryWordDTO.getWordId())
-                    .execute();
-        });
+        persist();
         return true;
     }
 
     @Override
     public void removeWordFromCategory(int categoryPosition, int position) {
         WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(categoryPosition);
-        WordCategoryWordDTO wordCategoryWordDTO = wordCategoryDetailVO.getWordCategoryWordList().remove(position);
-        // 重排序
+        // 重排序收藏夹内的单词顺序
         wordCategoryDetailVO.getWordCategoryWordList().sort((o1, o2) -> o1.getWordOrder() - o2.getWordOrder());
         wordCategoryDetailVO.getWordCategoryWordList().forEach(new Consumer<>() {
 
@@ -227,42 +159,31 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
                 wordCategoryWordDTO.setWordOrder(order++);
             }
         });
-        StaticFactory.getExecutorService()
-                .submit(() -> CoreServiceRequestFactory.getInstance()
-                        .wordCategoryRequest()
-                        .removeWord(wordCategoryWordDTO.getWordCategoryId(), wordCategoryWordDTO.getWordId())
-                        .execute());
+        persist();
     }
 
     @Override
-    public Map<Long, List<WordDTO>> getWordFromCategory(int categoryID, int position) {
+    public WordDTOLocal getWordFromCategory(int categoryID, int position) {
         return queryCache.get(getWordCategoryByPosition(categoryID).getWordCategoryWordList()
                 .get(position)
                 .getWordId());
     }
 
     @Override
-    public void addWordQueryCache(Map<Long, Map<Long, List<WordDTO>>> structureWord) {
-        queryCache.putAll(structureWord);
+    public void addWordQueryCache(Map<Long, WordDTOLocal> dict) {
+        queryCache.putAll(dict);
     }
 
     @Override
     public void updateWordCategoryWordOrder(int categoryPosition) {
         List<WordCategoryWordDTO> wordCategoryWordList = wordCategoryDetailVOList.get(categoryPosition).getWordCategoryWordList();
         // 移动结束后需要根据List的顺序来设置order值
-        List<WordCategoryWordParam> wordCategoryWordParamList = new ArrayList<>(wordCategoryWordList.size());
+        // 这里是更新收藏夹内的单词顺序,不是收藏夹顺序
         int order = 0;
         for (WordCategoryWordDTO wordCategoryWordDTO : wordCategoryWordList) {
-            WordCategoryWordParam wordCategoryWordParam = new WordCategoryWordParam();
-            BeanUtils.copyPropertiesWithNonNullSourceFields(wordCategoryWordDTO, wordCategoryWordParam);
-            wordCategoryWordParam.setWordOrder(order++);
-            wordCategoryWordParamList.add(wordCategoryWordParam);
+            wordCategoryWordDTO.setWordOrder(order++);
         }
-        StaticFactory.getExecutorService()
-                .submit(() -> CoreServiceRequestFactory.getInstance()
-                        .wordCategoryRequest()
-                        .updateWordOrder(wordCategoryWordParamList)
-                        .execute());
+        persist();
     }
 
     @Override
@@ -291,25 +212,31 @@ public abstract class AbstractCategoryFunctionHandler implements CategoryFunctio
      */
     private String calculation(int position, Long wordStructureId) {
         WordCategoryDetailVO wordCategoryDetailVO = getWordCategoryByPosition(position);
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < 3 && i < wordCategoryDetailVO.getWordCategoryWordList().size(); i++) {
-            Optional.ofNullable(queryCache.get(wordCategoryDetailVO.getWordCategoryWordList()
-                            .get(i)
-                            .getWordId()))
-                    .map((Function<Map<Long, List<WordDTO>>, List<WordDTO>>) wordStructureMap -> wordStructureMap.get(wordStructureId))
-                    .ifPresent(new Consumer<List<WordDTO>>() {
-                        @Override
-                        public void accept(List<WordDTO> wordDTOS) {
-                            result
-                                    .append(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : "")
-                                    .append("、");
-                        }
-                    });
-        }
-        if (result.length() > 1) {
-            return result.substring(0, result.length() - 1);
-        } else {
-            return result.toString();
-        }
+        return wordCategoryDetailVO.getWordCategoryWordList()
+                .stream()
+                .limit(3)
+                .map(wordCategoryWordDTO -> queryCache.get(wordCategoryWordDTO.getWordId()).getOrigin())
+                .collect(Collectors.joining("、"));
     }
+
+    /**
+     * 持久化收藏夹信息
+     */
+    private void persist() {
+        StaticFactory.getExecutorService().submit(() -> {
+            // 重新排序wordCategoryDetailVOList
+            int order = 0;
+            for (WordCategoryDetailVO wordCategoryDetailVO : wordCategoryDetailVOList) {
+                wordCategoryDetailVO.setCategoryOrder(order++);
+            }
+            Gson gson = StaticFactory.getGson();
+            String persist = gson.toJson(wordCategoryDetailVOList);
+            try {
+                FileUtils.writeWithExternalExist(WordContextPath.WORD_STAR.getPath(), persist);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
 }

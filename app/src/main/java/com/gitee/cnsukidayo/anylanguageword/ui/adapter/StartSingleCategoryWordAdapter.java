@@ -14,18 +14,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryWordFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.RecyclerViewAdapterItemChange;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.MoveAndSwipedListener;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.StateChangedListener;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
  * 每个分类中的每个单词Adapter
@@ -53,6 +51,7 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
         return new SingleCategoryWordViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_start_single_category_word_element, parent, false));
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull SingleCategoryWordViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // 将第一根线设置为别的颜色
@@ -67,25 +66,22 @@ public class StartSingleCategoryWordAdapter extends RecyclerView.Adapter<StartSi
         }
         // 重置改变，防止由于复用而导致的显示问题
         holder.scroller.scrollTo(0, 0);
-        Map<Long, List<WordDTO>> structureWordMap = categoryWordFunctionHandler.getWordFromCategory(functionContentCallBack.getCurrentWordCategoryPosition(), position);
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
-                .ifPresent(wordDTOS -> holder.wordOrigin
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
-                .ifPresent(wordDTOS -> holder.wordPhonetics
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+        WordDTOLocal wordDTOLocal = categoryWordFunctionHandler.getWordFromCategory(functionContentCallBack.getCurrentWordCategoryPosition(), position);
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.WORD_ORIGIN))
+                .ifPresent(holder.wordOrigin::setText);
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.UK_PHONETIC))
+                .ifPresent(holder.wordPhonetics::setText);
         // 最后一个嵌套,单词中文意思的嵌套
         holder.chineseAnswerRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        holder.starChineseAnswerRecyclerViewAdapter = new StarChineseAnswerRecyclerViewAdapter(context, categoryWordFunctionHandler.getCurrentLanguageId());
+        holder.starChineseAnswerRecyclerViewAdapter = new StarChineseAnswerRecyclerViewAdapter(context, 2L);
         holder.chineseAnswerRecyclerView.setAdapter(holder.starChineseAnswerRecyclerViewAdapter);
         holder.starChineseAnswerRecyclerViewAdapter.addItem(categoryWordFunctionHandler.getWordFromCategory(functionContentCallBack.getCurrentWordCategoryPosition(), position));
-        String phraseTranslation = Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE_TRANSLATION.getWordStructureId()))
-                .map(phraseWord -> phraseWord.size() > 0 ? phraseWord.get(0).getValue() : "")
+        String phraseTranslation = Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.PHRASE_TRANSLATION))
                 .orElse("");
         // 设置介词短语
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE.getWordStructureId()))
+        Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.PHRASE))
                 .ifPresentOrElse(wordDTOS -> {
-                            holder.phraseAnswer.setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : "" +
+                            holder.phraseAnswer.setText(wordDTOS +
                                     " " +
                                     phraseTranslation);
                             holder.phraseHint.setVisibility(View.VISIBLE);

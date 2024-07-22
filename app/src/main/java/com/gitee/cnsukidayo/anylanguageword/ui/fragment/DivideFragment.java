@@ -11,17 +11,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.WordContextPath;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.DivideListAdapter;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.DivideDTOLocal;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.divide.ChildDivideListAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.RecycleViewItemClickCallBack;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import io.github.cnsukidayo.wword.common.request.factory.AuthServiceRequestFactory;
-import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
-import io.github.cnsukidayo.wword.common.request.interfaces.auth.UserRequest;
-import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
-import io.github.cnsukidayo.wword.model.dto.DivideDTO;
 import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
 import io.github.cnsukidayo.wword.model.dto.UserProfileDTO;
 
@@ -33,7 +35,7 @@ public class DivideFragment extends Fragment {
     private View rootView;
     private RecyclerView divideRecyclerView;
     private LinearLayoutManager divideLayoutManager;
-    private DivideListAdapter divideListAdapter;
+    private ChildDivideListAdapter childDivideListAdapter;
     /**
      * 当前要展示的哪个语种下的所有划分
      */
@@ -52,7 +54,7 @@ public class DivideFragment extends Fragment {
     /**
      * RecycleView回调的事件
      */
-    private RecycleViewItemClickCallBack<DivideDTO> recycleViewItemOnClickListener;
+    private RecycleViewItemClickCallBack<DivideDTOLocal> recycleViewItemOnClickListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,7 +83,7 @@ public class DivideFragment extends Fragment {
         this.languageClassDTO = languageClassDTO;
     }
 
-    public void setRecycleViewItemOnClickListener(RecycleViewItemClickCallBack<DivideDTO> recycleViewItemOnClickListener) {
+    public void setRecycleViewItemOnClickListener(RecycleViewItemClickCallBack<DivideDTOLocal> recycleViewItemOnClickListener) {
         this.recycleViewItemOnClickListener = recycleViewItemOnClickListener;
     }
 
@@ -93,28 +95,27 @@ public class DivideFragment extends Fragment {
     private void initView() {
         this.divideLayoutManager = new LinearLayoutManager(getContext());
         this.divideRecyclerView.setLayoutManager(divideLayoutManager);
-        this.divideListAdapter = new DivideListAdapter(getContext());
+        this.childDivideListAdapter = new ChildDivideListAdapter(getContext());
 
-        this.divideRecyclerView.setAdapter(divideListAdapter);
-        this.divideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
+        this.divideRecyclerView.setAdapter(childDivideListAdapter);
+        this.childDivideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
     }
 
     private void requestData() {
         // 查询当前用户的所有划分
-        UserRequest userRequest = AuthServiceRequestFactory.getInstance().userRequest();
-        DivideRequest divideRequest = CoreServiceRequestFactory.getInstance().divideRequest();
         StaticFactory.getExecutorService().execute(() -> {
-            // 先获取用户信息
-            userRequest.getProfile()
-                    .success(data -> userProfileDTO = data.getData())
-                    .execute();
-            // 获取当前用户的所有划分
-            divideRequest.listDivide(String.valueOf(languageClassDTO.getId()), String.valueOf(userProfileDTO.getUuid()))
-                    .success(data -> {
-                        List<DivideDTO> divideDTOList = data.getData();
-                        updateUIHandler.post(() -> divideListAdapter.addAll(divideDTOList));
-                    })
-                    .execute();
+            // 读取文件列表
+            File file = new File(AnyLanguageWordProperties.getExternalFilesDir(), WordContextPath.WORD_LIST.getPath());
+            List<DivideDTOLocal> allWordList = new ArrayList<>();
+            for (File singleWordList : file.listFiles()) {
+                try {
+                    allWordList.add(JsonUtils.readJson(singleWordList.getAbsolutePath().replace(AnyLanguageWordProperties.getExternalFilesDir().getAbsolutePath(), ""),
+                            DivideDTOLocal.class));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            updateUIHandler.post(() -> childDivideListAdapter.replaceAll(allWordList));
         });
     }
 

@@ -58,7 +58,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
         DivideDTO divideDTO = allDivideDTOList.get(position);
         if (divideIdSet.contains(divideDTO)) {
             holder.addToPlane.setRotation(180);
-            holder.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
+            //holder.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
             holder.childDivideListRecyclerView.setVisibility(View.VISIBLE);
         } else {
             holder.addToPlane.setRotation(270);
@@ -124,7 +124,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             this.childDivideListAdapter = new ChildDivideListAdapter(context);
             this.childDivideListRecyclerView.setAdapter(childDivideListAdapter);
             this.childDivideListRecyclerView.setVisibility(View.GONE);
-            this.childDivideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
+            //this.childDivideListAdapter.setRecycleViewItemOnClickListener(recycleViewItemOnClickListener);
 
             this.relativeLayout.setOnClickListener(this);
         }
@@ -141,7 +141,7 @@ public class DivideListAdapter extends RecyclerView.Adapter<DivideListAdapter.Re
             if (divideIdSet.contains(divideDTO)) {
                 addToPlane.setRotation(180);
                 // 得到当前父划分下的所有子划分
-                this.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
+                //this.childDivideListAdapter.replaceAll(divideDTO.getChildDivideDTO());
                 this.childDivideListRecyclerView.setVisibility(View.VISIBLE);
             } else {
                 addToPlane.setRotation(270);

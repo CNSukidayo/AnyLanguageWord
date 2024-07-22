@@ -1,10 +1,8 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
-import java.util.List;
-import java.util.Map;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
  * 单个分类单词功能的接口
@@ -45,7 +43,7 @@ public interface CategoryWordFunctionHandler extends WordFunctionContextHandler 
      * @param position         单词在category中的位置
      * @return 返回Word引用
      */
-    Map<Long, List<WordDTO>> getWordFromCategory(int categoryPosition, int position);
+    WordDTOLocal getWordFromCategory(int categoryPosition, int position);
 
     /**
      * 这个方法实际上是一种状态的刷新

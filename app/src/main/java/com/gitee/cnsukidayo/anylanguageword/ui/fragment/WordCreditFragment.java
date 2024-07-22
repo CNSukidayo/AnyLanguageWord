@@ -1,5 +1,6 @@
 package com.gitee.cnsukidayo.anylanguageword.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -28,10 +29,14 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.WordContextPath;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.DivideDTOLocal;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.HistoryDTOLocal;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditFilter;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditOrder;
@@ -39,38 +44,33 @@ import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
-import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordFunctionHandlerImpl;
-import com.gitee.cnsukidayo.anylanguageword.ui.adapter.ChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.SimpleItemTouchHelperCallback;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StarChineseAnswerRecyclerViewAdapter;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.StartSingleCategoryAdapter;
+import com.gitee.cnsukidayo.anylanguageword.ui.adapter.wordsearch.ChineseAnswerHandler;
 import com.gitee.cnsukidayo.anylanguageword.utils.AnimationUtil;
 import com.gitee.cnsukidayo.anylanguageword.utils.DPUtils;
-import com.google.android.flexbox.AlignItems;
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayoutManager;
-import com.google.android.flexbox.JustifyContent;
+import com.gitee.cnsukidayo.anylanguageword.utils.FileUtils;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
+import com.google.gson.Gson;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import io.github.cnsukidayo.wword.common.request.factory.CoreServiceRequestFactory;
-import io.github.cnsukidayo.wword.common.request.interfaces.core.DivideRequest;
-import io.github.cnsukidayo.wword.common.request.interfaces.core.WordStructureRequest;
-import io.github.cnsukidayo.wword.model.dto.DivideDTO;
-import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
-import io.github.cnsukidayo.wword.model.params.WordCategoryParam;
+import io.github.cnsukidayo.wword.model.vo.WordCategoryDetailVO;
 
 public class WordCreditFragment extends Fragment implements View.OnClickListener, KeyEvent.Callback {
     private View rootView;
@@ -81,20 +81,20 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     private Handler updateUIHandler;
     private WordFunctionHandler wordFunctionHandler;
     private DrawerLayout startDrawer;
-    private RecyclerView chineseAnswer, chineseAnswerDrawer, starSingleCategory;
-    private ChineseAnswerRecyclerViewAdapter chineseAnswerAdapter;
+    private RecyclerView chineseAnswerDrawer, starSingleCategory;
+    private ChineseAnswerHandler chineseAnswerHandler;
     private StarChineseAnswerRecyclerViewAdapter chineseAnswerAdapterDrawer;
     private StartSingleCategoryAdapter startSingleCategoryAdapter;
     /**
-     * 获取的所有单词的摘要信息
+     * 当前要背诵的所有单词的id
      */
-    private List<DivideWordDTO> allDivideWordList;
+    private List<Long> allWordId;
     /**
      * 所有单词信息详细信息<br>
      * Key:单词的id<br>
      * Value:单词详细信息
      */
-    private Map<Long, List<WordDTO>> allWordList;
+    private Map<Long, WordDTOLocal> dict;
     /**
      * 当前语种对应单词的结构信息
      */
@@ -104,11 +104,11 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
     以下是所有功能按钮的变量声明
      */
     private ImageButton popBackStack, playWord;
-    private TextView sourceWord, sourceWordPhonetics, getAnswer, nextWord, previousWord;
+    private TextView sourceWord, getAnswer, nextWord, previousWord;
     private TextView currentIndexTextView, wordCount;
     private TextView sourceWordDrawer, sourceWordPhoneticsDrawer, phraseHintDrawer, phraseAnswerDrawer, addNewStartCategory;
     private AlertDialog loadingDialog = null;
-    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, start, searchWord;
+    private LinearLayout jumpNextWord, flagChangeArea, clickFlag, viewFlagArea, chameleonMode, shuffle, section, changeMode, start, searchWord, saveProgress;
     private CardView popWindowChangeModeLayout;
     private ImageView clickFlagImageView, chameleonImageView, shuffleImageView, sectionImageView;
     private TextView listeningWriteMode, englishTranslationChineseMode, chineseTranslationEnglish, onlyCreditMode;
@@ -144,6 +144,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         bindView();
         // 设置监听事件
         bindListener();
+        this.chineseAnswerHandler = new ChineseAnswerHandler(rootView);
         // 弹出Dialog不要阻塞UI线程,通过一个新的线程去请求所有单词信息.
         loadingDialog = new AlertDialog.Builder(getContext()).setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null)).setCancelable(false).show();
         // 锁定startDrawable的关闭
@@ -166,12 +167,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         Divider:
         Scrolling:
          */
-        FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(getContext());
-        flexboxLayoutManager.setFlexWrap(FlexWrap.WRAP);
-        flexboxLayoutManager.setFlexDirection(FlexDirection.ROW);
-        flexboxLayoutManager.setJustifyContent(JustifyContent.FLEX_START);
-        flexboxLayoutManager.setAlignItems(AlignItems.FLEX_START);
-        this.chineseAnswer.setLayoutManager(flexboxLayoutManager);
         this.chineseAnswerDrawer.setLayoutManager(new LinearLayoutManager(getContext()));
         this.starSingleCategory.setLayoutManager(new LinearLayoutManager(getContext()));
         // 读取状态
@@ -368,17 +363,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     .setView(addNewCategory)
                     .setCancelable(true)
                     .setPositiveButton("确定", (dialog, which) -> {
-                        WordCategoryParam wordCategoryParam = new WordCategoryParam();
-                        wordCategoryParam.setTitle(categoryTile.getText().toString());
-                        wordCategoryParam.setDescribeInfo(categoryDescribe.getText().toString());
-                        StaticFactory.getExecutorService().submit(() -> CoreServiceRequestFactory.getInstance()
-                                .wordCategoryRequest()
-                                .save(wordCategoryParam)
-                                .success(data -> {
-                                    WordCategoryDTO wordCategoryDTO = data.getData();
-                                    updateUIHandler.post(() -> startSingleCategoryAdapter.addItem(wordCategoryDTO));
-                                })
-                                .execute());
+                        WordCategoryDTO wordCategoryDTO = new WordCategoryDetailVO();
+                        wordCategoryDTO.setTitle(categoryTile.getText().toString());
+                        wordCategoryDTO.setTitle(categoryDescribe.getText().toString());
+                        updateUIHandler.post(() -> startSingleCategoryAdapter.addItem(wordCategoryDTO));
                     })
                     .setNegativeButton("取消", (dialog, which) -> {
                     })
@@ -401,6 +389,27 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
                     R.id.action_navigation_word_credit_to_navigation_search_word,
                     null,
                     StaticFactory.getSimpleNavOptions());
+        } else if (clickViewId == R.id.fragment_word_credit_click_save_progress) {
+            // 保存当前的进度
+            StaticFactory.getExecutorService().submit(() -> {
+                HistoryDTOLocal historyDTOLocal = new HistoryDTOLocal();
+                historyDTOLocal.setWordIdList(allWordId);
+                historyDTOLocal.setName(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss")));
+                historyDTOLocal.setOrder(System.currentTimeMillis());
+                historyDTOLocal.setFlag(wordFunctionHandler.getAllWordChameleon());
+                Gson gson = StaticFactory.getGson();
+                String writer = gson.toJson(historyDTOLocal);
+                String outputPath = "%shistory-%s.json";
+                try {
+                    FileUtils.writeWithExternalExist(String.format(outputPath, WordContextPath.WORD_HISTORY.getPath(),
+                            UUID.randomUUID().toString().replace("-", "")), writer);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            toast = Toast.makeText(getContext(), R.string.save_success, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 500);
+            toast.show();
         } else if (clickViewId == R.id.fragment_word_credit_pop_listening_write_mode) {
             wordFunctionHandler.setCurrentCreditState(CreditState.LISTENING);
             updateChangeModePopWindowState();
@@ -578,32 +587,29 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 按模式展示某个单词.
      * 展示单词是一种状态,随着单词的变化,页面的UI也要跟随变化.
      *
-     * @param structureWordMap 待被展示的单词
+     * @param wordDTOLocal 待被展示的单词
      */
-    private void creditWord(Map<Long, List<WordDTO>> structureWordMap) {
+    @SuppressLint("SetTextI18n")
+    private void creditWord(WordDTOLocal wordDTOLocal) {
         updateUIHandler.post(() -> {
             switch (wordFunctionHandler.getCurrentCreditState()) {
                 case LISTENING:
                     // 听写模式只播放音频
-                    hideLinearLayoutTree(chineseAnswer);
+                    chineseAnswerHandler.gone();
                     break;
                 case ENGLISH_TRANSLATION_CHINESE:
                     // 先展示单词的所有信息,然后将单词的中文意思进行隐藏,再将单词额外信息进行隐藏(必须在UI线程中隐藏)
-                    visibleWordAllMessage(structureWordMap);
-                    updateUIHandler.post(() -> {
-                        //hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_chinese_answer));
-                        //hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
-                    });
+                    visibleWordAllMessage(wordDTOLocal);
+                    chineseAnswerHandler.gone();
                     break;
                 case CHINESE_TRANSLATION_ENGLISH:
                     // 先展示所有单词信息,然后将英文原文和音标进行隐藏
-                    visibleWordAllMessage(structureWordMap);
+                    visibleWordAllMessage(wordDTOLocal);
                     sourceWord.setText("");
-                    sourceWordPhonetics.setText("");
                     break;
                 case CREDIT:
                     // 不隐藏任何信息
-                    visibleWordAllMessage(structureWordMap);
+                    visibleWordAllMessage(wordDTOLocal);
                     break;
             }
             /*
@@ -611,24 +617,19 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
             不管是什么状态,都需要显示当前背诵的位置和总的单词个数.
             不管什么状态,都需要更新drawer里面单词的内容
              */
-            chineseAnswerAdapterDrawer.addItem(structureWordMap);
+            chineseAnswerAdapterDrawer.addItem(wordDTOLocal);
             // 设置右侧展开列表单词的原文
-            Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
+            Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.WORD_ORIGIN))
                     .ifPresent(wordDTOS -> sourceWordDrawer
-                            .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+                            .setText(wordDTOS));
             // 设置右侧展开列表单词的音标
-            Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
-                    .ifPresent(wordDTOS -> sourceWordPhoneticsDrawer
-                            .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
+            sourceWordPhoneticsDrawer.setText("");
             // 设置短语
-            String phraseTranslation = Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE_TRANSLATION.getWordStructureId()))
-                    .map(phraseWord -> phraseWord.size() > 0 ? phraseWord.get(0).getValue() : "")
+            String phraseTranslation = Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.PHRASE_TRANSLATION))
                     .orElse("");
-            Optional.ofNullable(structureWordMap.get(EnglishStructure.PHRASE.getWordStructureId()))
+            Optional.ofNullable(wordDTOLocal.getValue().get(EnglishStructure.PHRASE))
                     .ifPresentOrElse(wordDTOS -> {
-                        phraseAnswerDrawer.setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : "" +
-                                " " +
-                                phraseTranslation);
+                        phraseAnswerDrawer.setText(wordDTOS + " " + phraseTranslation);
                         phraseHintDrawer.setVisibility(View.VISIBLE);
                         phraseAnswerDrawer.setVisibility(View.VISIBLE);
                     }, () -> {
@@ -655,73 +656,54 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         StaticFactory.getExecutorService().submit(() -> {
             // 根据自定义风格背诵,获取当前要加载的所有单词
             Bundle bundle = getArguments();
+            List<Set<FlagColor>> flag = null;
             if (bundle != null) {
                 // 如果获取为null则整个逻辑都不对了
                 UserCreditStyleWrapper userCreditStyleWrapper = bundle.getParcelable(CreditFragment.USER_CREDIT_STYLE_WRAPPER, UserCreditStyleWrapper.class);
                 this.userCreditStyle = userCreditStyleWrapper.getUserCreditStyle();
-                HashSet<DivideDTO> divideList = bundle.getSerializable(CreditFragment.CHILD_DIVIDE_SET, HashSet.class);
-
-                // 获取所有划分的id
-                List<Long> divideIdList = new ArrayList<>();
-                for (DivideDTO divideDTO : divideList) {
-                    divideIdList.add(divideDTO.getId());
+                HashSet<DivideDTOLocal> divideList = bundle.getSerializable(CreditFragment.CHILD_DIVIDE_SET, HashSet.class);
+                // 当前背诵的单词列表
+                allWordId = divideList.stream()
+                        .map(DivideDTOLocal::getWordIdList)
+                        .flatMap(List::stream)
+                        .collect(Collectors.toList());
+                // 设置变色龙
+                DivideDTOLocal divideDTOLocal = divideList.stream()
+                        .findFirst()
+                        .orElse(new DivideDTOLocal());
+                if (divideDTOLocal instanceof HistoryDTOLocal) {
+                    flag = ((HistoryDTOLocal) divideDTOLocal).getFlag();
                 }
-                DivideRequest divideRequest = CoreServiceRequestFactory.getInstance().divideRequest();
-                WordStructureRequest wordStructureRequest = CoreServiceRequestFactory.getInstance().wordStructureRequest();
-                // 获取子划分下所有单词的摘要信息
-                divideRequest.listDivideWord(divideIdList)
-                        .success(data -> allDivideWordList = data.getData())
-                        .execute();
-                // 根据划分的id一次性读取所有的单词详细信息
-                divideRequest.listWordByDivideId(divideIdList)
-                        .success(data -> allWordList = data.getData())
-                        .execute();
-                // 获取当前单词的结构
-                wordStructureRequest.selectWordStructureById(String.valueOf(divideList.iterator().next().getLanguageId()))
-                        .success(data -> currentWordStructure = data.getData())
-                        .execute();
-                // TODO 这个地方可以用责任链设计模式,暂且先这么写
+                // 读取字典
+                dict = StaticFactory.getAllWordDict();
                 if (userCreditStyle.getCreditOrder() == CreditOrder.DISORDER) {
-                    Collections.shuffle(allDivideWordList);
+                    Collections.shuffle(allWordId);
                 } else if (userCreditStyle.getCreditOrder() == CreditOrder.LEXICOGRAPHIC) {
-                    allDivideWordList.sort(Comparator.comparing(DivideWordDTO::getDivideOrder));
                 }
                 if (userCreditStyle.getCreditFilter() == CreditFilter.PHRASE) {
                     // todo 只背介词
 //                    wordList = wordList.stream().filter(word -> !TextUtils.isEmpty(word.getPhrase())).collect(Collectors.toList());
                 }
             }
-            // 得到当前选择的语种
-            Long languageId = currentWordStructure.stream()
-                    .findFirst()
-                    .map(WordStructureDTO::getLanguageId)
-                    .orElse(2L);
-            this.wordFunctionHandler = new WordFunctionHandlerImpl(allDivideWordList, allWordList);
-            wordFunctionHandler.setCurrentLanguageId(languageId);
+            this.wordFunctionHandler = new WordFunctionHandlerImpl(allWordId, dict);
+            this.wordFunctionHandler.setAllChameleon(flag);
             if (userCreditStyle != null) {
                 this.wordFunctionHandler.setCurrentCreditState(userCreditStyle.getCreditState());
             }
-            this.chineseAnswerAdapter = new ChineseAnswerRecyclerViewAdapter(getContext(), currentWordStructure);
             // 设置收藏夹列表中中文意思显示的adapter
-            this.chineseAnswerAdapterDrawer = new StarChineseAnswerRecyclerViewAdapter(getContext(), languageId);
+            this.chineseAnswerAdapterDrawer = new StarChineseAnswerRecyclerViewAdapter(getContext(), 2L);
             this.startSingleCategoryAdapter = new StartSingleCategoryAdapter(getContext());
             // 绑定ItemTouchHelper,实现单个列表的编辑删除等功能
             ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(startSingleCategoryAdapter));
             startSingleCategoryAdapter.setStartDragListener(touchHelper::startDrag);
             startSingleCategoryAdapter.setStartFunctionHandler(wordFunctionHandler);
-            // 获取当前用户的所有收藏夹信息
-            CoreServiceRequestFactory.getInstance()
-                    .wordCategoryRequest()
-                    .list()
-                    .success(data -> wordFunctionHandler.batchAddCategory(data.getData()))
-                    .execute();
+            // 读取用户收藏夹信息
+            try {
+                wordFunctionHandler.batchAddCategory(JsonUtils.readJsonArray(WordContextPath.WORD_STAR.getPath(), WordCategoryDetailVO.class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             updateUIHandler.post(() -> {
-                this.chineseAnswer.setAdapter(chineseAnswerAdapter);
-                Optional.ofNullable(((SimpleItemAnimator) this.chineseAnswer.getItemAnimator())).ifPresent(simpleItemAnimator -> {
-                    simpleItemAnimator.setSupportsChangeAnimations(false);
-                    chineseAnswer.setItemAnimator(null);
-                    chineseAnswer.setHasFixedSize(false);
-                });
                 this.chineseAnswerDrawer.setAdapter(chineseAnswerAdapterDrawer);
                 this.starSingleCategory.setAdapter(startSingleCategoryAdapter);
                 touchHelper.attachToRecyclerView(starSingleCategory);
@@ -741,20 +723,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      */
     private void emptyUI() {
         // 隐藏单词的附加显示内容(注意不包含形容词、副词等内容的隐藏)
-        //hideLinearLayoutTree(rootView.findViewById(R.id.fragment_word_credit_answer_area_extra));
         sourceWord.setText("");
-        sourceWordPhonetics.setText("");
-    }
-
-    private void hideLinearLayoutTree(ViewGroup linearLayout) {
-        for (int i = 0; i < linearLayout.getChildCount(); i++) {
-            View child = linearLayout.getChildAt(i);
-            if (child instanceof TextView) {
-                child.setVisibility(View.GONE);
-            } else if (child instanceof ViewGroup) {
-                hideLinearLayoutTree((ViewGroup) child);
-            }
-        }
     }
 
     /**
@@ -829,17 +798,12 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
      * 显示当前单词的所有信息,<b>具体当前要根据状态隐藏哪些信息有调用者来处理.</b><br>
      * 该方法展示的是最全面的信息,所有隐藏信息都会被显示,但是单词没有的性质(比如没有某个中文意思)那么没有的内容不会展示.
      */
-    private void visibleWordAllMessage(Map<Long, List<WordDTO>> structureWordMap) {
+    private void visibleWordAllMessage(WordDTOLocal currentWord) {
         // 设置单词原文
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.WORD_ORIGIN.getWordStructureId()))
+        Optional.ofNullable(currentWord.getValue().get(EnglishStructure.WORD_ORIGIN))
                 .ifPresent(wordDTOS -> sourceWord
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
-        // 设置单词音标
-        Optional.ofNullable(structureWordMap.get(EnglishStructure.UK_PHONETIC.getWordStructureId()))
-                .ifPresent(wordDTOS -> sourceWordPhonetics
-                        .setText(wordDTOS.size() > 0 && wordDTOS.get(0).getValue() != null ? wordDTOS.get(0).getValue() : ""));
-        chineseAnswerAdapter.showWordChineseMessage(structureWordMap);
-
+                        .setText(wordDTOS));
+        chineseAnswerHandler.showWordChineseMessage(currentWord);
         // todo 在这里设置recycleView的宽度
 
     }
@@ -853,7 +817,6 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.moreFunctionHorizontalScrollView = rootView.findViewById(R.id.fragment_word_credit_more_function_horizontal_scroll_view);
         this.nextWord = rootView.findViewById(R.id.fragment_word_credit_next_word);
         this.sourceWord = rootView.findViewById(R.id.text_view_source_word);
-        this.sourceWordPhonetics = rootView.findViewById(R.id.text_view_source_word_phonetics);
         this.previousWord = rootView.findViewById(R.id.fragment_word_credit_previous_word);
         this.getAnswer = rootView.findViewById(R.id.fragment_word_container_get_answer);
         this.currentIndexTextView = rootView.findViewById(R.id.fragment_word_credit_current_index);
@@ -882,10 +845,10 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.starSingleCategory = rootView.findViewById(R.id.fragment_word_credit_start_category_recycler);
         this.addNewStartCategory = rootView.findViewById(R.id.fragment_word_credit_start_add);
         this.searchWord = rootView.findViewById(R.id.fragment_word_credit_search_word);
+        this.saveProgress = rootView.findViewById(R.id.fragment_word_credit_click_save_progress);
 
         this.sourceWordDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_origin);
         this.sourceWordPhoneticsDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_word_phonetics);
-        this.chineseAnswer = rootView.findViewById(R.id.fragment_word_credit_chinese_answer);
         this.chineseAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_chinese_answer);
         this.phraseHintDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_phrase_hint);
         this.phraseAnswerDrawer = rootView.findViewById(R.id.fragment_word_credit_drawer_phrase_answer);
@@ -914,6 +877,7 @@ public class WordCreditFragment extends Fragment implements View.OnClickListener
         this.start.setOnClickListener(this);
         this.addNewStartCategory.setOnClickListener(this);
         this.searchWord.setOnClickListener(this);
+        this.saveProgress.setOnClickListener(this);
 
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_green).setOnClickListener(this);
         this.rootView.findViewById(R.id.fragment_word_credit_button_flag_red).setOnClickListener(this);

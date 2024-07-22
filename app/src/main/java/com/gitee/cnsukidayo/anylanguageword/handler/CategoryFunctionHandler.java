@@ -1,11 +1,11 @@
 package com.gitee.cnsukidayo.anylanguageword.handler;
 
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
+
 import java.util.List;
-import java.util.Map;
 
 import io.github.cnsukidayo.wword.model.dto.WordCategoryDTO;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.github.cnsukidayo.wword.model.vo.WordCategoryDetailVO;
 
 /**
@@ -42,7 +42,7 @@ public interface CategoryFunctionHandler extends CategoryWordFunctionHandler {
      *
      * @return 返回当前正在背诵的单词引用
      */
-    Map<Long, List<WordDTO>> getCurrentStructureWordMap();
+    WordDTOLocal getCurrentStructureWordMap();
 
     /**
      * 更新单词收藏夹信息WordCategoryDTO

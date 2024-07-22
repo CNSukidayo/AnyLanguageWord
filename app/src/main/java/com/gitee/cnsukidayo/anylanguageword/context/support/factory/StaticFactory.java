@@ -5,23 +5,31 @@ import android.content.Context;
 import androidx.navigation.NavOptions;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.context.AnyLanguageWordProperties;
+import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.WordContextPath;
 import com.gitee.cnsukidayo.anylanguageword.context.support.category.WordMetaInfoFilter;
 import com.gitee.cnsukidayo.anylanguageword.context.support.category.WordMetaInfoFilterImpl;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.handler.HomeMessageStreamHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordMeaningConvertHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.HomeMessageStreamHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.handler.impl.WordMeaningConvertHandlerImpl;
 import com.gitee.cnsukidayo.anylanguageword.ui.markdown.plugin.GlobalMarkwonPlugin;
+import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
 import com.google.gson.Gson;
 
-import java.util.Collections;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.html.CssInlineStyleParser;
 import io.noties.markwon.html.HtmlPlugin;
@@ -38,12 +46,15 @@ public class StaticFactory {
     }
 
     private static final class ExecutorServiceHolder {
-        // todo 需要修改,参照阿里巴巴开发规范手册
-        static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+        static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(4,
+                8,
+                60,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>());
     }
 
     private static final class EmptyWordHolder {
-        static final Map<Long, List<WordDTO>> EMPTY_WORD = Collections.unmodifiableMap(new HashMap<>());
+        static final WordDTOLocal EMPTY_WORD = new WordDTOLocal();
     }
 
     private static final class WordMeaningConvertHandlerHolder {
@@ -70,6 +81,26 @@ public class StaticFactory {
         static final WordMetaInfoFilterImpl WORD_META_INFO_FILTER = new WordMetaInfoFilterImpl();
     }
 
+    private static final class WordDictHolder {
+        static final Map<Long, WordDTOLocal> ALL_WORD_DICT = new HashMap<>();
+
+        static {
+            File file = new File(AnyLanguageWordProperties.getExternalFilesDir(), WordContextPath.WORD_DICT.getPath());
+            List<WordDTOLocal> allWordList = new ArrayList<>();
+            for (File singleWordFile : file.listFiles()) {
+                try {
+                    allWordList.addAll(JsonUtils.readJsonArray(singleWordFile.getAbsolutePath().replace(AnyLanguageWordProperties.getExternalFilesDir().getAbsolutePath(), ""),
+                            WordDTOLocal.class));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            ALL_WORD_DICT.putAll(
+                    allWordList.stream()
+                            .collect(Collectors.toMap(WordDTOLocal::getId, wordDTOLocal -> wordDTOLocal)));
+        }
+    }
+
     /**
      * 得到Gson实例
      *
@@ -93,7 +124,7 @@ public class StaticFactory {
      *
      * @return 获取一个空单词
      */
-    public static Map<Long, List<WordDTO>> getEmptyWord() {
+    public static WordDTOLocal getEmptyWord() {
         return EmptyWordHolder.EMPTY_WORD;
     }
 
@@ -156,6 +187,16 @@ public class StaticFactory {
      */
     public static WordMetaInfoFilter getWordMetaInfoFilter() {
         return WordMetaInfoFilterHolder.WORD_META_INFO_FILTER;
+    }
+
+
+    /**
+     * 得到所有单词的字典
+     *
+     * @return 返回单词的Map
+     */
+    public static Map<Long, WordDTOLocal> getAllWordDict() {
+        return WordDictHolder.ALL_WORD_DICT;
     }
 
 

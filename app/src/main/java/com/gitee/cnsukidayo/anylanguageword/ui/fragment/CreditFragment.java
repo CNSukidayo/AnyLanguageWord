@@ -18,9 +18,10 @@ import androidx.navigation.Navigation;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
 import com.gitee.cnsukidayo.anylanguageword.context.pathsystem.document.UserInfoPath;
-import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
-import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.entity.UserCreditStyle;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.DivideDTOLocal;
+import com.gitee.cnsukidayo.anylanguageword.entity.waper.UserCreditStyleWrapper;
 import com.gitee.cnsukidayo.anylanguageword.ui.MainActivity;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.listener.NavigationItemSelectListener;
 import com.gitee.cnsukidayo.anylanguageword.utils.JsonUtils;
@@ -30,9 +31,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
-
-import io.github.cnsukidayo.wword.model.dto.DivideDTO;
-import io.github.cnsukidayo.wword.model.dto.LanguageClassDTO;
 
 public class CreditFragment extends Fragment implements View.OnClickListener, NavigationItemSelectListener {
 
@@ -70,7 +68,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
     /**
      * 记录当前选中的所有子划分
      */
-    private final HashSet<DivideDTO> divideSet = new HashSet<>();
+    private final HashSet<DivideDTOLocal> divideSet = new HashSet<>();
 
     /**
      * 用户背诵风格
@@ -122,12 +120,11 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
                         bundle.putSerializable(CreditFragment.CHILD_DIVIDE_SET, divideSet);
                         // 统计当前的选词量
                         int selectWordCount = 0;
-                        for (DivideDTO divideDTO : divideSet) {
-                            selectWordCount += divideDTO.getElementCount();
+                        for (DivideDTOLocal divideDTO : divideSet) {
+                            selectWordCount += divideDTO.getWordIdList().size();
                         }
                         bundle.putInt(CreditFragment.SELECT_WORD_COUNT, selectWordCount);
                         // 设置当前的语种
-
                         updateUIHandler.post(() -> {
                             if (userCreditStyle.isIgnore()) {
                                 Navigation.findNavController(getView()).navigate(R.id.action_navigation_main_to_word_credit, bundle,
@@ -172,8 +169,6 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         // 点击语种后发送请求,调用divideRecyclerViewLanguageClassFragment
         languageClassFragment = Optional.ofNullable(languageClassFragment).orElse(new LanguageClassFragment());
         transaction.replace(R.id.fragment_credit_frame_layout, languageClassFragment);
-        // 设置点击了某个语种后的回调事件
-        languageClassFragment.setRecycleViewItemClickCallBack(this::divideRecyclerView);
         // 提交事务
         transaction.commit();
     }
@@ -184,16 +179,16 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
      *
      * @param languageClassDTO 展示哪个语种
      */
-    private void divideRecyclerView(LanguageClassDTO languageClassDTO) {
+    private void divideRecyclerView() {
         // 显示返回按钮
-        this.switchLanguageClass.setVisibility(View.VISIBLE);
+        this.switchLanguageClass.setVisibility(View.GONE);
         this.startLearning.setVisibility(View.VISIBLE);
         // 设置标题信息为添加划分到列表
         this.title.setText(R.string.add_to_plan);
+        this.fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         divideFragment = new DivideFragment();
         transaction.replace(R.id.fragment_credit_frame_layout, divideFragment);
-        divideFragment.setLanguageClassDTO(languageClassDTO);
         // 设置点击某个子划分后的回调事件
         divideFragment.setRecycleViewItemOnClickListener(divideDTO -> {
             if (divideSet.contains(divideDTO)) {
@@ -225,7 +220,7 @@ public class CreditFragment extends Fragment implements View.OnClickListener, Na
         // 设置各种监听事件
         this.startLearning.setOnClickListener(this);
         // 设置fragment切换逻辑 语种与划分之间的切换显示
-        languageClassRecyclerView();
+        divideRecyclerView();
         this.switchLanguageClass.setOnClickListener(this);
     }
 

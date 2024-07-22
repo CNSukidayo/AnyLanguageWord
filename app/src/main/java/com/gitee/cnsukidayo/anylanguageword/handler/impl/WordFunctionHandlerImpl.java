@@ -1,24 +1,21 @@
 package com.gitee.cnsukidayo.anylanguageword.handler.impl;
 
-import com.gitee.cnsukidayo.anylanguageword.context.support.word.StructureWord;
+import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.enums.CreditState;
 import com.gitee.cnsukidayo.anylanguageword.enums.FlagColor;
 import com.gitee.cnsukidayo.anylanguageword.enums.WordFunctionState;
-import com.gitee.cnsukidayo.anylanguageword.context.support.factory.StaticFactory;
 import com.gitee.cnsukidayo.anylanguageword.handler.CategoryFunctionHandler;
 import com.gitee.cnsukidayo.anylanguageword.handler.WordFunctionHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.github.cnsukidayo.wword.model.dto.DivideWordDTO;
 import io.github.cnsukidayo.wword.model.dto.WordCategoryWordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
 
 /**
  * 明确一点,currentIndex是不能随意更改的,每逢currentIndex更改势必是由currentOrder的更改而更改的.<br>
@@ -29,11 +26,11 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     /**
      * 单词的摘要信息
      */
-    private List<DivideWordDTO> allDivideWordList;
+    private List<Long> allWordIdList;
     /**
      * 单词的标记信息,List中存放Set存放的是每一个单词的标记信息
      */
-    private final List<Set<FlagColor>> wordsFlagList;
+    private List<Set<FlagColor>> wordsFlagList;
 
     /**
      * 当前背诵的区间
@@ -57,34 +54,28 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     /**
      * 这是一个临时的集合,它指向allWordList,用于保存由按色打乱、区间重背功能被重置的allWordList引用
      */
-    private List<DivideWordDTO> dummyWordList;
+    private List<Long> dummyWordList;
 
     /**
      * 现在正在背诵的区间
      */
     private int start = 0, end;
 
-    public WordFunctionHandlerImpl(List<DivideWordDTO> initWordList,
-                                   Map<Long, List<WordDTO>> dict) {
-        this.allDivideWordList = new ArrayList<>(initWordList.size());
-        // 和收藏夹共享本地查询缓存
-        Map<Long, Map<Long, List<WordDTO>>> structureWord = new HashMap<>(dict.size());
-        for (Map.Entry<Long, List<WordDTO>> entry : dict.entrySet()) {
-            Map<Long, List<WordDTO>> convert = StructureWord.convert(entry.getValue());
-            structureWord.put(entry.getKey(), convert);
-        }
-        super.addWordQueryCache(structureWord);
-        this.allDivideWordList.addAll(initWordList);
+    public WordFunctionHandlerImpl(List<Long> initWordList,
+                                   Map<Long, WordDTOLocal> dict) {
+        this.allWordIdList = new ArrayList<>(initWordList.size());
+        super.addWordQueryCache(dict);
+        this.allWordIdList.addAll(initWordList);
         this.wordsFlagList = new ArrayList<>(initWordList.size());
-        for (int i = 0; i < allDivideWordList.size(); i++) {
+        for (int i = 0; i < allWordIdList.size(); i++) {
             wordsFlagList.add(new HashSet<>(List.of(FlagColor.GREEN, FlagColor.BROWN)));
         }
-        this.end = allDivideWordList.size() - 1;
+        this.end = allWordIdList.size() - 1;
     }
 
 
     @Override
-    public Map<Long, List<WordDTO>> getWordByOrder(int order) {
+    public WordDTOLocal getWordByOrder(int order) {
         if (nowSelectChameleonSize == 0) {
             currentOrder = 0;
             currentIndex = 0;
@@ -97,7 +88,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
             }
         }
         this.currentIndex = i - 1;
-        return queryCache.get(allDivideWordList.get(currentIndex).getWordId());
+        return queryCache.get(allWordIdList.get(currentIndex));
     }
 
     @Override
@@ -108,12 +99,12 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
             return null;
         }
         WordCategoryWordDTO wordCategoryWordDTO = new WordCategoryWordDTO();
-        wordCategoryWordDTO.setWordId(allDivideWordList.get(currentIndex).getWordId());
+        wordCategoryWordDTO.setWordId(allWordIdList.get(currentIndex));
         return wordCategoryWordDTO;
     }
 
     @Override
-    public Map<Long, List<WordDTO>> jumpPreviousWord() {
+    public WordDTOLocal jumpPreviousWord() {
         if (currentOrder <= 0) {
             currentOrder = nowSelectChameleonSize;
         }
@@ -121,7 +112,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     }
 
     @Override
-    public Map<Long, List<WordDTO>> jumpNextWord() {
+    public WordDTOLocal jumpNextWord() {
         if (currentOrder >= nowSelectChameleonSize - 1) {
             currentOrder = -1;
         }
@@ -134,7 +125,7 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     }
 
     @Override
-    public Map<Long, List<WordDTO>> jumpToWord(int jumpOrder) {
+    public WordDTOLocal jumpToWord(int jumpOrder) {
         this.currentOrder = jumpOrder;
         return getWordByOrder(currentOrder);
     }
@@ -190,6 +181,18 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     }
 
     @Override
+    public List<Set<FlagColor>> getAllWordChameleon() {
+        return wordsFlagList;
+    }
+
+    @Override
+    public void setAllChameleon(List<Set<FlagColor>> flag) {
+        if (flag != null) {
+            this.wordsFlagList = flag;
+        }
+    }
+
+    @Override
     public void setChameleon(FlagColor chameleonColor) {
         this.nowSelectChameleonSize = -0x3f3f3f;
         this.currentChameleon = chameleonColor;
@@ -200,24 +203,24 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
     @Override
     public void shuffle() {
         this.wordFunctionState = WordFunctionState.SHUFFLE;
-        this.dummyWordList = new ArrayList<>(allDivideWordList.size());
+        this.dummyWordList = new ArrayList<>(allWordIdList.size());
         for (int i = 0; i < wordsFlagList.size(); i++) {
             if (wordsFlagList.get(i).contains(currentChameleon)) {
-                dummyWordList.add(allDivideWordList.get(i));
+                dummyWordList.add(allWordIdList.get(i));
             }
         }
-        List<DivideWordDTO> temp = allDivideWordList;
-        this.allDivideWordList = this.dummyWordList;
+        List<Long> temp = allWordIdList;
+        this.allWordIdList = this.dummyWordList;
         this.dummyWordList = temp;
-        Collections.shuffle(allDivideWordList);
+        Collections.shuffle(allWordIdList);
     }
 
     @Override
     public void restoreWordList() {
         this.wordFunctionState = WordFunctionState.NONE;
-        this.allDivideWordList = this.dummyWordList;
+        this.allWordIdList = this.dummyWordList;
         this.start = 0;
-        this.end = allDivideWordList.size() - 1;
+        this.end = allWordIdList.size() - 1;
         setChameleon(currentChameleon);
     }
 
@@ -233,12 +236,12 @@ public class WordFunctionHandlerImpl extends AbstractCategoryFunctionHandler imp
         this.end = end;
         this.dummyWordList = new ArrayList<>(end - start + 1);
         for (int i = start; i <= end; i++) {
-            dummyWordList.add(allDivideWordList.get(i));
+            dummyWordList.add(allWordIdList.get(i));
         }
-        List<DivideWordDTO> temp = allDivideWordList;
-        this.allDivideWordList = this.dummyWordList;
+        List<Long> temp = allWordIdList;
+        this.allWordIdList = this.dummyWordList;
         this.dummyWordList = temp;
-        Collections.shuffle(allDivideWordList);
+        Collections.shuffle(allWordIdList);
         setChameleon(currentChameleon);
     }
 

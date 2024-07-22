@@ -7,10 +7,6 @@
         android:id="@+id/fragment_main_bottom_group"
         android:checkableBehavior="none">
         <item
-            android:id="@+id/fragment_main_bottom_main"
-            android:icon="@drawable/main"
-            android:title="@string/main" />
-        <item
             android:id="@+id/fragment_main_bottom_recite"
             android:icon="@drawable/credit"
             android:title="@string/recite" />
@@ -21,6 +17,6 @@
         <item
             android:id="@+id/fragment_main_bottom_analysis"
             android:icon="@drawable/analysis"
-            android:title="@string/analysis" />
+            android:title="@string/history" />
     </group>
 </menu>

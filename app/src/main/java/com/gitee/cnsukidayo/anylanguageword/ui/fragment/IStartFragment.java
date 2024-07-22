@@ -51,9 +51,9 @@ public class IStartFragment extends Fragment {
         this.title.setText(R.string.i_start);
         this.listFragment = new ArrayList<>();
         listFragment.add(new HearingFragment());
-        listFragment.add(new AnalysisFragment());
-        listFragment.add(new AnalysisFragment());
-        listFragment.add(new AnalysisFragment());
+        listFragment.add(new HistoryFragment());
+        listFragment.add(new HistoryFragment());
+        listFragment.add(new HistoryFragment());
         StartViewAdapter startViewAdapter = new StartViewAdapter(getChildFragmentManager(), listFragment);
         viewPager.setAdapter(startViewAdapter);
         slidingTabLayout.setViewPager(viewPager, pageTitle);

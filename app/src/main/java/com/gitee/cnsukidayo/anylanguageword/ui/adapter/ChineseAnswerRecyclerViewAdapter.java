@@ -3,7 +3,6 @@ package com.gitee.cnsukidayo.anylanguageword.ui.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Paint;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,22 +12,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gitee.cnsukidayo.anylanguageword.R;
+import com.gitee.cnsukidayo.anylanguageword.entity.local.WordDTOLocal;
 import com.gitee.cnsukidayo.anylanguageword.enums.structure.EnglishStructure;
 import com.gitee.cnsukidayo.anylanguageword.ui.adapter.support.answer.AnswerElement;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.stream.Collectors;
-
-import io.github.cnsukidayo.wword.model.dto.WordDTO;
-import io.github.cnsukidayo.wword.model.dto.WordStructureDTO;
+import java.util.Set;
 
 public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -37,18 +29,9 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
     // 当前的RecyclerViewAdapter是可以复用的,根据不同的界面,组件有不同的样式
     private RecyclerViewState recyclerViewState = RecyclerViewState.MAIN;
     /**
-     * 当前单词详细信息的map
+     * 当前单词详细信息
      */
-    private Map<Long, List<WordDTO>> currentWordMap = new HashMap<>();
-
-    /**
-     * 当前单词的结构体
-     */
-    private final Map<Long, WordStructureDTO> currentWordStructure;
-    /**
-     * 自定义的单词结构体
-     */
-    private Map<Long, EnglishStructure> englishStructureMap;
+    private WordDTOLocal currentWord;
     /**
      * 存储所有单词组装信息的集合
      */
@@ -74,12 +57,8 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      */
     private float previousTextWidth;
 
-    public ChineseAnswerRecyclerViewAdapter(Context context, List<WordStructureDTO> currentWordStructure) {
+    public ChineseAnswerRecyclerViewAdapter(Context context) {
         this.context = context;
-        this.currentWordStructure = currentWordStructure.stream()
-                .collect(Collectors.toMap(WordStructureDTO::getId, wordStructureDTO -> wordStructureDTO));
-        this.englishStructureMap = Arrays.stream(EnglishStructure.values())
-                .collect(Collectors.toMap(EnglishStructure::getWordStructureId, englishStructure -> englishStructure));
         TextView textView = LayoutInflater.from(context).inflate(R.layout.fragment_word_credit_drawer_chinese_answer_element, null)
                 .findViewById(R.id.fragment_word_credit_meaning_category_hint);
         textSize = textView.getTextSize();
@@ -91,16 +70,11 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      *
      * @param currentWordMap 待展示的单词
      */
-    public void showWordChineseMessage(Map<Long, List<WordDTO>> currentWordMap) {
+    public void showWordChineseMessage(WordDTOLocal currentWord) {
         int preCount = answerElementList.size();
         // 拷贝当前Map,单词结构信息不允许修改
-        this.currentWordMap = new HashMap<>(currentWordMap);
-        this.removeWordStructure(this.currentWordMap,
-                EnglishStructure.DEFAULT,
-                EnglishStructure.US_PHONETIC,
-                EnglishStructure.UK_PHONETIC,
-                EnglishStructure.WORD_ORIGIN);
-        this.answerElementList = viewResolve(this.currentWordMap);
+        this.currentWord = currentWord;
+        this.answerElementList = viewResolve(currentWord);
         notifyItemRangeChanged(0, Math.max(getItemCount(), preCount));
     }
 
@@ -160,94 +134,21 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
      *
      * @param currentWordMap 单词结构体
      */
-    private List<AnswerElement> viewResolve(Map<Long, List<WordDTO>> currentWordMap) {
-        // 根据结构的key获取到它对应的sort
-        List<Long> wordStructureId = currentWordMap.keySet()
-                .stream()
-                .sorted((o1, o2) -> Optional.ofNullable(englishStructureMap.get(o1))
-                        .orElse(EnglishStructure.DEFAULT)
-                        .getOrder() - Optional.ofNullable(englishStructureMap.get(o2))
-                        .orElse(EnglishStructure.DEFAULT)
-                        .getOrder())
-                .collect(Collectors.toList());
-        // 最终渲染的集合
-        List<AnswerElement> renderingCache = new ArrayList<>();
-        List<AnswerElement> renderingResult = new ArrayList<>();
-        // 用于子节点快速找到父节点
-        Map<Long, AnswerElement> nodeCache = new HashMap<>();
-        Queue<AnswerElement> bfsQueue = new ArrayDeque<>();
-        for (Long structureId : wordStructureId) {
-            // 父亲主动找孩子,如果当前找到的节点有groupId则放弃构造,因为会有父节点找到该子节点进行构造
-            List<WordDTO> currentWordDTOList = Optional.ofNullable(currentWordMap.get(structureId)).orElse(new ArrayList<>());
-            // 得到当前节点对应的结构信息
-            EnglishStructure currentEnglishStructure = Optional.ofNullable(englishStructureMap.get(structureId)).orElse(EnglishStructure.DEFAULT);
-            // 查看当前结构是否需要添加统一标题
-            if (currentEnglishStructure.isAppendTitle()) {
-                AnswerElement groupTitle = new AnswerElement.Builder()
-                        .key(context.getResources().getString(currentEnglishStructure.getTitleHint()))
-                        .order(currentEnglishStructure.getOrder())
-                        .answerElementGroup(new ArrayList<>())
-                        .hasBreak(currentEnglishStructure.isTitleBreak())
-                        .build();
-                renderingCache.add(groupTitle);
-            }
-            // 递归构造树
-            for (WordDTO wordDTO : currentWordDTOList) {
-                // 获取当前的key提示词
-                int hint = Optional.ofNullable(englishStructureMap.get(wordDTO.getWordStructureId()))
-                        .orElse(EnglishStructure.DEFAULT)
-                        .getTitleHint();
-                // 获取当前结构的顺序,保障每个节点展示的顺序
-                int order = Optional.ofNullable(englishStructureMap.get(wordDTO.getWordStructureId()))
-                        .orElse(EnglishStructure.DEFAULT)
-                        .getOrder();
-                // 先构造出node,但不一定添加到最终渲染的集合中
-                AnswerElement answerElement = new AnswerElement.Builder()
-                        .key(wordDTO.getValue())
-                        .groupFlag(wordDTO.getGroupFlag())
-                        .groupId(wordDTO.getGroupId())
-                        .order(order)
-                        .hasBreak(currentEnglishStructure.isValueBreak())
-                        .answerElementGroup(new ArrayList<>())
-                        .build();
-                // 如果key值为空则不构造该节点
-                if (TextUtils.isEmpty(answerElement.getKey())) continue;
+    private List<AnswerElement> viewResolve(WordDTOLocal currentWord) {
+        Set<Map.Entry<EnglishStructure, String>> values = currentWord.getValue().entrySet();
+        List<AnswerElement> renderingResult = new ArrayList<>(values.size() * 2);
+        for (Map.Entry<EnglishStructure, String> value : values) {
+            EnglishStructure key = value.getKey();
+            renderingResult.add(new AnswerElement.Builder()
+                    .key(context.getResources().getString(key.getTitleHint()))
+                    .order(key.getOrder())
+                    .hasBreak(key.isTitleBreak())
+                    .build());
+            renderingResult.add(new AnswerElement.Builder()
+                    .key(value.getValue())
+                    .order(key.getOrder())
+                    .build());
 
-                if (wordDTO.getGroupId() == null) {
-                    renderingCache.add(answerElement);
-                    nodeCache.put(answerElement.getGroupFlag(), answerElement);
-                } else {
-                    bfsQueue.add(answerElement);
-                }
-            }
-        }
-        int count = bfsQueue.size();
-        // 反序排序,因为插入的时候是后来的会插到前面
-        bfsQueue = bfsQueue.stream()
-                .sorted((o1, o2) -> o2.getOrder() - o1.getOrder())
-                .collect(Collectors.toCollection(ArrayDeque::new));
-        do {
-            AnswerElement answerElement = bfsQueue.poll();
-            // 得到当前组id和组对应的节点
-            Long groupId = answerElement.getGroupId();
-            AnswerElement groupElement = nodeCache.get(groupId);
-            if (groupElement != null) {
-                groupElement.addChildElement(answerElement);
-                nodeCache.put(answerElement.getGroupFlag(), answerElement);
-            } else {
-                bfsQueue.add(answerElement);
-            }
-            count--;
-            if (count == 0) {
-                count = bfsQueue.size();
-                bfsQueue = bfsQueue.stream()
-                        .sorted((o1, o2) -> o2.getOrder() - o1.getOrder())
-                        .collect(Collectors.toCollection(ArrayDeque::new));
-            }
-        } while (count != 0);
-        // 构造渲染集合,渲染集合的顺序就是最终展示的顺序,可以通过渲染集合来获取当前最长的文本
-        for (AnswerElement answerElement : renderingCache) {
-            dfsAddRenderResult(renderingResult, answerElement);
         }
         // 计算最长文本宽度
         for (AnswerElement computeNode : renderingResult) {
@@ -258,31 +159,6 @@ public class ChineseAnswerRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
             }
         }
         return renderingResult;
-    }
-
-    /**
-     * 递归添加渲染结果
-     *
-     * @param renderingResult 渲染的目标集合,参数不为null
-     * @param answerElement   渲染的根节点
-     */
-    private void dfsAddRenderResult(List<AnswerElement> renderingResult, AnswerElement answerElement) {
-        renderingResult.add(answerElement);
-        for (AnswerElement child : answerElement.getAnswerElementGroup()) {
-            dfsAddRenderResult(renderingResult, child);
-        }
-    }
-
-    /**
-     * 移除单词结构体
-     *
-     * @param removeArray    移除的结构数组
-     * @param currentWordMap 当前结构体集合
-     */
-    private void removeWordStructure(Map<Long, List<WordDTO>> currentWordMap, EnglishStructure... removeArray) {
-        for (EnglishStructure englishStructure : removeArray) {
-            currentWordMap.remove(englishStructure.getWordStructureId());
-        }
     }
 
     public static class AnswerViewHolder extends RecyclerView.ViewHolder {
